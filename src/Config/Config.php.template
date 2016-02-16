@@ -1,0 +1,71 @@
+<?php
+
+  /*
+    Global configuration file
+  */
+
+namespace Config;
+
+class Config {
+
+  // Prevent direct instantiation and cloning
+  private function __construct() { }
+  private function __clone() { }
+
+  /* --------------------------------------------
+  Login-Configuration
+  ----------------------------------------------*/
+
+  public static $cbs_url='cbs-4.gbv.de';
+  public static $cbs_port=3790;
+
+  public static $token_key = 'TOKEN_KEY';
+
+  /* --------------------------------------------
+  Main Config
+  ----------------------------------------------*/
+
+  public static $maintenance_mode = false;
+  public static $motd = 'Das ist eine Testnachricht!';
+
+  public static $no_cover_path = '/img/no-cover.png';
+
+  // Path to the export directory
+  public static $export_dir='export';
+
+  public static $pagesize = 10;
+
+  public static $order_name = array('desc' => 'Absteigend' ,'asc' => 'Aufsteigend');
+
+  public static $sortby_name = array(
+    'erj' => 'Erscheinungsjahr',
+    'wvn' => 'WV-Nummer',
+    'tit' => 'Titel',
+    'sgr' => 'Sachgruppe',
+    'dbn' => 'DNB-Nummer',
+    'per' => 'Person'
+  );
+
+  public static $remote = array(
+    'host' => 'cbs4.gbv.de',
+    'user' => 'cbs_ifd',
+    'basedir' => '/export/home/cbs_ifd/andreas/profildienst/'
+  );
+
+  public static $bibliotheken = array(
+    'DE-01' => array(
+      'name' => 'Staatsbibliothek zu Berlin',
+      'dbsid' => NULL,
+      'opac' => 'http://stabikat.staatsbibliothek-berlin.de/DB=1/LNG=DU/CMD?ACT=SRCHA&IKT=1016&SRT=YOP&TRM=%SEARCH_TERM%',
+      'advancedExport' => false,
+      'exportDir' => 'testluca',
+      'ILN' => 'XXX'
+    )
+  );
+
+);
+
+}
+
+
+?>
