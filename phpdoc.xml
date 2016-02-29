@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpdoc>
+    <title>Profildienst API</title>
+    <parser>
+        <target>../doc/</target>
+    </parser>
+    <transformations>
+        <template name="responsive-twig" />
+    </transformations>
+    <transformer>
+        <target>../doc/</target>
+    </transformer>
+    <files>
+        <directory>./src</directory>
+        <ignore>./vendor/*</ignore>
+    </files>
+</phpdoc>
