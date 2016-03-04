@@ -1,5 +1,12 @@
 <?php
+/**
+ * All Classes which are used by the pageloader have to implement
+ * this interface.
+ */
 
+/**
+ * @package Content
+ */
 namespace Content;
 
 use Profildienst\TitleList;
@@ -9,37 +16,36 @@ use Profildienst\TitleList;
  * this interface.
  *
  * Class Content
- * @package Content
  */
 abstract class Content {
 
-    /**
-     * @var TitleList List of Titles
-     */
-    protected $titlelist;
+  /**
+   * @var TitleList List of Titles
+   */
+  protected $titlelist;
 
-    /**
-     * @var int total amount of titles
-     */
-    protected $total;
+  /**
+   * @var int total amount of titles
+   */
+  protected $total;
 
-    /**
-     * Getter for the titles
-     *
-     * @return TitleList
-     */
-    public function getTitles() {
-        return $this->titlelist;
-    }
+  /**
+   * Getter for the titles
+   *
+   * @return TitleList
+   */
+  public function getTitles() {
+    return $this->titlelist;
+  }
 
-    /**
-     * Getter for the total amount
-     *
-     * @return int
-     */
-    public function getTotalCount() {
-        return $this->total;
-    }
+  /**
+   * Getter for the total amount
+   *
+   * @return int
+   */
+  public function getTotalCount() {
+    return $this->total;
+  }
 
 }
 

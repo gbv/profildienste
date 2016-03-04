@@ -1,5 +1,11 @@
 <?php
+/**
+ * Loads additional information for a given title
+ */
 
+/**
+ * @package AJAX
+ */
 namespace AJAX;
 
 use Middleware\AuthToken;
@@ -9,7 +15,6 @@ use Profildienst\DB;
  * Loads additional information for a given title
  *
  * Class Info
- * @package AJAX
  */
 class Info extends AJAXResponse {
 

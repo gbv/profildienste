@@ -1,5 +1,11 @@
 <?php
+/**
+ * Rejects one or multiple titles.
+ */
 
+/**
+ * @package AJAX
+ */
 namespace AJAX;
 
 use AJAX\Changers\CollectionStatusChanger;
@@ -9,7 +15,6 @@ use Middleware\AuthToken;
  * Rejects one or multiple titles.
  *
  * Class Reject
- * @package AJAX
  */
 class Reject extends AJAXResponse {
 
@@ -17,6 +22,7 @@ class Reject extends AJAXResponse {
      * Rejects the titles with the given IDs.
      *
      * @param array $ids The IDs
+     * @param string $view
      * @param AuthToken $auth Token
      */
     public function __construct($ids, $view, AuthToken $auth) {

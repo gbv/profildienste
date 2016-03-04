@@ -1,5 +1,11 @@
 <?php
+/**
+ * Loads title from the Main view.
+ */
 
+/**
+ * @package Content
+ */
 namespace Content;
 
 use Middleware\AuthToken;
@@ -13,20 +19,20 @@ use Profildienst\DB;
  */
 class Main extends Content {
 
-    /**
-     * Loads title from the Main view.
-     *
-     * @param $num int Page number
-     * @param AuthToken $auth Token
-     */
-    public function __construct($num, AuthToken $auth) {
+  /**
+   * Loads title from the Main view.
+   *
+   * @param $num int Page number
+   * @param AuthToken $auth Token
+   */
+  public function __construct($num, AuthToken $auth) {
 
-        $query = array('$and' => array(array('user' => $auth->getID()), array('status' => 'normal')));
+    $query = array('$and' => array(array('user' => $auth->getID()), array('status' => 'normal')));
 
-        $t = DB::getTitleList($query, $num, $auth);
-        $this->titlelist = $t['titlelist'];
-        $this->total = $t['total'];
-    }
+    $t = DB::getTitleList($query, $num, $auth);
+    $this->titlelist = $t['titlelist'];
+    $this->total = $t['total'];
+  }
 }
 
 ?>

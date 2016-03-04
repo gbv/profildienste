@@ -1,5 +1,11 @@
 <?php
+/**
+ * Loads titles for the pending view.
+ */
 
+/**
+ * @package Content
+ */
 namespace Content;
 
 use Middleware\AuthToken;
@@ -13,21 +19,21 @@ use Profildienst\DB;
  */
 class Pending extends Content {
 
-    /**
-     * Loads titles for the pending view.
-     *
-     * @param $num int Page number
-     * @param AuthToken $auth Token
-     */
-    public function __construct($num, AuthToken $auth) {
+  /**
+   * Loads titles for the pending view.
+   *
+   * @param $num int Page number
+   * @param AuthToken $auth Token
+   */
+  public function __construct($num, AuthToken $auth) {
 
-        $query = array('$and' => array(array('user' => $auth->getID()), array('status' => 'pending')));
+    $query = array('$and' => array(array('user' => $auth->getID()), array('status' => 'pending')));
 
-        $t = DB::getTitleList($query, $num, $auth, array('lastStatusChange' => -1));
-        $this->titlelist = $t['titlelist'];
-        $this->total = $t['total'];
+    $t = DB::getTitleList($query, $num, $auth, array('lastStatusChange' => -1));
+    $this->titlelist = $t['titlelist'];
+    $this->total = $t['total'];
 
-    }
+  }
 
 }
 
