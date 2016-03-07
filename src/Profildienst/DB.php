@@ -9,9 +9,6 @@
 namespace Profildienst;
 use Config\Config;
 use Middleware\AuthToken;
-use MongoClient;
-use MongoCollection;
-use MongoDB;
 
 /**
  * Connection to the Database (Singleton)
@@ -21,7 +18,7 @@ use MongoDB;
 class DB {
 
   /**
-   * @var MongoClient database instance
+   * @var MongoDB Client instance
    */
   private static $m;
 
@@ -59,8 +56,8 @@ class DB {
   private static function init_db() {
     // create a new instance if we can't use a previous one
     if (!isset(self::$m)) {
-      self::$m = new MongoClient();
-      self::$db = self::$m->selectDB('pd');
+      self::$m = new \MongoDB\Client();
+      self::$db = self::$m->selectDatabase('pd');
       if (!isset(self::$m)) {
         throw new \Exception('Connection failed');
       }
@@ -92,30 +89,38 @@ class DB {
    */
   public static function getTitleList($query, $skip, AuthToken $auth, $sortFields = null) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, 'titles');
+    $collection = self::$db->selectCollection('titles');
     $r = array();
-    $cursor = $collection->find($query);
-    if (!is_null($sortFields)) {
-      $cursor->sort($sortFields);
-    }
-    $cnt = $cursor->count();
-    $settings = self::getUserData('settings', $auth);
-    if ($settings['order'] == 'asc') {
-      $o = 1;
-    } else {
-      $o = -1;
-    }
+    $options = [];
 
     if (!is_null($skip)) {
       $lm = Config::$pagesize;
-      $cursor = $cursor->skip($lm * $skip);
-      $cursor = $cursor->limit($lm);
+      $options['skip'] = $lm * $skip;
+      $options['limit'] = $lm;
     }
 
+    if (!is_null($sortFields)) {
+      $options['sort'] = $sortFields;
+    } else {
+      /*
+       * TODO: Check if this is not a config option
+       */
+      $sortby = array('erj' => '011@.a', 'wvn' => '006U.0', 'tit' => '021A.a', 'sgr' => '045G.a', 'dbn' => '006L.0', 'per' => '028A.a');
+      $settings = self::getUserData('settings', $auth);
+      if ($settings['order'] == 'asc') {
+        $o = 1;
+      } else {
+        $o = -1;
+      }
+      $options['sort'] = array($sortby[$settings['sortby']] => $o);
+    }
+
+    $cursor = $collection->find($query, $options);
+
+    $cnt = $collection->count($query);
     // only sort the regular way if sortFields has no value
     if (is_null($sortFields)) {
-      $sortby = array('erj' => '011@.a', 'wvn' => '006U.0', 'tit' => '021A.a', 'sgr' => '045G.a', 'dbn' => '006L.0', 'per' => '028A.a');
-      $cursor = $cursor->sort(array($sortby[$settings['sortby']] => $o));
+
     }
     foreach ($cursor as $doc) {
       $t = new Title($doc);
@@ -140,7 +145,7 @@ class DB {
    */
   public static function getTitle($query) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, 'titles');
+    $collection = self::$db->selectCollection('titles');
     $c = $collection->findOne($query);
     return $c ? new Title($c) : $c;
   }
@@ -154,7 +159,7 @@ class DB {
    */
   public static function getTitleByID($id) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, 'titles');
+    $collection = self::$db->selectCollection('titles');
     $query = array('_id' => $id);
     $c = $collection->findOne($query);
     return $c ? new Title($c) : $c;
@@ -170,7 +175,7 @@ class DB {
    */
   public static function exists($query, $coll) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, $coll);
+    $collection = self::$db->selectCollection($coll);
     $c = $collection->findOne($query);
     return $c ? true : false;
   }
@@ -184,10 +189,10 @@ class DB {
    */
   public static function ins($data, $coll) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, $coll);
+    $collection = self::$db->selectCollection($coll);
     try {
       $collection->insert($data, self::$opt);
-    } catch (\MongoCursorException $mce) {
+    } catch (\Exception $mce) {
       die('Error: ' . $mce);
     }
   }
@@ -205,7 +210,7 @@ class DB {
    */
   public static function get($query, $coll, $fields = array(), $findone = false, $sortFields = null) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, $coll);
+    $collection = self::$db->selectCollection($coll);
     if ($findone) {
       $c = $collection->findOne($query, $fields);
       return $c;
@@ -233,10 +238,10 @@ class DB {
    */
   public static function upd($cond, $data, $coll, $opt = null) {
     self::init_db();
-    $collection = new \MongoCollection(self::$db, $coll);
+    $collection = self::$db->selectCollection($coll);
     try {
       $options = is_null($opt) ? self::$opt : $opt;
-      return $collection->update($cond, $data, $options);
+      return $collection->updateOne($cond, $data, $options);
     } catch (\MongoCursorException $mce) {
       die('Error: ' . $mce);
     }
@@ -251,9 +256,9 @@ class DB {
    */
   public static function deleteTitle($id, AuthToken $auth) {
     self::init_db();
-    $titles = new \MongoCollection(self::$db, 'titles');
+    $titles = self::$db->selectCollection('titles');
     try {
-      $titles->remove(array('_id' => $id));
+      $titles->deleteOne(array('_id' => $id));
     } catch (\Exception $e) {
       return $e->getMessage();
     }
@@ -270,8 +275,8 @@ class DB {
    */
   public static function getWatchlistSize($id, AuthToken $auth) {
     self::init_db();
-    $titles = new \MongoCollection(self::$db, 'titles');
-    return $titles->find(array('$and' => array(array('user' => $auth->getID()), array('watchlist' => strval($id)))))->count();
+    $titles = self::$db->selectCollection('titles');
+    return $titles->count(array('$and' => array(array('user' => $auth->getID()), array('watchlist' => strval($id)))));
   }
 
   /**
@@ -283,8 +288,8 @@ class DB {
    */
   public static function getCartSize(AuthToken $auth) {
     self::init_db();
-    $titles = new \MongoCollection(self::$db, 'titles');
-    return $titles->find(array('$and' => array(array('user' => $auth->getID()), array('status' => 'cart'))))->count();
+    $titles = self::$db->selectCollection('titles');
+    return $titles->count(array('$and' => array(array('user' => $auth->getID()), array('status' => 'cart'))));
   }
 }
 

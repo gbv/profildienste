@@ -1,11 +1,12 @@
 {
   "require":{
     "slim/slim": "~2.5",
-    "firebase/php-jwt": "~1.0.0"
+    "firebase/php-jwt": "~1.0.0",
+    "mongodb/mongodb": "~1.0.1"
   },
   "autoload": {
     "psr-4": {
-        "": "src/"
+      "": "src/"
     }
   }
 }
