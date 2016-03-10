@@ -418,6 +418,7 @@ function validateNum($num) {
  * @return array Array containing relevant information
  */
 function convertTitle(Title $t) {
+
   $r = array(
     'id' => $t->getDirectly('_id'),
 
@@ -462,7 +463,7 @@ function convertTitle(Title $t) {
       'done' => $t->isDone(),
       'cart' => $t->isInCart(),
       'pending' => $t->isPending(),
-      'lastChange' => ($t->isPending() || $t->isDone()) ? $t->getDirectly('lastStatusChange') : NULL, // only show last status change for pending and done titles
+      'lastChange' => ($t->isPending() || $t->isDone()) ? (int) ((string) $t->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
       'selected' => false,
       'watchlist' => array('watched' => $t->isInWatchlist(), 'id' => $t->getWlID(), 'name' => $t->getWlName())
     )

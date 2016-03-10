@@ -51,7 +51,7 @@ class Search {
 
     // build database query
     $type = strtolower($matches[1]);
-    $regexObj = new \MongoRegex("/.*$matches[2].*/i");
+    $regexObj = new \MongoDB\BSON\Regex("/.*$matches[2].*", 'i');
 
     switch ($type) {
       case 'mak':

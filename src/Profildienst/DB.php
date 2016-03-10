@@ -118,10 +118,7 @@ class DB {
     $cursor = $collection->find($query, $options);
 
     $cnt = $collection->count($query);
-    // only sort the regular way if sortFields has no value
-    if (is_null($sortFields)) {
 
-    }
     foreach ($cursor as $doc) {
       $t = new Title($doc);
       $id = $t->getDirectly('_id');
