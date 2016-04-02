@@ -177,6 +177,35 @@ $app->group('/reject', $authenticate($app, $auth), function () use ($app, $auth)
 });
 
 /**
+ * Search configuration (available fields and modes for searching)
+ */
+$app->get('/search'/*, $authenticate($app, $auth)*/, function () use ($app, $auth) {
+
+  $searchable_fields = [];
+  foreach (Config::$searchable_fields as $val => $name){
+    $searchable_fields[] = array(
+      'name' => $name,
+      'value' => $val
+    );
+  }
+
+  $search_modes = [];
+  foreach (Config::$search_modes as $val => $name){
+    $search_modes[] = array(
+      'name' => $name,
+      'value' => $val
+    );
+  }
+
+  printResponse(array(
+    'data' => array(
+      'searchable_fields' => $searchable_fields,
+      'search_modes' => $search_modes
+    )
+  ));
+});
+
+/**
  * User related information
  */
 $app->group('/user', $authenticate($app, $auth), function () use ($app, $auth) {
@@ -366,9 +395,14 @@ $app->group('/get', $authenticate($app, $auth), function () use ($app, $auth) {
     }
   });
 
-  $app->get('/search/:query/page/:num', function ($query, $num = 0) use ($app, $auth) {
+  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
     try {
-      $m = new \Special\Search($query, $num, $auth);
+
+      if($queryType === 'advanced'){
+        $query = json_decode($query, true);
+      }
+
+      $m = new \Search\Search($query, $queryType, $num, $auth);
       printTitles($m->getTitles(), $m->getTotalCount());
     } catch (\Exception $e) {
       printResponse(NULL, true, $e->getMessage());
@@ -470,7 +504,7 @@ function convertTitle(Title $t) {
   );
 
   if (!$t->hasCover()) {
-    $r['cover_md'] = Config::$no_cover_path;
+    $r['cover_md'] = '';
   }
 
   if ($t->get('isbn13') !== NULL) {
