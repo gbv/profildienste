@@ -28,6 +28,8 @@ class Search {
    */
   private $total;
 
+  private $search;
+
   /**
    * Performs a search
    *
@@ -40,14 +42,14 @@ class Search {
   public function __construct($q, $queryType, $num, AuthToken $auth) {
 
     $query = new QueryValidator($q, $queryType);
-    $search = $query->getSearch();
+    $this->search = $query->getSearch();
 
-    $dbquery = $search->getDatabaseQuery();
+    $dbquery = $this->search->getDatabaseQuery();
     $dbquery
       ->searchTitlesWithStatus('normal')
       ->restrictToUser($auth->getID())
       ->joinWithAnd();
- 
+
     $t = DB::getTitleList($dbquery->getQuery(), $num, $auth);
     $this->titlelist = $t['titlelist'];
     $this->total = $t['total'];
@@ -69,6 +71,13 @@ class Search {
    */
   public function getTotalCount() {
     return $this->total;
+  }
+
+  public function getSearchInformation(){
+    return array(
+      'type' => $this->search->getType(),
+      'criteria' => $this->search->getSearchAsArray()
+    );
   }
 
 

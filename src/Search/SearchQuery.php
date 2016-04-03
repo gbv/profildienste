@@ -19,10 +19,19 @@ abstract class SearchQuery {
     $this->dbquery = new QueryBuilder();
   }
 
+  public function getType(){
+    return $this->type;
+  }
+
   /**
    * @return QueryBuilder Query ready to be used for the database
    */
   public abstract function getDatabaseQuery();
+
+  /**
+   * @return array Returns a representation of the search critera as a plain array.
+   */
+  public abstract function getSearchAsArray();
 
 
   protected function handleSearchterm($searchterm, $mode) {

@@ -403,7 +403,7 @@ $app->group('/get', $authenticate($app, $auth), function () use ($app, $auth) {
       }
 
       $m = new \Search\Search($query, $queryType, $num, $auth);
-      printTitles($m->getTitles(), $m->getTotalCount());
+      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
     } catch (\Exception $e) {
       printResponse(NULL, true, $e->getMessage());
     }
@@ -531,7 +531,7 @@ function convertTitle(Title $t) {
  * @param $titles TitleList|null
  * @param $total int total amount of titles
  */
-function printTitles($titles, $total) {
+function printTitles($titles, $total, $additionalInformation = null) {
   $titles_out = array();
   if (!is_null($titles)) {
     foreach ($titles->getTitles() as $t) {
@@ -539,7 +539,12 @@ function printTitles($titles, $total) {
     }
   }
 
-  printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out));
+  if(is_null($additionalInformation)){
+    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out));
+  }else{
+    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out, 'additional' => $additionalInformation));
+  }
+
 }
 
 /**

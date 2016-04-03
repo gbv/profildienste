@@ -57,4 +57,15 @@ class MultipleFieldSearch extends SearchQuery{
 
     return $this->dbquery;
   }
+
+  /**
+   * @return array Returns a representation of the search critera as a plain array.
+   */
+  public function getSearchAsArray() {
+    $r = [];
+    foreach($this->criteria as $searchCriterion){
+      $r[] = $searchCriterion->getSearchAsArray();
+    }
+    return $r;
+  }
 }

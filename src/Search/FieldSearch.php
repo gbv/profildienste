@@ -63,4 +63,15 @@ class FieldSearch extends KeywordSearch{
 
     return $this->dbquery;
   }
+
+  /**
+   * @return array Returns a representation of the search critera as a plain array.
+   */
+  public function getSearchAsArray() {
+    return array(
+      'field' => $this->field,
+      'mode' => $this->getMode(),
+      'value' => $this->getSearchterm()
+    );
+  }
 }

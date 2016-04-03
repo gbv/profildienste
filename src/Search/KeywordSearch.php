@@ -55,4 +55,14 @@ class KeywordSearch extends SearchQuery{
 
       return $this->dbquery;
   }
+
+  /**
+   * @return array Returns a representation of the search critera as a plain array.
+   */
+  public function getSearchAsArray() {
+    return array(
+      'mode' => $this->mode,
+      'field' => $this->searchterm
+    );
+  }
 }
