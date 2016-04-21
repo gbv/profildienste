@@ -45,11 +45,10 @@ class Search {
     $this->search = $query->getSearch();
 
     $dbquery = $this->search->getDatabaseQuery();
-    $dbquery
-      ->searchTitlesWithStatus('normal')
+    $dbquery->searchTitlesWithStatus('normal')
       ->restrictToUser($auth->getID())
       ->joinWithAnd();
-
+    
     $t = DB::getTitleList($dbquery->getQuery(), $num, $auth);
     $this->titlelist = $t['titlelist'];
     $this->total = $t['total'];

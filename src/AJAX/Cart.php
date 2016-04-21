@@ -77,7 +77,7 @@ class Cart extends AJAXResponse {
     $mean = DB::get(array('_id' => 'mean'), 'data', array(), true);
 
     foreach ($titles as $tit) {
-
+      
       $pr = $tit->getEURPrice();
 
       if (is_null($pr)) {

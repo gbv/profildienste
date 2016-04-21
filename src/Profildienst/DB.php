@@ -238,7 +238,7 @@ class DB {
     $collection = self::$db->selectCollection($coll);
     try {
       $options = is_null($opt) ? self::$opt : $opt;
-      return $collection->updateOne($cond, $data, $options);
+      return $collection->updateMany($cond, $data, $options);
     } catch (\MongoCursorException $mce) {
       die('Error: ' . $mce);
     }

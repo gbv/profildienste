@@ -109,7 +109,7 @@ break;
   }
 
   public function restrictToUser($id){
-    $this->n[] = array('XX01' => $id);
+    $this->n[] = array('user' => $id);
     return $this;
   }
 
