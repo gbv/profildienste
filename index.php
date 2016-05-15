@@ -2,551 +2,618 @@
 
 use Auth\Login;
 use Config\Config;
+use Config\Configuration;
+use Exceptions\BaseException;
 use Middleware\AuthToken;
 use Profildienst\DB;
 use Profildienst\Title;
 use Profildienst\TitleList;
+use Responses\APIResponse;
+use Responses\ErrorResponse;
+use Slim\Http\Response;
+use Middleware\JSONPMiddleware;
 
 require 'vendor/autoload.php';
 
-$app = new \Slim\Slim();
+set_error_handler(function($errno, $errstr){
+  throw new Exception($errstr, $errno);
+}, E_ALL);
 
-$auth = new AuthToken();
-$app->add($auth);
 
-$authenticate = function (\Slim\Slim $app, AuthToken $auth) {
-  return function () use ($app, $auth) {
-    if (!$auth->isValid()) {
-      $app->halt(401);
+$configuration = [
+  'settings' => [
+    'displayErrorDetails' => true,
+  ],
+];
+
+$c = new \Slim\Container($configuration);
+$app = new \Slim\App($c);
+$app->add(new JSONPMiddleware());
+
+$c = $app->getContainer();
+
+$c['errorHandler'] = function ($c) {
+  return function ($request, $response, $exception) use ($c) {
+
+    if ($exception instanceof BaseException) {
+
+      $errResp = new ErrorResponse($exception->getModule().' error: '.$exception->getMessage());
+      return JSONPMiddleware::handleJSONPResponse($request, generateJSONResponse($errResp, $response));
+
+    } else {
+
+      // mail
+
+      $errResp = new ErrorResponse('An internal error occured:'.$exception->getMessage());
+      return JSONPMiddleware::handleJSONPResponse($request, generateJSONResponse($errResp, $response));
     }
+
   };
 };
 
-$app->post('/auth', /**
- * @throws \Slim\Exception\Stop
- */
-  function () use ($app) {
-    $user = $app->request()->post('user');
-    $pass = $app->request()->post('pass');
+function generateJSONResponse(APIResponse $response, Response $out){
 
-    if (is_null($user) || is_null($pass) || trim($user) === '' || trim($pass) === '') {
-      printResponse(NULL, true, 'ID und/oder Passwort dürfen nicht leer sein.');
-      $app->stop();
-    }
+  $resp = [];
 
-    $l = new Login();
-    $l->doLogin($user, $pass);
-
-    $pd_name = '';
-    if ($l->login) {
-      $pd_name = preg_replace("/<(.*?)>/", '', $l->name);
-    } else {
-      printResponse(NULL, true, 'Der eingegebene Benutzername und/oder das Kennwort ist ungültig.');
-      $app->stop();
-    }
-
-    if (!\Auth\LoginChecker::check($user)) {
-      printResponse(NULL, true, 'Leider sind Sie nicht für den Online Profildienst freigeschaltet.');
-      $app->stop();
-    }
-
-    $token = array(
-      'iss' => 'http://online-profildienst.gbv.de',
-      'aud' => 'http://online-profildienst.gbv.de',
-      'sub' => $pd_name,
-      'pd_id' => $user,
-      'iat' => time(),
-      'exp' => time() + (24 * 60 * 60) // Tokens should be valid for a day
-    );
-
-    $jwt = JWT::encode($token, Config::$token_key);
-
-
-    printResponse(array('token' => $jwt));
-  });
-
-$app->get('/libraries', function () use ($app) {
-
-  $data = array();
-  foreach (Config::$bibliotheken as $isil => $bib) {
-    $data[] = array('isil' => $isil, 'name' => $bib['name']);
-  }
-
-  printResponse(array('data' => $data));
-});
-
-
-/**
- * Save additional informations for titles
- */
-$app->post('/save', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $id = $app->request()->post('id');
-  $type = $app->request()->post('type');
-  $content = $app->request()->post('content');
-
-  $m = new \AJAX\Save($id, $type, $content, $auth);
-  printResponse($m->getResponse());
-
-});
-
-
-/**
- * Watchlists
- */
-$app->group('/watchlist', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $app->post('/remove', function () use ($app, $auth) {
-
-    $id = $app->request()->post('id');
-    $wl = $app->request()->post('wl');
-
-    $m = new \AJAX\RemoveWatchlist($id, $wl, $auth);
-    printResponse($m->getResponse());
-  });
-
-  $app->post('/add', function () use ($app, $auth) {
-
-    $id = $app->request()->post('id');
-    $wl = $app->request()->post('wl');
-
-    $m = new \AJAX\Watchlist($id, $wl, $auth);
-    printResponse($m->getResponse());
-  });
-
-  $app->post('/manage', function () use ($app, $auth) {
-
-    $id = $app->request()->post('id');
-    $type = $app->request()->post('type');
-    $content = $app->request()->post('content');
-
-    $m = new \AJAX\WatchlistManager($id, $type, $content, $auth);
-    printResponse($m->getResponse());
-  });
-
-});
-
-/**
- * Cart
- */
-$app->group('/cart', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $app->post('/remove', function () use ($app, $auth) {
-
-    $id = $app->request()->post('id');
-    $view = $app->request()->post('view');
-
-    $m = new \AJAX\RemoveCart($id, $view, $auth);
-    printResponse($m->getResponse());
-  });
-
-
-  $app->post('/add', function () use ($app, $auth) {
-
-    $id = $app->request()->post('id');
-    $view = $app->request()->post('view');
-
-    $m = new \AJAX\Cart($id, $view, $auth);
-    printResponse($m->getResponse());
-  });
-
-});
-
-/**
- * Reject
- */
-$app->group('/reject', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $app->post('/remove', function () use ($app, $auth) {
-    $id = $app->request()->post('id');
-    $view = $app->request()->post('view');
-
-    $m = new \AJAX\RemoveReject($id, $view, $auth);
-    printResponse($m->getResponse());
-  });
-
-
-  $app->post('/add', function () use ($app, $auth) {
-    $id = $app->request()->post('id');
-    $view = $app->request()->post('view');
-
-    $m = new \AJAX\Reject($id, $view, $auth);
-    printResponse($m->getResponse());
-  });
-
-});
-
-/**
- * Search configuration (available fields and modes for searching)
- */
-$app->get('/search'/*, $authenticate($app, $auth)*/, function () use ($app, $auth) {
-
-  $searchable_fields = [];
-  foreach (Config::$searchable_fields as $val => $name){
-    $searchable_fields[] = array(
-      'name' => $name,
-      'value' => $val
-    );
-  }
-
-  $search_modes = [];
-  foreach (Config::$search_modes as $val => $name){
-    $search_modes[] = array(
-      'name' => $name,
-      'value' => $val
-    );
-  }
-
-  printResponse(array(
-    'data' => array(
-      'searchable_fields' => $searchable_fields,
-      'search_modes' => $search_modes
-    )
-  ));
-});
-
-/**
- * User related information
- */
-$app->group('/user', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $app->get('/', function () use ($app, $auth) {
-
-    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-
-    $budgets = array();
-    foreach ($d['budgets'] as $budget) {
-      $budgets[] = array('key' => $budget['0'], 'value' => $budget['c']);
-    }
-
-    $data = array(
-      'name' => $auth->getName(),
-      'motd' => Config::$motd,
-      'defaults' => array(
-        'lft' => $d['defaults']['lieft'],
-        'budget' => $d['defaults']['budget'],
-        'ssgnr' => $d['defaults']['ssgnr'],
-        'selcode' => $d['defaults']['selcode']
-      ),
-      'budgets' => $budgets
-    );
-
-    printResponse(array('data' => $data));
-
-  });
-
-  $app->get('/watchlists', function () use ($app, $auth) {
-
-    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-
-    $watchlists = $d['watchlist'];
-    $wl_order = \Profildienst\DB::getUserData('wl_order', $auth);
-
-    $wl = array();
-    foreach ($wl_order as $index) {
-      $wl[] = array('id' => $watchlists[$index]['id'], 'name' => $watchlists[$index]['name'], 'count' => DB::getWatchlistSize($watchlists[$index]['id'], $auth));
-    }
-
-    $data = array(
-      'watchlists' => $wl,
-      'def_wl' => $d['wl_default']
-    );
-
-    printResponse(array('data' => $data));
-
-  });
-
-  $app->get('/cart', function () use ($app, $auth) {
-    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-
-    $data = array(
-      'cart' => \Profildienst\DB::getCartSize($auth),
-      'price' => $d['price'],
-    );
-
-    printResponse(array('data' => $data));
-  });
-
-  $app->get('/settings', function () use ($app, $auth) {
-    $data = array(
-      'settings' => \Profildienst\DB::getUserData('settings', $auth)
-    );
-
-    printResponse(array('data' => $data));
-  });
-
-  $app->get('/orderlist', function () use ($app, $auth) {
-    try {
-      $m = new \Special\Orderlist($auth);
-
-      printResponse(array('data' => array('orderlist' => $m->getOrderlist())));
-    } catch (\Exception $e) {
-      printResponse(NULL, true, $e->getMessage());
-    }
-
-  });
-
-});
-
-/**
- * Settings
- */
-$app->get('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
-  $sortby = array();
-  foreach (Config::$sortby_name as $val => $desc) {
-    $sortby[] = array('key' => $val, 'value' => $desc);
-  }
-
-  $order = array();
-  foreach (Config::$order_name as $val => $desc) {
-    $order[] = array('key' => $val, 'value' => $desc);
-  }
-
-  $data = array(
-    'sortby' => $sortby,
-    'order' => $order
-  );
-
-  printResponse(array('data' => $data));
-
-});
-
-/**
- * Delete titles
- */
-$app->post('/delete', $authenticate($app, $auth), function () use ($app, $auth) {
-  $m = new \AJAX\Delete($auth);
-  printResponse($m->getResponse());
-});
-
-/**
- * Order
- */
-$app->post('/order', $authenticate($app, $auth), function () use ($app, $auth) {
-  $m = new \Special\Order($auth);
-  printResponse($m->getResponse());
-});
-
-/**
- * Verlagsmeldung
- */
-$app->post('/info', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $id = $app->request()->post('id');
-
-  $m = new \AJAX\Info($id, $auth);
-  printResponse($m->getResponse());
-});
-
-/**
- * OPAC Abfrage
- */
-$app->post('/opac', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $titel = $app->request()->post('titel');
-  $verfasser = $app->request()->post('verfasser');
-
-  $query = $titel . ' ' . $verfasser;
-
-  $isil = \Profildienst\DB::getUserData('isil', $auth);
-
-  $opac_url = Config::$bibliotheken[$isil]['opac'];
-
-  $url = preg_replace('/%SEARCH_TERM%/', urlencode($query), $opac_url);
-
-  printResponse(array('data' => array('url' => $url)));
-
-});
-
-/**
- * Settings
- */
-$app->post('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $type = $app->request()->post('type');
-  $value = $app->request()->post('value');
-
-  $m = new \AJAX\ChangeSetting($type, $value, $auth);
-  printResponse($m->getResponse());
-});
-
-
-/**
- * Loader
- */
-$app->group('/get', $authenticate($app, $auth), function () use ($app, $auth) {
-
-  $app->get('/overview/page/:num', function ($num = 0) use ($app, $auth) {
-    $m = new \Content\Main(validateNum($num), $auth);
-    printTitles($m->getTitles(), $m->getTotalCount());
-  });
-
-  $app->get('/cart/page/:num', function ($num = 0) use ($app, $auth) {
-    $m = new \Content\Cart(validateNum($num), $auth);
-    printTitles($m->getTitles(), $m->getTotalCount());
-  });
-
-  $app->get('/watchlist/:id/page/:num', function ($id = NULL, $num = 0) use ($app, $auth) {
-    $m = new \Content\Watchlist(validateNum($num), $id, $auth);
-    if (is_null($m->getTotalCount())) {
-      printResponse(NULL, true, 'Es existiert keine Merkliste mit dieser ID.');
-    } else {
-      printTitles($m->getTitles(), $m->getTotalCount());
-    }
-  });
-
-  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
-    try {
-
-      if($queryType === 'advanced'){
-        $query = json_decode($query, true);
-      }
-
-      $m = new \Search\Search($query, $queryType, $num, $auth);
-      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
-    } catch (\Exception $e) {
-      printResponse(NULL, true, $e->getMessage());
-    }
-
-  });
-
-
-  $app->get('/pending/page/:num', function ($num = 0) use ($app, $auth) {
-    $m = new \Content\Pending(validateNum($num), $auth);
-    printTitles($m->getTitles(), $m->getTotalCount());
-  });
-
-  $app->get('/done/page/:num', function ($num = 0) use ($app, $auth) {
-    $m = new \Content\Done(validateNum($num), $auth);
-    printTitles($m->getTitles(), $m->getTotalCount());
-  });
-
-  $app->get('/rejected/page/:num', function ($num = 0) use ($app, $auth) {
-    $m = new \Content\Rejected(validateNum($num), $auth);
-    printTitles($m->getTitles(), $m->getTotalCount());
-  });
-});
-
-$app->notFound(function () use ($app) {
-  $app->halt(404);
-});
-
-/**
- * Validates a number, i.e. if the number is natural.
- *
- * @param $num string potential number
- * @return int value of the number if the number is natural or 0 otherwise
- */
-function validateNum($num) {
-  if ($num != '' && $num > 0 && is_numeric($num)) {
-    return $num;
+  $status = $response->getHTTPReturnCode();
+  if ($response instanceof ErrorResponse) {
+    $resp['error'] = $response->getData();
   } else {
-    return 0;
+    $resp['data'] =  $response->getData();
   }
-}
-
-/**
- * Extracts the relevant information from a title to display it.
- *
- * @param Title $t Title
- * @return array Array containing relevant information
- */
-function convertTitle(Title $t) {
-
-  $r = array(
-    'id' => $t->getDirectly('_id'),
-
-    'hasCover' => $t->hasCover(),
-    'cover_md' => $t->getMediumCover(),
-    'cover_lg' => $t->getLargeCover(),
-
-    'titel' => $t->get('titel'),
-    'untertitel' => $t->get('untertitel'),
-    'verfasser' => $t->get('verfasser'),
-    'ersch_termin' => $t->get('voraus_ersch_termin'),
-    'verlag' => $t->get('verlag'),
-    'ort' => $t->get('ort'),
-    'umfang' => $t->get('umfang'),
-    'ill_angabe' => $t->get('illustrations_angabe'),
-    'format' => $t->get('format'),
-
-    'preis' => $t->get('lieferbedingungen_preis'),
-    'preis_kom' => $t->get('kommentar_lieferbedingungen_preis'),
-
-    'mak' => $t->getMAK(),
-    'ilns' => $t->getILNS(),
-    'ppn' => $t->get('gvkt_ppn'),
-
-    'ersch_jahr' => $t->get('erscheinungsjahr'),
-    'gattung' => $t->get('gattung'),
-    'dnbnum' => $t->get('dnb_nummer'),
-    'wvdnb' => $t->get('wv_dnb'),
-    'sachgruppe' => $t->get('sachgruppe'),
-    'zugeordnet' => $t->getAssigned(),
-
-    'addInfURL' => $t->get('addr_erg_ang_url'),
-
-    'lft' => $t->getLft(),
-    'budget' => $t->getBdg(),
-    'selcode' => $t->getSelcode(),
-    'ssgnr' => $t->getSSGNr(),
-    'comment' => $t->getComment(),
-
-    'status' => array(
-      'rejected' => $t->isRejected(),
-      'done' => $t->isDone(),
-      'cart' => $t->isInCart(),
-      'pending' => $t->isPending(),
-      'lastChange' => ($t->isPending() || $t->isDone()) ? (int) ((string) $t->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
-      'selected' => false,
-      'watchlist' => array('watched' => $t->isInWatchlist(), 'id' => $t->getWlID(), 'name' => $t->getWlName())
-    )
-  );
-
-  if (!$t->hasCover()) {
-    $r['cover_md'] = '';
-  }
-
-  if ($t->get('isbn13') !== NULL) {
-    $isbn = $t->get('isbn13');
-  } else {
-    $isbn = $t->get('isbn10');
-  }
-  $r['isbn'] = $isbn;
-
-  //Merge the different "Gehoert zu" fields into one
-  $r['gehoert_zu'] = trim(join('', array($t->get('gehoert_zu_1'), $t->get('gehoert_zu_2'), $t->get('gehoert_zu_3'), $t->get('gehoert_zu_4'))));
-
-  // Craft DNB Link
-
-  if (!is_null($t->get('dnb_nummer'))) {
-    $r['dnb_link'] = 'http://d-nb.info/' . $t->get('dnb_nummer');
-  }
-  return $r;
-}
-
-/**
- * Prints a response consisting of titles.
- *
- * @param $titles TitleList|null
- * @param $total int total amount of titles
- */
-function printTitles($titles, $total, $additionalInformation = null) {
-  $titles_out = array();
-  if (!is_null($titles)) {
-    foreach ($titles->getTitles() as $t) {
-      $titles_out[] = convertTitle($t);
-    }
-  }
-
-  if(is_null($additionalInformation)){
-    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out));
-  }else{
-    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out, 'additional' => $additionalInformation));
-  }
+  
+  return $out->withJson($resp, $status);
 
 }
 
+
+
+//$auth = new AuthToken();
+//$app->add($auth);
+//
+//$authenticate = function (\Slim\Slim $app, AuthToken $auth) {
+//  return function () use ($app, $auth) {
+//    if (!$auth->isValid()) {
+//      $app->halt(401);
+//    }
+//  };
+//};
+//
+//$app->post('/auth', /**
+// * @throws \Slim\Exception\Stop
+// */
+//  function () use ($app) {
+//    $user = $app->request()->post('user');
+//    $pass = $app->request()->post('pass');
+//
+//    if (is_null($user) || is_null($pass) || trim($user) === '' || trim($pass) === '') {
+//      printResponse(NULL, true, 'ID und/oder Passwort dürfen nicht leer sein.');
+//      $app->stop();
+//    }
+//
+//    $l = new Login();
+//    $l->doLogin($user, $pass);
+//
+//    $pd_name = '';
+//    if ($l->login) {
+//      $pd_name = preg_replace("/<(.*?)>/", '', $l->name);
+//    } else {
+//      printResponse(NULL, true, 'Der eingegebene Benutzername und/oder das Kennwort ist ungültig.');
+//      $app->stop();
+//    }
+//
+//    if (!\Auth\LoginChecker::check($user)) {
+//      printResponse(NULL, true, 'Leider sind Sie nicht für den Online Profildienst freigeschaltet.');
+//      $app->stop();
+//    }
+//
+//    $token = array(
+//      'iss' => 'http://online-profildienst.gbv.de',
+//      'aud' => 'http://online-profildienst.gbv.de',
+//      'sub' => $pd_name,
+//      'pd_id' => $user,
+//      'iat' => time(),
+//      'exp' => time() + (24 * 60 * 60) // Tokens should be valid for a day
+//    );
+//
+//    $jwt = JWT::encode($token, Config::$token_key);
+//
+//
+//    printResponse(array('token' => $jwt));
+//  });
+//
+$app->get('/libraries', function ($request, $response, $args) {
+
+  $config = Configuration::getInstance();
+
+  $data = [];
+  foreach ($config->getLibraries() as $library) {
+    $data[] = [
+      'isil' => $library->getISIL(),
+      'name' => $library->getName()
+    ];
+  }
+
+  return generateJSONResponse(new \Responses\BasicResponse($data), $response);
+});
+
+$app->get('/hello/{name}', function ($request, $response, $args) {
+
+  return $response->write("You're beautiful, Hello " . $args['name']);
+});
+//
+//
+///**
+// * Save additional informations for titles
+// */
+//$app->post('/save', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $id = $app->request()->post('id');
+//  $type = $app->request()->post('type');
+//  $content = $app->request()->post('content');
+//
+//  $m = new \AJAX\Save($id, $type, $content, $auth);
+//  printResponse($m->getResponse());
+//
+//});
+//
+//
+///**
+// * Watchlists
+// */
+//$app->group('/watchlist', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->post('/remove', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $wl = $app->request()->post('wl');
+//
+//    $m = new \AJAX\RemoveWatchlist($id, $wl, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//  $app->post('/add', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $wl = $app->request()->post('wl');
+//
+//    $m = new \AJAX\Watchlist($id, $wl, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//  $app->post('/manage', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $type = $app->request()->post('type');
+//    $content = $app->request()->post('content');
+//
+//    $m = new \AJAX\WatchlistManager($id, $type, $content, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//});
+//
+///**
+// * Cart
+// */
+//$app->group('/cart', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->post('/remove', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\RemoveCart($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//
+//  $app->post('/add', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\Cart($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//});
+//
+///**
+// * Reject
+// */
+//$app->group('/reject', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->post('/remove', function () use ($app, $auth) {
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\RemoveReject($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//
+//  $app->post('/add', function () use ($app, $auth) {
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\Reject($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//});
+//
+///**
+// * Search configuration (available fields and modes for searching)
+// */
+//$app->get('/search'/*, $authenticate($app, $auth)*/, function () use ($app, $auth) {
+//
+//  $searchable_fields = [];
+//  foreach (Config::$searchable_fields as $val => $name){
+//    $searchable_fields[] = array(
+//      'name' => $name,
+//      'value' => $val
+//    );
+//  }
+//
+//  $search_modes = [];
+//  foreach (Config::$search_modes as $val => $name){
+//    $search_modes[] = array(
+//      'name' => $name,
+//      'value' => $val
+//    );
+//  }
+//
+//  printResponse(array(
+//    'data' => array(
+//      'searchable_fields' => $searchable_fields,
+//      'search_modes' => $search_modes
+//    )
+//  ));
+//});
+//
+///**
+// * User related information
+// */
+//$app->group('/user', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->get('/', function () use ($app, $auth) {
+//
+//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
+//
+//    $budgets = array();
+//    foreach ($d['budgets'] as $budget) {
+//      $budgets[] = array('key' => $budget['0'], 'value' => $budget['c']);
+//    }
+//
+//    $data = array(
+//      'name' => $auth->getName(),
+//      'motd' => Config::$motd,
+//      'defaults' => array(
+//        'lft' => $d['defaults']['lieft'],
+//        'budget' => $d['defaults']['budget'],
+//        'ssgnr' => $d['defaults']['ssgnr'],
+//        'selcode' => $d['defaults']['selcode']
+//      ),
+//      'budgets' => $budgets
+//    );
+//
+//    printResponse(array('data' => $data));
+//
+//  });
+//
+//  $app->get('/watchlists', function () use ($app, $auth) {
+//
+//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
+//
+//    $watchlists = $d['watchlist'];
+//    $wl_order = \Profildienst\DB::getUserData('wl_order', $auth);
+//
+//    $wl = array();
+//    foreach ($wl_order as $index) {
+//      $wl[] = array('id' => $watchlists[$index]['id'], 'name' => $watchlists[$index]['name'], 'count' => DB::getWatchlistSize($watchlists[$index]['id'], $auth));
+//    }
+//
+//    $data = array(
+//      'watchlists' => $wl,
+//      'def_wl' => $d['wl_default']
+//    );
+//
+//    printResponse(array('data' => $data));
+//
+//  });
+//
+//  $app->get('/cart', function () use ($app, $auth) {
+//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
+//
+//    $data = array(
+//      'cart' => \Profildienst\DB::getCartSize($auth),
+//      'price' => $d['price'],
+//    );
+//
+//    printResponse(array('data' => $data));
+//  });
+//
+//  $app->get('/settings', function () use ($app, $auth) {
+//    $data = array(
+//      'settings' => \Profildienst\DB::getUserData('settings', $auth)
+//    );
+//
+//    printResponse(array('data' => $data));
+//  });
+//
+//  $app->get('/orderlist', function () use ($app, $auth) {
+//    try {
+//      $m = new \Special\Orderlist($auth);
+//
+//      printResponse(array('data' => array('orderlist' => $m->getOrderlist())));
+//    } catch (\Exception $e) {
+//      printResponse(NULL, true, $e->getMessage());
+//    }
+//
+//  });
+//
+//});
+//
+///**
+// * Settings
+// */
+//$app->get('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
+//  $sortby = array();
+//  foreach (Config::$sortby_name as $val => $desc) {
+//    $sortby[] = array('key' => $val, 'value' => $desc);
+//  }
+//
+//  $order = array();
+//  foreach (Config::$order_name as $val => $desc) {
+//    $order[] = array('key' => $val, 'value' => $desc);
+//  }
+//
+//  $data = array(
+//    'sortby' => $sortby,
+//    'order' => $order
+//  );
+//
+//  printResponse(array('data' => $data));
+//
+//});
+//
+///**
+// * Delete titles
+// */
+//$app->post('/delete', $authenticate($app, $auth), function () use ($app, $auth) {
+//  $m = new \AJAX\Delete($auth);
+//  printResponse($m->getResponse());
+//});
+//
+///**
+// * Order
+// */
+//$app->post('/order', $authenticate($app, $auth), function () use ($app, $auth) {
+//  $m = new \Special\Order($auth);
+//  printResponse($m->getResponse());
+//});
+//
+///**
+// * Verlagsmeldung
+// */
+//$app->post('/info', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $id = $app->request()->post('id');
+//
+//  $m = new \AJAX\Info($id, $auth);
+//  printResponse($m->getResponse());
+//});
+//
+///**
+// * OPAC Abfrage
+// */
+//$app->post('/opac', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $titel = $app->request()->post('titel');
+//  $verfasser = $app->request()->post('verfasser');
+//
+//  $query = $titel . ' ' . $verfasser;
+//
+//  $isil = \Profildienst\DB::getUserData('isil', $auth);
+//
+//  $opac_url = Config::$bibliotheken[$isil]['opac'];
+//
+//  $url = preg_replace('/%SEARCH_TERM%/', urlencode($query), $opac_url);
+//
+//  printResponse(array('data' => array('url' => $url)));
+//
+//});
+//
+///**
+// * Settings
+// */
+//$app->post('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $type = $app->request()->post('type');
+//  $value = $app->request()->post('value');
+//
+//  $m = new \AJAX\ChangeSetting($type, $value, $auth);
+//  printResponse($m->getResponse());
+//});
+//
+//
+///**
+// * Loader
+// */
+//$app->group('/get', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->get('/overview/page/:num', function ($num = 0) use ($app, $auth) {
+//    $m = new \Content\Main(validateNum($num), $auth);
+//    printTitles($m->getTitles(), $m->getTotalCount());
+//  });
+//
+//  $app->get('/cart/page/:num', function ($num = 0) use ($app, $auth) {
+//    $m = new \Content\Cart(validateNum($num), $auth);
+//    printTitles($m->getTitles(), $m->getTotalCount());
+//  });
+//
+//  $app->get('/watchlist/:id/page/:num', function ($id = NULL, $num = 0) use ($app, $auth) {
+//    $m = new \Content\Watchlist(validateNum($num), $id, $auth);
+//    if (is_null($m->getTotalCount())) {
+//      printResponse(NULL, true, 'Es existiert keine Merkliste mit dieser ID.');
+//    } else {
+//      printTitles($m->getTitles(), $m->getTotalCount());
+//    }
+//  });
+//
+//  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
+//    try {
+//
+//      if($queryType === 'advanced'){
+//        $query = json_decode($query, true);
+//      }
+//
+//      $m = new \Search\Search($query, $queryType, $num, $auth);
+//      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
+//    } catch (\Exception $e) {
+//      printResponse(NULL, true, $e->getMessage());
+//    }
+//
+//  });
+//
+//
+//  $app->get('/pending/page/:num', function ($num = 0) use ($app, $auth) {
+//    $m = new \Content\Pending(validateNum($num), $auth);
+//    printTitles($m->getTitles(), $m->getTotalCount());
+//  });
+//
+//  $app->get('/done/page/:num', function ($num = 0) use ($app, $auth) {
+//    $m = new \Content\Done(validateNum($num), $auth);
+//    printTitles($m->getTitles(), $m->getTotalCount());
+//  });
+//
+//  $app->get('/rejected/page/:num', function ($num = 0) use ($app, $auth) {
+//    $m = new \Content\Rejected(validateNum($num), $auth);
+//    printTitles($m->getTitles(), $m->getTotalCount());
+//  });
+//});
+//
+//$app->notFound(function () use ($app) {
+//  $app->halt(404);
+//});
+//
+///**
+// * Validates a number, i.e. if the number is natural.
+// *
+// * @param $num string potential number
+// * @return int value of the number if the number is natural or 0 otherwise
+// */
+//function validateNum($num) {
+//  if ($num != '' && $num > 0 && is_numeric($num)) {
+//    return $num;
+//  } else {
+//    return 0;
+//  }
+//}
+//
+///**
+// * Extracts the relevant information from a title to display it.
+// *
+// * @param Title $t Title
+// * @return array Array containing relevant information
+// */
+//function convertTitle(Title $t) {
+//
+//  $r = array(
+//    'id' => $t->getDirectly('_id'),
+//
+//    'hasCover' => $t->hasCover(),
+//    'cover_md' => $t->getMediumCover(),
+//    'cover_lg' => $t->getLargeCover(),
+//
+//    'titel' => $t->get('titel'),
+//    'untertitel' => $t->get('untertitel'),
+//    'verfasser' => $t->get('verfasser'),
+//    'ersch_termin' => $t->get('voraus_ersch_termin'),
+//    'verlag' => $t->get('verlag'),
+//    'ort' => $t->get('ort'),
+//    'umfang' => $t->get('umfang'),
+//    'ill_angabe' => $t->get('illustrations_angabe'),
+//    'format' => $t->get('format'),
+//
+//    'preis' => $t->get('lieferbedingungen_preis'),
+//    'preis_kom' => $t->get('kommentar_lieferbedingungen_preis'),
+//
+//    'mak' => $t->getMAK(),
+//    'ilns' => $t->getILNS(),
+//    'ppn' => $t->get('gvkt_ppn'),
+//
+//    'ersch_jahr' => $t->get('erscheinungsjahr'),
+//    'gattung' => $t->get('gattung'),
+//    'dnbnum' => $t->get('dnb_nummer'),
+//    'wvdnb' => $t->get('wv_dnb'),
+//    'sachgruppe' => $t->get('sachgruppe'),
+//    'zugeordnet' => $t->getAssigned(),
+//
+//    'addInfURL' => $t->get('addr_erg_ang_url'),
+//
+//    'lft' => $t->getLft(),
+//    'budget' => $t->getBdg(),
+//    'selcode' => $t->getSelcode(),
+//    'ssgnr' => $t->getSSGNr(),
+//    'comment' => $t->getComment(),
+//
+//    'status' => array(
+//      'rejected' => $t->isRejected(),
+//      'done' => $t->isDone(),
+//      'cart' => $t->isInCart(),
+//      'pending' => $t->isPending(),
+//      'lastChange' => ($t->isPending() || $t->isDone()) ? (int) ((string) $t->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
+//      'selected' => false,
+//      'watchlist' => array('watched' => $t->isInWatchlist(), 'id' => $t->getWlID(), 'name' => $t->getWlName())
+//    )
+//  );
+//
+//  if (!$t->hasCover()) {
+//    $r['cover_md'] = '';
+//  }
+//
+//  if ($t->get('isbn13') !== NULL) {
+//    $isbn = $t->get('isbn13');
+//  } else {
+//    $isbn = $t->get('isbn10');
+//  }
+//  $r['isbn'] = $isbn;
+//
+//  //Merge the different "Gehoert zu" fields into one
+//  $r['gehoert_zu'] = trim(join('', array($t->get('gehoert_zu_1'), $t->get('gehoert_zu_2'), $t->get('gehoert_zu_3'), $t->get('gehoert_zu_4'))));
+//
+//  // Craft DNB Link
+//
+//  if (!is_null($t->get('dnb_nummer'))) {
+//    $r['dnb_link'] = 'http://d-nb.info/' . $t->get('dnb_nummer');
+//  }
+//  return $r;
+//}
+//
+///**
+// * Prints a response consisting of titles.
+// *
+// * @param $titles TitleList|null
+// * @param $total int total amount of titles
+// */
+//function printTitles($titles, $total, $additionalInformation = null) {
+//  $titles_out = array();
+//  if (!is_null($titles)) {
+//    foreach ($titles->getTitles() as $t) {
+//      $titles_out[] = convertTitle($t);
+//    }
+//  }
+//
+//  if(is_null($additionalInformation)){
+//    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out));
+//  }else{
+//    printResponse(array('more' => ($titles !== NULL), 'total' => $total, 'data' => $titles_out, 'additional' => $additionalInformation));
+//  }
+//
+//}
+//
 /**
  * @param $resp mixed response
  * @param bool $error If true the response will be marked as an error
@@ -575,4 +642,3 @@ function printResponse($resp, $error = false, $message = '') {
 
 $app->run();
 
-?>

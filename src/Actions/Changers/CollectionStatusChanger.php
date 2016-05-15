@@ -60,7 +60,7 @@ class CollectionStatusChanger {
    * @param $auth Auth token
    */
   public static function changeStatusOfCollection(array $ids, $to, $auth) {
-    
+
     $query = array(
       '$and' => [
         array('user' => $auth->getID()),
