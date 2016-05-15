@@ -10,6 +10,7 @@ namespace AJAX;
 
 use Middleware\AuthToken;
 use Profildienst\DB;
+use Special\Util;
 
 /**
  * Changes a setting (order or sorting criterion)
@@ -43,7 +44,7 @@ class ChangeSetting extends AJAXResponse {
     }
 
     // update settings
-    $settings = $c['settings'];
+    $settings = Util::getArray($c['settings']);
 
     if (!in_array($type, array_keys($settings))) {
       $this->error('Diese Einstellung existiert nicht!');

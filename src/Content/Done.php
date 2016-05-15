@@ -27,7 +27,7 @@ class Done extends Content {
    */
   public function __construct($num, AuthToken $auth) {
 
-    $query = array('$and' => array(array('user' => $auth->getID()), array('status' => 'done')));
+    $query = array('$and' => [array('user' => $auth->getID()), array('status' => 'done')]);
 
     $t = DB::getTitleList($query, $num, $auth);
     $this->titlelist = $t['titlelist'];

@@ -1,6 +1,6 @@
 <?php
 /**
- *  * Creates a list with basic information of all orders.
+ * Creates a list with basic information of all orders.
  */
 
 /**

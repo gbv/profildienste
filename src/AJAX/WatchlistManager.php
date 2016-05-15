@@ -11,6 +11,7 @@ namespace AJAX;
 
 use Middleware\AuthToken;
 use Profildienst\DB;
+use Special\Util;
 
 /**
  * Manages watchlists, i.e. adds, deletes, renames watchlists and changes the order of
@@ -45,9 +46,9 @@ class WatchlistManager extends AJAXResponse {
     $this->resp['id'] = $id;
     $this->resp['type'] = $type;
 
-    $watchlists = DB::getUserData('watchlist', $auth);
-    $wl_def = DB::getUserData('wl_default', $auth);
-    $wl_order = DB::getUserData('wl_order', $auth);
+    $watchlists = Util::getArray(DB::getUserData('watchlist', $auth));
+    $wl_def = Util::getArray(DB::getUserData('wl_default', $auth));
+    $wl_order = Util::getArray(DB::getUserData('wl_order', $auth));
 
     if (!isset($watchlists[$id]) && !($type == 'add-wl' || $type == 'change-order')) {
       $this->error('Eine Merkliste unter der angegebenen ID konnte nicht gefunden werden!');

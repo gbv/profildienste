@@ -46,6 +46,30 @@ class Config {
     'per' => 'Person'
   );
 
+  /**
+     * @var array Available modes for the advanced search
+     */
+    public static $search_modes = array(
+      'contains' => 'ENTHÄLT',
+      'contains_not' => 'ENTHÄLT NICHT',
+      'is' => 'ENTHÄLT GENAU'
+    );
+
+    /**
+     * @var array Available fields for advanced search
+     */
+    public static $searchable_fields = array(
+      'tit' => 'Titel',
+      'per' => 'Person',
+      'ver' => 'Verlag',
+      'dnb' => 'DNB-Nummer',
+      'isb' => 'ISBN',
+      'sgr' => 'DNB-Sachgruppe',
+      'erj' => 'Erscheinungsjahr',
+      'wvn' => 'Wochenlieferungsnr.',
+      'mak' => 'Materialcode'
+    );
+
   public static $remote = array(
     'host' => 'cbs4.gbv.de',
     'user' => 'cbs_ifd',
