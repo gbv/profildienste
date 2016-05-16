@@ -25,8 +25,8 @@ class ConfigUtilities {
    * @param $path
    * @return string
    */
-  public static function addTrailingSlash($path){
-    return rtrim($path, '/').'/';
+  public static function addTrailingSlash($path) {
+    return rtrim($path, '/') . '/';
   }
 
   /**
@@ -42,11 +42,11 @@ class ConfigUtilities {
    * @return bool
    * @throws ConfigurationException
    */
-  public static function checkField($dataset, $fieldName, $subFieldName = null, $checkForBoolean = false){
+  public static function checkField($dataset, $fieldName, $subFieldName = null, $checkForBoolean = false) {
 
-    if ($checkForBoolean){
-      if (!is_null($subFieldName)){
-        if (isset($dataset[$fieldName])){
+    if ($checkForBoolean) {
+      if (!is_null($subFieldName)) {
+        if (isset($dataset[$fieldName])) {
           return isset($dataset[$fieldName][$subFieldName]);
         } else {
           return false;
@@ -56,15 +56,37 @@ class ConfigUtilities {
       }
     }
 
-    if (empty($dataset[$fieldName]) || (!is_null($subFieldName) && empty($dataset[$fieldName][$subFieldName]))){
-      $errMsg = 'Missing field '.$fieldName;
+    if (empty($dataset[$fieldName]) || (!is_null($subFieldName) && empty($dataset[$fieldName][$subFieldName]))) {
+      $errMsg = 'Missing field ' . $fieldName;
 
-      if($subFieldName) {
-        $errMsg.=', subfield '.$subFieldName;
+      if ($subFieldName) {
+        $errMsg .= ', subfield ' . $subFieldName;
       }
 
       throw new ConfigurationException($errMsg);
     }
+  }
+
+  /**
+   * See: http://php.net/manual/en/function.array-merge-recursive.php
+   *
+   * @author Daniel <daniel (at) danielsmedegaardbuus (dot) dk>
+   * @author Gabriel Sobrinho <gabriel (dot) sobrinho (at) gmail (dot) com>
+   */
+  public static function array_merge_recursive_distinct(array & $array1, array & $array2) {
+    $merged = $array1;
+
+    foreach ($array2 as $key => & $value) {
+      if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+        $merged[$key] = self::array_merge_recursive_distinct($merged[$key], $value);
+      } else if (is_numeric($key)) {
+        if (!in_array($value, $merged))
+          $merged[] = $value;
+      } else
+        $merged[$key] = $value;
+    }
+
+    return $merged;
   }
 
 }

@@ -9,6 +9,9 @@
 namespace Auth;
 
 use Config\Config;
+use Config\Configuration;
+use Exceptions\AuthException;
+use Profildienst\DB;
 
 /**
  * Performs a basic authentication against the CBS
@@ -24,7 +27,7 @@ class Auth {
   /**
    * @var string The Library the user belongs to
    */
-  private $bib = '';
+  private $library = '';
   /**
    * @var null ISIL of the library
    */
@@ -40,17 +43,16 @@ class Auth {
    *
    * @param $user string Username
    * @param $pwd string Password
-   * @return bool true if the login has been successful
    */
-  public function auth_user($user, $pwd) {
+  public function __construct(string $user, string $pwd, Configuration $config) {
 
-    if ($user === '' || $pwd === '') {
-      return true;
+    if (empty($user) || empty($pwd)) {
+      throw new AuthException('Benutzername und Passwort dürfen nicht leer sein');
     }
 
-    $fp = fsockopen(Config::$cbs_url, Config::$cbs_port, $errno, $errstr, 30);
+    $fp = fsockopen($config->getAuthServerHost(), $config->getAuthServerPort(), $errno, $errstr, 30);
     if (!$fp) {
-      return false;
+      throw new AuthException('Aktuell ist leider keine Authentifizierung möglich. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.');
     }
 
     $out = sprintf("GET /XML/PAR?P3C=US&P3Command=LOG+%s+%s HTTP/1.0\r\n", $user, $pwd);
@@ -62,32 +64,26 @@ class Auth {
 
       // Check for a failed login
       if (preg_match('/^<PICA:P3K ID=\"\/V\">REJECT<\/PICA:P3K>$/', $line)) {
-        return true;
+        throw new AuthException('Login fehlgeschlagen, bitte überprüfen Sie Nutzername und Passwort.');
       }
       // Check for a successful login
       if (preg_match('/^<PICA:P3K ID=\"(LS|UB)\">(.*?) <([^>]+)><\/PICA:P3K>$/', $line, $matches)) {
-        $this->loggedIn = true;
-        $this->bib = $matches[2];
+        $this->library = $matches[2];
         $this->isil = $matches[3];
       }
 
       if (preg_match('/^<PICA:P3K ID=\"UM\">(.*?)<\/PICA:P3K>$/', $line, $matches)) {
-        $this->loggedIn = true;
-        $this->name = $matches[0];
+        $this->name = preg_replace("/<(.*?)>/", '', $matches[0]);
       }
     }
 
     fclose($fp);
-    return true;
-  }
 
-  /**
-   * Getter to indicate whether the user is logged in.
-   *
-   * @return bool
-   */
-  public function isLoggedIn() {
-    return $this->loggedIn;
+    // TODO: Rework once the database has refactored
+    $data = DB::get(array('_id' => $user), 'users', array('_id' => 1), true);
+    if(is_null($data)){
+      throw new AuthException('Leider sind Sie nicht für den Profildienst freigeschaltet.');
+    }
   }
 
 
@@ -105,8 +101,8 @@ class Auth {
    *
    * @return string
    */
-  public function getBib() {
-    return $this->bib;
+  public function getLibrary() {
+    return $this->library;
   }
 
   /**

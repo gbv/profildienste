@@ -1,57 +1,56 @@
 <?php
 
-use Auth\Login;
-use Config\Config;
+use Auth\Auth;
 use Config\Configuration;
+use Exceptions\AuthException;
 use Exceptions\BaseException;
-use Middleware\AuthToken;
-use Profildienst\DB;
-use Profildienst\Title;
-use Profildienst\TitleList;
+use Middleware\AuthMiddleware;
+use Middleware\JSONPMiddleware;
 use Responses\APIResponse;
+use Responses\BasicResponse;
 use Responses\ErrorResponse;
 use Slim\Http\Response;
-use Middleware\JSONPMiddleware;
 
 require 'vendor/autoload.php';
 
-set_error_handler(function($errno, $errstr){
+set_error_handler(function ($errno, $errstr) {
   throw new Exception($errstr, $errno);
 }, E_ALL);
 
 
-$configuration = [
+$slimConfiguration = [
   'settings' => [
     'displayErrorDetails' => true,
   ],
 ];
 
-$c = new \Slim\Container($configuration);
+$config = Configuration::getInstance();
+$auth = new AuthMiddleware($config);
+
+$c = new \Slim\Container($slimConfiguration);
 $app = new \Slim\App($c);
 $app->add(new JSONPMiddleware());
-
-$c = $app->getContainer();
 
 $c['errorHandler'] = function ($c) {
   return function ($request, $response, $exception) use ($c) {
 
     if ($exception instanceof BaseException) {
 
-      $errResp = new ErrorResponse($exception->getModule().' error: '.$exception->getMessage());
+      $errResp = new ErrorResponse($exception->getModule() . ' error: ' . $exception->getMessage());
       return JSONPMiddleware::handleJSONPResponse($request, generateJSONResponse($errResp, $response));
 
     } else {
 
       // mail
 
-      $errResp = new ErrorResponse('An internal error occured:'.$exception->getMessage());
+      $errResp = new ErrorResponse('An internal error occured:' . $exception->getMessage());
       return JSONPMiddleware::handleJSONPResponse($request, generateJSONResponse($errResp, $response));
     }
 
   };
 };
 
-function generateJSONResponse(APIResponse $response, Response $out){
+function generateJSONResponse(APIResponse $response, Response $out) {
 
   $resp = [];
 
@@ -59,72 +58,41 @@ function generateJSONResponse(APIResponse $response, Response $out){
   if ($response instanceof ErrorResponse) {
     $resp['error'] = $response->getData();
   } else {
-    $resp['data'] =  $response->getData();
+    $resp['data'] = $response->getData();
   }
-  
+
   return $out->withJson($resp, $status);
 
 }
 
+$app->post('/auth', function ($request, $response, $args) use ($config) {
 
+  $credentials = $request->getParsedBody();
 
-//$auth = new AuthToken();
-//$app->add($auth);
-//
-//$authenticate = function (\Slim\Slim $app, AuthToken $auth) {
-//  return function () use ($app, $auth) {
-//    if (!$auth->isValid()) {
-//      $app->halt(401);
-//    }
-//  };
-//};
-//
-//$app->post('/auth', /**
-// * @throws \Slim\Exception\Stop
-// */
-//  function () use ($app) {
-//    $user = $app->request()->post('user');
-//    $pass = $app->request()->post('pass');
-//
-//    if (is_null($user) || is_null($pass) || trim($user) === '' || trim($pass) === '') {
-//      printResponse(NULL, true, 'ID und/oder Passwort dürfen nicht leer sein.');
-//      $app->stop();
-//    }
-//
-//    $l = new Login();
-//    $l->doLogin($user, $pass);
-//
-//    $pd_name = '';
-//    if ($l->login) {
-//      $pd_name = preg_replace("/<(.*?)>/", '', $l->name);
-//    } else {
-//      printResponse(NULL, true, 'Der eingegebene Benutzername und/oder das Kennwort ist ungültig.');
-//      $app->stop();
-//    }
-//
-//    if (!\Auth\LoginChecker::check($user)) {
-//      printResponse(NULL, true, 'Leider sind Sie nicht für den Online Profildienst freigeschaltet.');
-//      $app->stop();
-//    }
-//
-//    $token = array(
-//      'iss' => 'http://online-profildienst.gbv.de',
-//      'aud' => 'http://online-profildienst.gbv.de',
-//      'sub' => $pd_name,
-//      'pd_id' => $user,
-//      'iat' => time(),
-//      'exp' => time() + (24 * 60 * 60) // Tokens should be valid for a day
-//    );
-//
-//    $jwt = JWT::encode($token, Config::$token_key);
-//
-//
-//    printResponse(array('token' => $jwt));
-//  });
-//
-$app->get('/libraries', function ($request, $response, $args) {
+  // have we got a username and a password?
+  if (empty($credentials['user']) || empty($credentials['pass'])) {
+    throw new AuthException('Bitte geben Sie einen Benutzername und ein Passwort ein.');
+  }
 
-  $config = Configuration::getInstance();
+  // Perform authentication. If the authentication fails, an exception will be thrown and
+  // therefore the rest of this function will not be executed.
+  $auth = new Auth($credentials['user'], $credentials['pass'], $config);
+
+  // construct token
+  $token = [
+    'iss' => $config->getTokenIssuer(),
+    'aud' => $auth->getName(),
+    'sub' => $auth->getName(),
+    'pd_id' => $credentials['user'],
+    'iat' => time(),
+    'exp' => time() + $config->getTokenExpTime()
+  ];
+
+  $jwt = \Firebase\JWT\JWT::encode($token, $config->getSecretKey(), $config->getTokenCryptAlgorithm());
+  generateJSONResponse(new BasicResponse($jwt), $response);
+});
+
+$app->get('/libraries', function ($request, $response, $args) use ($config) {
 
   $data = [];
   foreach ($config->getLibraries() as $library) {
@@ -134,13 +102,9 @@ $app->get('/libraries', function ($request, $response, $args) {
     ];
   }
 
-  return generateJSONResponse(new \Responses\BasicResponse($data), $response);
+  return generateJSONResponse(new BasicResponse($data), $response);
 });
 
-$app->get('/hello/{name}', function ($request, $response, $args) {
-
-  return $response->write("You're beautiful, Hello " . $args['name']);
-});
 //
 //
 ///**
@@ -355,28 +319,29 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 //
 //});
 //
-///**
-// * Settings
-// */
-//$app->get('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
-//  $sortby = array();
-//  foreach (Config::$sortby_name as $val => $desc) {
-//    $sortby[] = array('key' => $val, 'value' => $desc);
-//  }
-//
-//  $order = array();
-//  foreach (Config::$order_name as $val => $desc) {
-//    $order[] = array('key' => $val, 'value' => $desc);
-//  }
-//
-//  $data = array(
-//    'sortby' => $sortby,
-//    'order' => $order
-//  );
-//
-//  printResponse(array('data' => $data));
-//
-//});
+/**
+ * Settings
+ */
+$app->get('/settings', function ($request, $response, $args) use ($config) {
+
+  $sortby = array();
+  foreach ($config->getSortOptions() as $val => $desc) {
+    $sortby[] = array('key' => $val, 'value' => $desc);
+  }
+
+  $order = array();
+  foreach ($config->getOrderOptions() as $val => $desc) {
+    $order[] = array('key' => $val, 'value' => $desc);
+  }
+
+  $data = [
+    'sortby' => $sortby,
+    'order' => $order
+  ];
+
+  generateJSONResponse(new BasicResponse($data), $response);
+
+})->add($auth);
 //
 ///**
 // * Delete titles
@@ -614,31 +579,6 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 //
 //}
 //
-/**
- * @param $resp mixed response
- * @param bool $error If true the response will be marked as an error
- * @param string $message error message
- */
-function printResponse($resp, $error = false, $message = '') {
-  global $app;
-
-  if (!isset($resp['success'])) {
-    if ($error) {
-      $resp = array('success' => false, 'message' => $message);
-    } else {
-      $resp['success'] = true;
-    }
-  }
-
-  $app->response->headers->set('Content-Type', 'application/javascript');
-  $callback = $app->request()->get('callback');
-
-  if (!is_null($callback) && trim($callback) !== '') {
-    echo $callback . '(' . json_encode($resp) . ');';
-  } else {
-    echo json_encode($resp);
-  }
-}
 
 $app->run();
 

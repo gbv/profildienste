@@ -9,6 +9,7 @@
 namespace Profildienst;
 use Config\Config;
 use Middleware\AuthToken;
+use MongoDB\Client;
 
 /**
  * Connection to the Database (Singleton)
@@ -56,7 +57,7 @@ class DB {
   private static function init_db() {
     // create a new instance if we can't use a previous one
     if (!isset(self::$m)) {
-      self::$m = new \MongoDB\Client();
+      self::$m = new Client();
       self::$db = self::$m->selectDatabase('pd');
       if (!isset(self::$m)) {
         throw new \Exception('Connection failed');

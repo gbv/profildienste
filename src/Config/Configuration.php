@@ -57,6 +57,7 @@ class Configuration {
     ],
     'auth' => [
       'secret_key' => '',
+      'encryption_algorithm' => 'HS256',
       'token' => [
         'expiration' => (60*60*24),
         'issuer' => ''
@@ -160,7 +161,7 @@ class Configuration {
       throw new ConfigurationException('Die Konfigurationsdatei ist kein valides JSON.');
     }
 
-    $this->config = array_merge(self::$DEFAULT_CONFIGURATION, $config);
+    $this->config = ConfigUtilities::array_merge_recursive_distinct(self::$DEFAULT_CONFIGURATION, $config);
 
     // check the config entries which most likely has been modified by the user
     try {
@@ -206,6 +207,37 @@ class Configuration {
     }
   }
 
+  public function getSortOptions(){
+    return $this->config['sorting']['sort'];
+  }
+
+  public function getOrderOptions(){
+    return $this->config['sorting']['order'];
+  }
+
+  public function getSecretKey(){
+    return $this->config['auth']['secret_key'];
+  }
+
+  public function getTokenCryptAlgorithm(){
+    return $this->config['auth']['encryption_algorithm'];
+  }
+
+  public function getAuthServerHost(){
+    return $this->config['cbs']['host'];
+  }
+
+  public function getAuthServerPort(){
+    return $this->config['cbs']['port'];
+  }
+
+  public function getTokenIssuer(){
+    return $this->config['auth']['token']['issuer'];
+  }
+
+  public function getTokenExpTime(){
+    return $this->config['auth']['token']['expiration'];
+  }
   private function __clone(){}
 
   public static function getInstance(){
