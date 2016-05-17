@@ -207,35 +207,36 @@ $app->get('/libraries', function ($request, $response, $args) use ($config) {
 //
 //});
 //
-///**
-// * Search configuration (available fields and modes for searching)
-// */
-//$app->get('/search'/*, $authenticate($app, $auth)*/, function () use ($app, $auth) {
-//
-//  $searchable_fields = [];
-//  foreach (Config::$searchable_fields as $val => $name){
-//    $searchable_fields[] = array(
-//      'name' => $name,
-//      'value' => $val
-//    );
-//  }
-//
-//  $search_modes = [];
-//  foreach (Config::$search_modes as $val => $name){
-//    $search_modes[] = array(
-//      'name' => $name,
-//      'value' => $val
-//    );
-//  }
-//
-//  printResponse(array(
-//    'data' => array(
-//      'searchable_fields' => $searchable_fields,
-//      'search_modes' => $search_modes
-//    )
-//  ));
-//});
-//
+/**
+ * Search configuration (available fields and modes for searching)
+ */
+$app->get('/search', function ($request, $response, $args) use ($config) {
+
+  $searchable_fields = [];
+  foreach ($config->getSearchableFields() as $val => $name){
+    $searchable_fields[] = array(
+      'name' => $name,
+      'value' => $val
+    );
+  }
+
+  $search_modes = [];
+  foreach ($config->getSearchModes() as $val => $name){
+    $search_modes[] = array(
+      'name' => $name,
+      'value' => $val
+    );
+  }
+
+  $data = [
+      'searchable_fields' => $searchable_fields,
+      'search_modes' => $search_modes
+  ];
+
+  return generateJSONResponse(new BasicResponse($data), $response);
+
+})->add($auth);
+
 ///**
 // * User related information
 // */

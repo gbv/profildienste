@@ -11,6 +11,7 @@ namespace Middleware;
 
 use Config\Configuration;
 use Firebase\JWT\JWT;
+use Profildienst\User;
 
 class AuthMiddleware {
 
@@ -37,10 +38,9 @@ class AuthMiddleware {
 
         $decoded = JWT::decode($tok[1], $this->config->getSecretKey(), [$this->config->getTokenCryptAlgorithm()]);
 
+        // initialize the user object
         $token = (array) $decoded;
-        $this->valid = true;
-        $this->name = $token['sub'];
-        $this->id = $token['pd_id'];
+        User::getInstance()->initialize($token['sub'], $token['pd_id']);
 
       } catch (\Exception $e) {
         return $response->withStatus(401);

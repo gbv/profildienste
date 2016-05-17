@@ -238,6 +238,15 @@ class Configuration {
   public function getTokenExpTime(){
     return $this->config['auth']['token']['expiration'];
   }
+
+  public function getSearchableFields(){
+    return $this->config['search']['fields'];
+  }
+
+  public function getSearchModes(){
+    return $this->config['search']['modes'];
+  }
+
   private function __clone(){}
 
   public static function getInstance(){
