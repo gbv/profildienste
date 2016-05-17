@@ -247,6 +247,10 @@ class Configuration {
     return $this->config['search']['modes'];
   }
 
+  public function getMOTD(){
+    return $this->config['motd']['message'];
+  }
+
   private function __clone(){}
 
   public static function getInstance(){

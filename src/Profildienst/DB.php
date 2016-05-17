@@ -71,8 +71,8 @@ class DB {
    * @param AuthToken $auth Token
    * @return array|null
    */
-  public static function getUserData($v, AuthToken $auth) {
-    if (!$c = DB::get(array('_id' => $auth->getID()), 'users', array($v => 1), true)) {
+  public static function getUserData($v) {
+    if (!$c = DB::get(array('_id' => User::getInstance()->getID()), 'users', array($v => 1), true)) {
       die('Kein Benutzer unter der ID gefunden.');
     }
     return isset($c[$v]) ? $c[$v] : NULL;
@@ -271,10 +271,10 @@ class DB {
    * @return int Number of titles in the watchlist
    * @throws \Exception
    */
-  public static function getWatchlistSize($id, AuthToken $auth) {
+  public static function getWatchlistSize($id) {
     self::init_db();
     $titles = self::$db->selectCollection('titles');
-    return $titles->count(array('$and' => array(array('user' => $auth->getID()), array('watchlist' => strval($id)))));
+    return $titles->count(array('$and' => array(array('user' => User::getInstance()->getID()), array('watchlist' => strval($id)))));
   }
 
   /**
@@ -284,10 +284,10 @@ class DB {
    * @return int Number of titles in the cart
    * @throws \Exception
    */
-  public static function getCartSize(AuthToken $auth) {
+  public static function getCartSize() {
     self::init_db();
     $titles = self::$db->selectCollection('titles');
-    return $titles->count(array('$and' => array(array('user' => $auth->getID()), array('status' => 'cart'))));
+    return $titles->count(array('$and' => array(array('user' => User::getInstance()->getID()), array('status' => 'cart'))));
   }
 }
 

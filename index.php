@@ -4,8 +4,11 @@ use Auth\Auth;
 use Config\Configuration;
 use Exceptions\AuthException;
 use Exceptions\BaseException;
+use Firebase\JWT\JWT;
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
+use Profildienst\DB;
+use Profildienst\User;
 use Responses\APIResponse;
 use Responses\BasicResponse;
 use Responses\ErrorResponse;
@@ -88,7 +91,7 @@ $app->post('/auth', function ($request, $response, $args) use ($config) {
     'exp' => time() + $config->getTokenExpTime()
   ];
 
-  $jwt = \Firebase\JWT\JWT::encode($token, $config->getSecretKey(), $config->getTokenCryptAlgorithm());
+  $jwt = JWT::encode($token, $config->getSecretKey(), $config->getTokenCryptAlgorithm());
   generateJSONResponse(new BasicResponse($jwt), $response);
 });
 
@@ -234,92 +237,103 @@ $app->get('/search', function ($request, $response, $args) use ($config) {
   ];
 
   return generateJSONResponse(new BasicResponse($data), $response);
+})->add($auth);
+
+/**
+ * User related information
+ */
+$app->group('/user', function () use ($config) {
+
+  $user = User::getInstance();
+
+  $this->get('[/]', function ($request, $response, $args) use ($config, $user){
+
+    // TODO: Change when database rework is finished
+    $d = DB::get(array('_id' => $user->getID()), 'users', array(), true);
+
+    $budgets = [];
+    foreach ($d['budgets'] as $budget) {
+      $budgets[] = [
+        'key' => $budget['0'],
+        'value' => $budget['c']
+      ];
+    }
+
+    $data = [
+      'name' => $user->getName(),
+      'motd' => $config->getMOTD(),
+      'defaults' => [
+        'lft' => $d['defaults']['lieft'],
+        'budget' => $d['defaults']['budget'],
+        'ssgnr' => $d['defaults']['ssgnr'],
+        'selcode' => $d['defaults']['selcode']
+      ],
+      'budgets' => $budgets
+    ];
+
+    return generateJSONResponse(new BasicResponse($data), $response);
+  });
+
+  $this->get('/watchlists', function ($request, $response, $args) use ($user) {
+
+    // TODO
+    $d = DB::get(array('_id' => $user->getID()), 'users', array(), true);
+    $watchlists = $d['watchlist'];
+    // TODO
+    $wl_order = DB::getUserData('wl_order');
+
+    $wl = [];
+    foreach ($wl_order as $index) {
+      $wl[] = [
+        'id' => $watchlists[$index]['id'],
+        'name' => $watchlists[$index]['name'],
+        'count' => DB::getWatchlistSize($watchlists[$index]['id'])
+      ];
+    }
+
+    $data = [
+      'watchlists' => $wl,
+      'def_wl' => $d['wl_default']
+    ];
+
+    return generateJSONResponse(new BasicResponse($data), $response);
+  });
+
+  $this->get('/cart', function ($request, $response, $args) use ($user) {
+    // TODO
+    $d = DB::get(array('_id' => $user->getID()), 'users', array(), true);
+
+    $data = [
+      'cart' => DB::getCartSize() /* TODO */,
+      'price' => $d['price'],
+    ];
+
+    return generateJSONResponse(new BasicResponse($data), $response);
+  });
+
+  $this->get('/settings', function ($request, $response, $args) {
+
+    $data = [
+      'settings' => DB::getUserData('settings')
+    ];
+
+    return generateJSONResponse(new BasicResponse($data), $response);
+  });
+
+  /*
+  $this->get('/orderlist', function () use ($app, $auth) {
+    try {
+      $m = new \Special\Orderlist($auth);
+
+      printResponse(array('data' => array('orderlist' => $m->getOrderlist())));
+    } catch (\Exception $e) {
+      printResponse(NULL, true, $e->getMessage());
+    }
+
+  });*/
 
 })->add($auth);
 
-///**
-// * User related information
-// */
-//$app->group('/user', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->get('/', function () use ($app, $auth) {
-//
-//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-//
-//    $budgets = array();
-//    foreach ($d['budgets'] as $budget) {
-//      $budgets[] = array('key' => $budget['0'], 'value' => $budget['c']);
-//    }
-//
-//    $data = array(
-//      'name' => $auth->getName(),
-//      'motd' => Config::$motd,
-//      'defaults' => array(
-//        'lft' => $d['defaults']['lieft'],
-//        'budget' => $d['defaults']['budget'],
-//        'ssgnr' => $d['defaults']['ssgnr'],
-//        'selcode' => $d['defaults']['selcode']
-//      ),
-//      'budgets' => $budgets
-//    );
-//
-//    printResponse(array('data' => $data));
-//
-//  });
-//
-//  $app->get('/watchlists', function () use ($app, $auth) {
-//
-//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-//
-//    $watchlists = $d['watchlist'];
-//    $wl_order = \Profildienst\DB::getUserData('wl_order', $auth);
-//
-//    $wl = array();
-//    foreach ($wl_order as $index) {
-//      $wl[] = array('id' => $watchlists[$index]['id'], 'name' => $watchlists[$index]['name'], 'count' => DB::getWatchlistSize($watchlists[$index]['id'], $auth));
-//    }
-//
-//    $data = array(
-//      'watchlists' => $wl,
-//      'def_wl' => $d['wl_default']
-//    );
-//
-//    printResponse(array('data' => $data));
-//
-//  });
-//
-//  $app->get('/cart', function () use ($app, $auth) {
-//    $d = \Profildienst\DB::get(array('_id' => $auth->getID()), 'users', array(), true);
-//
-//    $data = array(
-//      'cart' => \Profildienst\DB::getCartSize($auth),
-//      'price' => $d['price'],
-//    );
-//
-//    printResponse(array('data' => $data));
-//  });
-//
-//  $app->get('/settings', function () use ($app, $auth) {
-//    $data = array(
-//      'settings' => \Profildienst\DB::getUserData('settings', $auth)
-//    );
-//
-//    printResponse(array('data' => $data));
-//  });
-//
-//  $app->get('/orderlist', function () use ($app, $auth) {
-//    try {
-//      $m = new \Special\Orderlist($auth);
-//
-//      printResponse(array('data' => array('orderlist' => $m->getOrderlist())));
-//    } catch (\Exception $e) {
-//      printResponse(NULL, true, $e->getMessage());
-//    }
-//
-//  });
-//
-//});
-//
 /**
  * Settings
  */
