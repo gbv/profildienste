@@ -35,7 +35,10 @@ class User {
 
         $this->budgets = [];
         foreach($budgets as $budget){
-            $this->budgets[] = $budget;
+            $this->budgets[] = [
+                'name' => $budget['c'],
+                'value' => $budget['0']
+            ];
         }
     }
 
