@@ -14,17 +14,17 @@ use Responses\BasicResponse;
 
 class CartRoute extends Route{
 
-    private $cartRepository;
+    private $cart;
 
     public function __construct(ContainerInterface $ci) {
         parent::__construct($ci);
-        $this->cartRepository = $this->ci->get('cartRepository');
+        $this->cart = $this->ci->get('cart');
     }
 
     public function getCartView($request, $response, $args){
         $page = self::validatePage($args);
-        $titles = $this->cartRepository->getTitles($page);
-        $totalCount = $this->cartRepository->getCount();
+        $titles = $this->cart->getTitles($page);
+        $totalCount = $this->cart->getCount();
 
         return self::titlePageResponse($titles, $page, $totalCount, $response);
     }
@@ -32,11 +32,11 @@ class CartRoute extends Route{
     public function getCartInformation($request, $response, $args){
 
         $data = [
-            'count' => $this->cartRepository->getCount(),
+            'count' => $this->cart->getCount(),
             'price' => [
-                'total' => $this->cartRepository->getPrice(),
-                'known' => $this->cartRepository->getPriceKnown(),
-                'estimated' => $this->cartRepository->getPriceEstimated()
+                'total' => $this->cart->getPrice(),
+                'known' => $this->cart->getPriceKnown(),
+                'estimated' => $this->cart->getPriceEstimated()
             ]
         ];
 

@@ -47,8 +47,8 @@ class TitleRoute extends Route{
 
     private function makeTitleResponse($view, $page, $response){
         $titles = $this->titleRepository->getTitlesByView($view, $page);
-        $totalCount = 0;
-
+        $totalCount = $this->titleRepository->getTitleCountInView($view);
+        
         return self::titlePageResponse($titles, $page, $totalCount, $response);
     }
 

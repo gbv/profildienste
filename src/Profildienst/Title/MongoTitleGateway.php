@@ -53,7 +53,6 @@ class MongoTitleGateway implements TitleGateway {
 
     public function getTitleCountWithStatus($userId, $status) {
         $query = ['$and' => [['user' => $userId], ['status' => $status]]];
-        
         return $this->titles->count($query);
     }
 }

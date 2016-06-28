@@ -32,7 +32,11 @@ class User {
         $this->settings = $settings;
         $this->defaults = $defaults;
         $this->isil = $isil;
-        $this->budgets = $budgets;
+
+        $this->budgets = [];
+        foreach($budgets as $budget){
+            $this->budgets[] = $budget;
+        }
     }
 
     /**
