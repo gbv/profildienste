@@ -6,7 +6,7 @@
  * Time: 16:09
  */
 
-namespace Profildienst;
+namespace Profildienst\Library;
 
 
 use Config\ConfigUtilities;
@@ -16,11 +16,11 @@ class Library {
 
   private $libraryData;
 
-  public function __construct($libraryData){
+  public function __construct($libraryData) {
 
     $this->libraryData = $libraryData;
 
-    try{
+    try {
 
       ConfigUtilities::checkField($this->libraryData, 'name');
       ConfigUtilities::checkField($this->libraryData, 'isil');
@@ -29,14 +29,14 @@ class Library {
       ConfigUtilities::checkField($this->libraryData, 'export');
       ConfigUtilities::checkField($this->libraryData, 'export', 'advanced', true);
 
-      if(!$this->libraryData['export']['advanced']){
+      if (!$this->libraryData['export']['advanced']) {
         ConfigUtilities::checkField($this->libraryData, 'export', 'exportDir');
       }
 
-    }catch(ConfigurationException $e){
+    } catch (ConfigurationException $e) {
       $errMsg = $e->getMessage();
-      if (!empty($this->libraryData['name'])){
-        $errMsg .= ' for library '.$this->libraryData['name'];
+      if (!empty($this->libraryData['name'])) {
+        $errMsg .= ' for library ' . $this->libraryData['name'];
       } else {
         $errMsg .= ' for unknown library';
       }
@@ -44,29 +44,29 @@ class Library {
     }
   }
 
-  public function getName(){
+  public function getName() {
     return $this->libraryData['name'];
   }
 
-  public function getISIL(){
+  public function getISIL() {
     return $this->libraryData['isil'];
   }
 
-  public function getILN(){
+  public function getILN() {
     return $this->libraryData['iln'];
   }
 
-  public function getELN(){
+  public function getELN() {
     return $this->libraryData['eln'];
   }
 
-  public function usesAdvancedExport(){
+  public function usesAdvancedExport() {
     return $this->libraryData['export']['advancedExport'];
   }
 
-  public function getExportDir(){
+  public function getExportDir() {
 
-    if($this->libraryData['export']['advancedExport']){
+    if ($this->libraryData['export']['advancedExport']) {
       throw new ConfigurationException('Method ineligible for chosen export method');
     }
 

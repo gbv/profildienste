@@ -200,7 +200,7 @@ class Order {
 
     foreach ($titles as $title) {
       $id = $title->getDirectly('_id');
-      DB::upd(array('_id' => $id), array('$set' => array('status' => 'pending', 'lastStatusChange' => new \MongoDB\BSON\UTCDateTime(time()*1000))), 'titles');
+      DB::upd(array('_id' => $id), array('$set' => array('status' => 'pending', 'lastStatusChange' => new \MongoDB\BSON\UTCDateTime(time() * 1000))), 'titles');
     }
 
     $this->resp['cart'] = 0;

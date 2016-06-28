@@ -10,7 +10,6 @@
 namespace AJAX\Changers;
 
 
-use MongoDB\BSON\UTCDateTime;
 use Profildienst\DB;
 
 /**
@@ -71,7 +70,7 @@ class CollectionStatusChanger {
     $set = array(
       '$set' => array(
         'status' => $to,
-        'lastStatusChange' => new UTCDateTime((time()*1000))
+        'lastStatusChange' => new UTCDateTime((time() * 1000))
       )
     );
 
@@ -97,7 +96,7 @@ class CollectionStatusChanger {
     $set = array(
       '$set' => [
         'status' => $to,
-        'lastStatusChange' => new UTCDateTime((time()*1000))
+        'lastStatusChange' => new UTCDateTime((time() * 1000))
       ]
     );
 

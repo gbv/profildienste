@@ -7,27 +7,27 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
     new Search\QueryValidator('');
   }
 
-  public function testInvalidQueryType(){
+  public function testInvalidQueryType() {
     $this->expectException(\Search\InvalidQueryException::class);
     new Search\QueryValidator('nonsense', 3);
   }
 
-  public function testExceptionIfInvalidQueryTypeArrayKeyword(){
+  public function testExceptionIfInvalidQueryTypeArrayKeyword() {
     $this->expectException(\Search\InvalidQueryException::class);
     new Search\QueryValidator([]);
   }
 
-  public function testExceptionIfInvalidQueryTypeArraySimple(){
+  public function testExceptionIfInvalidQueryTypeArraySimple() {
     $this->expectException(\Search\InvalidQueryException::class);
     new Search\QueryValidator([], 'simple');
   }
 
-  public function testExceptionIfInvalidQueryTypeStringAdvanced(){
+  public function testExceptionIfInvalidQueryTypeStringAdvanced() {
     $this->expectException(\Search\InvalidQueryException::class);
     new Search\QueryValidator('test', 'advanced');
   }
 
-  public function testAcceptedQueryTypes(){
+  public function testAcceptedQueryTypes() {
     new \Search\QueryValidator('test');
     new \Search\QueryValidator('tit test', 'simple');
     new \Search\QueryValidator([array(
@@ -37,35 +37,35 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
     )], 'advanced');
   }
 
-  public function testMalformedCriterium(){
+  public function testMalformedCriterium() {
     $this->expectException(\Search\InvalidQueryException::class);
     new \Search\QueryValidator([array(
       'apples' => 'banana'
     )], 'advanced');
   }
 
-  public function testRemovalOfEmptyCritera(){
+  public function testRemovalOfEmptyCritera() {
 
     $query = [
       array(
-      'field' => 'tit',
-      'mode' => 'is',
-      'value' => 'test'),
+        'field' => 'tit',
+        'mode' => 'is',
+        'value' => 'test'),
       array(
-      'field' => 'per',
-      'mode' => 'is',
-      'value' => ''),
+        'field' => 'per',
+        'mode' => 'is',
+        'value' => ''),
     ];
 
     $sq = new \Search\QueryValidator($query, 'advanced');
-    $this->assertEquals(count($sq->getSearch()), count($query)-1);
+    $this->assertEquals(count($sq->getSearch()), count($query) - 1);
 
     $query[0]['value'] = '';
     $this->expectException(\Search\InvalidQueryException::class);
     new \Search\QueryValidator($query, 'advanced');
   }
 
-  public function testInvalidMode(){
+  public function testInvalidMode() {
 
     new \Search\QueryValidator([array(
       'field' => 'tit',
@@ -88,7 +88,7 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
     )], 'advanced');
   }
 
-  public function testSimpleSearchRecognition(){
+  public function testSimpleSearchRecognition() {
     $sq = new \Search\QueryValidator('tit test', 'keyword');
     $this->assertInstanceOf(\Search\FieldSearch::class, $sq->getSearch());
 

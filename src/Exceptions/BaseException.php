@@ -9,7 +9,7 @@
 namespace Exceptions;
 
 
-abstract class BaseException extends \Exception{
+abstract class BaseException extends \Exception {
 
   public abstract function getModule();
 

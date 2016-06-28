@@ -11,15 +11,15 @@ namespace Search;
 
 abstract class SearchQuery {
 
-  private $type;
   protected $dbquery;
+  private $type;
 
-  public function __construct($type){
+  public function __construct($type) {
     $this->type = $type;
     $this->dbquery = new QueryBuilder();
   }
 
-  public function getType(){
+  public function getType() {
     return $this->type;
   }
 

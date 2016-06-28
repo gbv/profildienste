@@ -9,7 +9,7 @@
 namespace Exceptions;
 
 
-class AuthException extends BaseException{
+class AuthException extends BaseException {
 
   public function getModule() {
     return 'Authentication';

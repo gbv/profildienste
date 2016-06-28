@@ -28,7 +28,7 @@ class Reject extends AJAXResponse {
   public function __construct($ids, $view, AuthToken $auth) {
 
     $this->resp['ids'] = array();
-    
+
     try {
       CollectionStatusChanger::handleCollection($ids, $view, 'rejected', $auth);
     } catch (\Exception $e) {

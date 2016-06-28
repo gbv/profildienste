@@ -1,0 +1,24 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: luca
+ * Date: 29.05.16
+ * Time: 13:33
+ */
+
+namespace Profildienst\User;
+
+use MongoDB\Database;
+
+class MongoUserGateway implements UserGateway {
+
+    private $users;
+
+    public function __construct(Database $db) {
+        $this->users = $db->selectCollection('users');
+    }
+
+    public function findByID($id) {
+        return $this->users->findOne(['_id' => $id]);
+    }
+}

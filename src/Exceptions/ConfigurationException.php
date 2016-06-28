@@ -9,7 +9,7 @@
 namespace Exceptions;
 
 
-class ConfigurationException extends BaseException{
+class ConfigurationException extends BaseException {
 
   public function getModule() {
     return 'Configuration';

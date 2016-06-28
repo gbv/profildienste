@@ -11,7 +11,7 @@ namespace Auth;
 use Config\Config;
 use Config\Configuration;
 use Exceptions\AuthException;
-use Profildienst\DB;
+use Profildienst\User\UserController;
 
 /**
  * Performs a basic authentication against the CBS
@@ -41,16 +41,20 @@ class Auth {
   /**
    * Performs the authentication
    *
-   * @param $user string Username
-   * @param $pwd string Password
    */
-  public function __construct(string $user, string $pwd, Configuration $config) {
+
+  public function __construct(Configuration $config, UserController $userController) {
+    $this->config = $config;
+    $this->userController = $userController;
+  }
+
+  public function authenticate(string $user, string $pwd) {
 
     if (empty($user) || empty($pwd)) {
       throw new AuthException('Benutzername und Passwort dürfen nicht leer sein');
     }
 
-    $fp = fsockopen($config->getAuthServerHost(), $config->getAuthServerPort(), $errno, $errstr, 30);
+    $fp = fsockopen($this->config->getAuthServerHost(), $this->config->getAuthServerPort(), $errno, $errstr, 30);
     if (!$fp) {
       throw new AuthException('Aktuell ist leider keine Authentifizierung möglich. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.');
     }
@@ -79,11 +83,11 @@ class Auth {
 
     fclose($fp);
 
-    // TODO: Rework once the database has refactored
-    $data = DB::get(array('_id' => $user), 'users', array('_id' => 1), true);
-    if(is_null($data)){
+    // check if user exists in the database
+    if (!$this->userController->userExists($user)){
       throw new AuthException('Leider sind Sie nicht für den Profildienst freigeschaltet.');
     }
+
   }
 
 

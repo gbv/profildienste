@@ -1,5 +1,5 @@
 {
-  "require":{
+  "require": {
     "slim/slim": "~3.3.0",
     "firebase/php-jwt": "~3.0.0",
     "mongodb/mongodb": "~1.0.1"

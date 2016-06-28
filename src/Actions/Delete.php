@@ -8,7 +8,6 @@
  */
 namespace AJAX;
 
-use Auth\Auth;
 use Middleware\AuthToken;
 use Profildienst\DB;
 

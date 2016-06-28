@@ -48,7 +48,7 @@ class Search {
     $dbquery->searchTitlesWithStatus('normal')
       ->restrictToUser($auth->getID())
       ->joinWithAnd();
-    
+
     $t = DB::getTitleList($dbquery->getQuery(), $num, $auth);
     $this->titlelist = $t['titlelist'];
     $this->total = $t['total'];
@@ -72,7 +72,7 @@ class Search {
     return $this->total;
   }
 
-  public function getSearchInformation(){
+  public function getSearchInformation() {
     return array(
       'type' => $this->search->getType(),
       'criteria' => $this->search->getSearchAsArray()

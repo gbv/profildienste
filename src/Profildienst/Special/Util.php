@@ -25,13 +25,13 @@ class Util {
    * @param $obj Input object
    * @return array Array
    */
-  public static function getArray($obj){
+  public static function getArray($obj) {
 
-    if (is_object($obj)){
-      $obj = (array) $obj;
+    if (is_object($obj)) {
+      $obj = (array)$obj;
     }
 
-    if (is_array($obj)){
+    if (is_array($obj)) {
       $newArr = array();
       foreach ($obj as $key => $val) {
         $newArr[$key] = self::getArray($val);

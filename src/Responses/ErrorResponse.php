@@ -9,13 +9,11 @@
 namespace Responses;
 
 
-use Responses\APIResponse;
-
-class ErrorResponse extends APIResponse{
+class ErrorResponse extends APIResponse {
 
   private $errMsg;
 
-  public function __construct(string $reason, $httpReturnCode = 400){
+  public function __construct(string $reason, $httpReturnCode = 400) {
     $this->errMsg = $reason;
     $this->httpReturnCode = $httpReturnCode;
   }
@@ -26,5 +24,5 @@ class ErrorResponse extends APIResponse{
 
   public function getHTTPReturnCode() {
     return $this->httpReturnCode;
- }
+  }
 }

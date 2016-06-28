@@ -14,7 +14,7 @@ namespace AJAX;
  * All classes which will be called using an AJAX request have to implement
  * this interface.
  */
-abstract class AJAXResponse implements AJAX{
+abstract class AJAXResponse implements AJAX {
 
   /**
    * @var array Required fields for all responses

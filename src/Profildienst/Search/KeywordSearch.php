@@ -8,30 +8,30 @@
 
 namespace Search;
 
-class KeywordSearch extends SearchQuery{
+class KeywordSearch extends SearchQuery {
 
   private $mode;
   private $searchterm;
 
 
-  public function __construct($type = 'keyword'){
+  public function __construct($type = 'keyword') {
     parent::__construct($type);
   }
 
-  public function setMode($mode){
-    $this->mode = $mode;
-  }
-
-  public function getMode(){
+  public function getMode() {
     return $this->mode;
   }
 
-  public function setSearchterm($searchterm){
-    $this->searchterm = $searchterm;
+  public function setMode($mode) {
+    $this->mode = $mode;
   }
 
-  public function getSearchterm(){
+  public function getSearchterm() {
     return $this->searchterm;
+  }
+
+  public function setSearchterm($searchterm) {
+    $this->searchterm = $searchterm;
   }
 
   /**
@@ -53,7 +53,7 @@ class KeywordSearch extends SearchQuery{
       ->searchMAKField($searchterm)
       ->joinWithOr();
 
-      return $this->dbquery;
+    return $this->dbquery;
   }
 
   /**

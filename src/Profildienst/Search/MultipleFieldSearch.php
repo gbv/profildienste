@@ -9,20 +9,20 @@
 namespace Search;
 
 
-class MultipleFieldSearch extends SearchQuery{
+class MultipleFieldSearch extends SearchQuery {
 
   private $criteria;
 
-  public function __construct(){
+  public function __construct() {
     parent::__construct('advanced');
   }
 
-  public function setCriteria($criteria){
-    $this->criteria = $criteria;
+  public function getCriteria() {
+    return $this->criteria;
   }
 
-  public function getCriteria(){
-    return $this->criteria;
+  public function setCriteria($criteria) {
+    $this->criteria = $criteria;
   }
 
   /**
@@ -43,14 +43,14 @@ class MultipleFieldSearch extends SearchQuery{
     //build query
 
     foreach ($criteria as $searchkey => $searchCriteria) {
-      if(count($searchCriteria) > 1){
+      if (count($searchCriteria) > 1) {
         $subquery = new QueryBuilder();
-        foreach($searchCriteria as $searchCriterion){
+        foreach ($searchCriteria as $searchCriterion) {
           $subquery->insertRaw($searchCriterion->getDatabaseQuery()->getQuery());
         }
         $subquery->joinWithOr();
         $this->dbquery->insertRaw($subquery->getQuery());
-      }else{
+      } else {
         $this->dbquery->insertRaw($searchCriteria[0]->getDatabaseQuery()->getQuery());
       }
     }
@@ -63,7 +63,7 @@ class MultipleFieldSearch extends SearchQuery{
    */
   public function getSearchAsArray() {
     $r = [];
-    foreach($this->criteria as $searchCriterion){
+    foreach ($this->criteria as $searchCriterion) {
       $r[] = $searchCriterion->getSearchAsArray();
     }
     return $r;

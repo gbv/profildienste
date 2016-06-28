@@ -17,7 +17,7 @@ abstract class APIResponse {
 
   public abstract function getData();
 
-  public function getHTTPReturnCode(){
+  public function getHTTPReturnCode() {
     return 200;
   }
 

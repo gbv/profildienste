@@ -8,20 +8,20 @@
 
 namespace Search;
 
-class FieldSearch extends KeywordSearch{
+class FieldSearch extends KeywordSearch {
 
   private $field;
 
-  public function __construct(){
+  public function __construct() {
     parent::__construct('simple');
   }
 
-  public function setField($field){
-    $this->field = $field;
+  public function getField() {
+    return $this->field;
   }
 
-  public function getField(){
-    return $this->field;
+  public function setField($field) {
+    $this->field = $field;
   }
 
   /**
