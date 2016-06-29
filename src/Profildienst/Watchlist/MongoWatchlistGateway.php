@@ -11,7 +11,7 @@ namespace Profildienst\Watchlist;
 
 use Config\Configuration;
 use MongoDB\Database;
-use Profildienst\MongoOptionHelper;
+use Profildienst\Common\MongoOptionHelper;
 use Profildienst\User\User;
 
 class MongoWatchlistGateway implements WatchlistGateway{

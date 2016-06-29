@@ -5,10 +5,10 @@ use Config\Configuration;
 use Exceptions\BaseException;
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
-use Profildienst\Cart\CartController;
+
 use Profildienst\Cart\Cart;
-use Profildienst\Cart\MongoCartGateway;
-use Profildienst\ConnectionFactory;
+use Profildienst\Common\ConnectionFactory;
+use Profildienst\Common\MongoDataGateway;
 use Profildienst\Library\LibraryController;
 use Profildienst\Title\MongoTitleGateway;
 use Profildienst\Title\TitleFactory;
@@ -18,7 +18,6 @@ use Profildienst\Watchlist\MongoWatchlistGateway;
 use Profildienst\Watchlist\WatchlistManager;
 use Responses\ErrorResponse;
 use Profildienst\User\MongoUserGateway;
-use Routes\Route;
 
 require 'vendor/autoload.php';
 
@@ -61,12 +60,12 @@ $container['user'] = function ($container) {
 };
 
 $container['cart'] = function ($container) {
-    return new Cart($container['titleRepository']);
+    return new Cart($container['titleRepository'], $container['dataGateway']);
 };
 
 $container['titleRepository'] = function ($container) {
-    $gateway = new MongoTitleGateway($container['connectionFactory']->getConnection());
-    return new TitleRepository($gateway, $container['titleFactory'] ,$container['user'], $container['config']);
+    $gateway = new MongoTitleGateway($container['connectionFactory']->getConnection(), $container['config'], $container['user']);
+    return new TitleRepository($gateway, $container['titleFactory']);
 };
 
 $container['titleFactory'] = function ($container){
@@ -76,6 +75,10 @@ $container['titleFactory'] = function ($container){
 $container['watchlistManager'] = function ($container){
     $gateway = new MongoWatchlistGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
     return new WatchlistManager($gateway, $container['user']);
+};
+
+$container['dataGateway'] = function ($container){
+    return new MongoDataGateway($container['connectionFactory']->getConnection());
 };
 
 $app = new \Slim\App($container);

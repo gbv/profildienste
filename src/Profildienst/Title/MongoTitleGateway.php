@@ -8,34 +8,52 @@
 
 namespace Profildienst\Title;
 
+use Config\Configuration;
 use MongoDB\Database;
+use Profildienst\Common\MongoOptionHelper;
 use Profildienst\Title;
+use Profildienst\User\User;
 
 class MongoTitleGateway implements TitleGateway {
 
+    use MongoOptionHelper;
+
     private $titles;
 
-    public function __construct(Database $db) {
+    private $config;
+    private $user;
+
+    public function __construct(Database $db, Configuration $config, User $user) {
         $this->titles = $db->selectCollection('titles');
+
+        $this->config = $config;
+        $this->user = $user;
     }
 
-    public function getTitleById($userId, $titleId) {
+    public function getTitleById($titleId) {
         // TODO: Implement getTitleById() method.
     }
 
-    public function getTitlesByStatus($userId, $status, $limit, $skip) { //TODO: page statt limit und skip
-        $query = ['$and' => [['user' => $userId], ['status' => $status]]];
+    public function deleteTitle($id) {
+        // TODO: Implement deleteTitle() method.
+    }
 
-        // limit results if parameters are given
-        $options = [];
-        if (!is_null($limit)) {
-            $options['limit'] = $limit;
-        }
+    public function getTitleCountWithStatus($status) {
+        $query = ['$and' => [['user' => $this->user->getId()], ['status' => $status]]];
+        return $this->titles->count($query);
+    }
 
-        if (!is_null($skip)) {
-            $options['skip'] = $skip;
-        }
+    public function getTitlesByStatus($status, $page) {
+        $options = self::sortedPageOptions($this->config, $this->user, $page);
+        return $this->getTitles($status, $options);
+    }
 
+    public function getAllTitlesByStatus($status) {
+        return $this->getTitles($status);
+    }
+
+    private function getTitles($status, $options = []){
+        $query = ['$and' => [['user' => $this->user->getId()], ['status' => $status]]];
         $cursor = $this->titles->find($query, $options);
 
         $titles = [];
@@ -45,14 +63,5 @@ class MongoTitleGateway implements TitleGateway {
 
         return $titles;
 
-    }
-
-    public function deleteTitle($userId, $id) {
-        // TODO: Implement deleteTitle() method.
-    }
-
-    public function getTitleCountWithStatus($userId, $status) {
-        $query = ['$and' => [['user' => $userId], ['status' => $status]]];
-        return $this->titles->count($query);
     }
 }

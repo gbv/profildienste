@@ -11,9 +11,10 @@ namespace Profildienst\Title;
 
 interface TitleGateway {
 
-    public function getTitleById($userId, $titleId);
-    public function getTitlesByStatus($userId, $status, $limit, $skip);
-    public function getTitleCountWithStatus($userId, $status);
-    public function deleteTitle($userId, $id);
+    public function getTitleById($titleId);
+    public function getTitlesByStatus($status, $page);
+    public function getAllTitlesByStatus($status);
+    public function getTitleCountWithStatus($status);
+    public function deleteTitle($id);
 
 }

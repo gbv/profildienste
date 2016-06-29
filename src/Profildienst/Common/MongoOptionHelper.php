@@ -6,7 +6,7 @@
  * Time: 16:01
  */
 
-namespace Profildienst;
+namespace Profildienst\Common;
 
 
 use Config\Configuration;

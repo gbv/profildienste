@@ -9,52 +9,68 @@
 namespace Profildienst\Cart;
 
 
+use Profildienst\Common\DataGateway;
 use Profildienst\Title\Title;
 use Profildienst\Title\TitleRepository;
 
 class Cart {
 
     private $titleRepository;
+    private $dataGateway;
 
     private $totalPrice;
     private $priceKnown;
     private $priceEstimated;
 
-    public function __construct(TitleRepository $titleRepository){
+    public function __construct(TitleRepository $titleRepository, DataGateway $dataGateway) {
         $this->titleRepository = $titleRepository;
+        $this->dataGateway = $dataGateway;
+
+        $this->totalPrice = 0;
+        $this->priceKnown = 0;
+        $this->priceEstimated = 0;
+
+        $titles = $this->titleRepository->getAllTitlesByStatus('cart');
+        $mean = $dataGateway->getMean();
+        foreach ($titles as $title) {
+            $price = $title->getEURPrice();
+            if (is_null($price)) {
+                $price = $mean;
+                $this->priceEstimated++;
+            } else {
+                $this->priceKnown++;
+            }
+
+            $this->totalPrice += $price;
+        }
     }
 
-    public function getAllTitles(){
-        $titles = $this->titleRepository->getTitlesByStatus('cart');
+
+    public function getTitles($page) {
+        return $this->titleRepository->getTitlesByStatus('cart', $page);
     }
 
-    public function getTitles($page){
-        return $this->titleRepository->getTitlesByView('cart', $page);
+    public function addTitle(Title $title) {
+        // hier auch beachten, dass price geupdated werden muss
     }
 
-    public function addTitle(Title $title){
-
-    }
-    public function removeTitle(Title $title){
-
+    public function removeTitle(Title $title) {
+        // hier auch beachten, dass price geupdated werden muss
     }
 
-    public function getCount(){
-        return $this->titleRepository->getTitleCountInView('cart');
+    public function getCount() {
+        return $this->titleRepository->getTitleCountWithStatus('cart');
     }
 
     public function getPrice() {
-        // TODO
         return $this->totalPrice;
     }
 
     public function getPriceKnown() {
-        // TODO
         return $this->priceKnown;
     }
 
     public function getPriceEstimated() {
-        // TODO
         return $this->priceEstimated;
     }
 
