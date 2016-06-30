@@ -12,7 +12,7 @@ namespace Routes;
 use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
 
-class CartRoute extends Route{
+class CartRoute extends ViewRoute{
 
     private $cart;
 
@@ -42,5 +42,40 @@ class CartRoute extends Route{
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
+
+    ///** TODO */
+// * Cart
+// */
+//$app->group('/cart', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->post('/remove', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\RemoveCart($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//
+//  $app->post('/add', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $view = $app->request()->post('view');
+//
+//    $m = new \AJAX\Cart($id, $view, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//});
+
+///** TODO */
+// * Order
+// */
+//$app->post('/order', $authenticate($app, $auth), function () use ($app, $auth) {
+//  $m = new \Special\Order($auth);
+//  printResponse($m->getResponse());
+//});
+//
 
 }

@@ -13,22 +13,9 @@ use Interop\Container\ContainerInterface;
 use Profildienst\GetView;
 use Responses\TitlelistResponse;
 
-class TitleRoute extends Route{
+class TitleRoute extends ViewRoute{
+    
 
-    private $titleRepository;
-    private $config;
-
-    public function __construct(ContainerInterface $ci) {
-        parent::__construct($ci);
-        $this->titleRepository = $this->ci->get('titleRepository');
-        $this->config = $this->ci->get('config');
-    }
-
-
-    public function getMainView($request, $response, $args){
-        $page = self::validatePage($args);
-        return $this->makeTitleResponse('normal', $page, $response);
-    }
 /*
     public function getPendingView($request, $response, $args){
         $resp = $this->makeTitleResponse('pending', self::validatePage($args));
@@ -40,17 +27,9 @@ class TitleRoute extends Route{
         return self::generateJSONResponse($resp, $response);
     }
 
-    public function getRejectedView($request, $response, $args){
-        $resp = $this->makeTitleResponse('rejected', self::validatePage($args));
-        return self::generateJSONResponse($resp, $response);
-    }*/
+*/
 
-    private function makeTitleResponse($view, $page, $response){
-        $titles = $this->titleRepository->getTitlesByStatus($view, $page);
-        $totalCount = $this->titleRepository->getTitleCountWithStatus($view);
 
-        return self::titlePageResponse($titles, $page, $totalCount, $response);
-    }
 
     public function saveTitleInformation($request, $response, $args){
 //

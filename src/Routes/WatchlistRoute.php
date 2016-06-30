@@ -13,7 +13,7 @@ use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
 use Responses\TitlelistResponse;
 
-class WatchlistRoute extends Route {
+class WatchlistRoute extends ViewRoute {
 
     private $watchlistManager;
 
@@ -50,5 +50,44 @@ class WatchlistRoute extends Route {
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
+
+
+//
+///** TODO */
+// * Watchlists
+// */
+//$app->group('/watchlist', $authenticate($app, $auth), function () use ($app, $auth) {
+//
+//  $app->post('/remove', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $wl = $app->request()->post('wl');
+//
+//    $m = new \AJAX\RemoveWatchlist($id, $wl, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//  $app->post('/add', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $wl = $app->request()->post('wl');
+//
+//    $m = new \AJAX\Watchlist($id, $wl, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//  $app->post('/manage', function () use ($app, $auth) {
+//
+//    $id = $app->request()->post('id');
+//    $type = $app->request()->post('type');
+//    $content = $app->request()->post('content');
+//
+//    $m = new \AJAX\WatchlistManager($id, $type, $content, $auth);
+//    printResponse($m->getResponse());
+//  });
+//
+//});
+//
+
 
 }

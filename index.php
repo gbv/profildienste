@@ -68,16 +68,16 @@ $container['titleRepository'] = function ($container) {
     return new TitleRepository($gateway, $container['titleFactory']);
 };
 
-$container['titleFactory'] = function ($container){
+$container['titleFactory'] = function ($container) {
     return new TitleFactory();
 };
 
-$container['watchlistManager'] = function ($container){
+$container['watchlistManager'] = function ($container) {
     $gateway = new MongoWatchlistGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
     return new WatchlistManager($gateway, $container['user']);
 };
 
-$container['dataGateway'] = function ($container){
+$container['dataGateway'] = function ($container) {
     return new MongoDataGateway($container['connectionFactory']->getConnection());
 };
 
@@ -114,93 +114,6 @@ $container['notFoundHandler'] = function ($container) {
 $app->post('/auth', '\Routes\AuthRoute:performAuthentication');
 $app->get('/libraries', '\Routes\LibraryRoute:getLibraries');
 
-//
-///**
-// * Watchlists
-// */
-//$app->group('/watchlist', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->post('/remove', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $wl = $app->request()->post('wl');
-//
-//    $m = new \AJAX\RemoveWatchlist($id, $wl, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//  $app->post('/add', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $wl = $app->request()->post('wl');
-//
-//    $m = new \AJAX\Watchlist($id, $wl, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//  $app->post('/manage', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $type = $app->request()->post('type');
-//    $content = $app->request()->post('content');
-//
-//    $m = new \AJAX\WatchlistManager($id, $type, $content, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//});
-//
-///**
-// * Cart
-// */
-//$app->group('/cart', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->post('/remove', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\RemoveCart($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//
-//  $app->post('/add', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\Cart($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//});
-//
-///**
-// * Reject
-// */
-//$app->group('/reject', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->post('/remove', function () use ($app, $auth) {
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\RemoveReject($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//
-//  $app->post('/add', function () use ($app, $auth) {
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\Reject($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//});
-//
-
 /**
  * User related information
  */
@@ -215,15 +128,6 @@ $app->group('/user', function () {
  */
 $app->get('/settings', '\Routes\SettingsRoute:getSettings')->add($auth);
 $app->post('/settings', '\Routes\SettingsRoute:changeSetting')->add($auth);
-
-///**
-// * Order
-// */
-//$app->post('/order', $authenticate($app, $auth), function () use ($app, $auth) {
-//  $m = new \Special\Order($auth);
-//  printResponse($m->getResponse());
-//});
-//
 
 $app->group('/cart', function () {
     $this->get('[/page/{page}]', '\Routes\CartRoute:getCartView');
@@ -249,38 +153,29 @@ $app->group('/search', function () {
 
 
 $app->group('/overview', function () {
-    $this->get('[/page/{page}]', '\Routes\TitleRoute:getMainView');
+    $this->get('[/page/{page}]', '\Routes\OverviewRoute:getMainView');
 })->add($auth);
 
-$app->group('/title', function () {
-    $this->post('/info', '\Routes\TitleRoute:titleInfo');
-    $this->post('/opac', '\Routes\TitleRoute:getOPACLink');
+$app->group('/rejected', function () {
+    $this->get('[/page/{page}]', '\Routes\RejectRoute:getRejectedView');
+    $this->post('/add', '\Routes\RejectRoute:addRejectedTitles');
+    $this->post('/remove', '\Routes\RejectRoute:removeRejectedTitles');
 })->add($auth);
-/*
-$this->get('/pending[/page/{page}]', '\Routes\ViewRoute:getPendingView');
-$this->get('/done[/page/{page}]', '\Routes\ViewRoute:getDoneView');
-$this->get('/rejected[/page/{page}]', '\Routes\ViewRoute:getRejectedView');
-$this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
-$this->post('/delete', '\Routes\TitleRoute:delete');
-*/
 
-//  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
-//    try {
-//
-//      if($queryType === 'advanced'){
-//        $query = json_decode($query, true);
-//      }
-//
-//      $m = new \Search\Search($query, $queryType, $num, $auth);
-//      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
-//    } catch (\Exception $e) {
-//      printResponse(NULL, true, $e->getMessage());
-//    }
-//
-//  });
-//
+$app->group('/pending', function () {
+    $this->get('[/page/{page}]', '\Routes\PendingRoute:getPendingView');
+})->add($auth);
 
-//});
-//
+$app->group('/done', function () {
+    $this->get('[/page/{page}]', '\Routes\DoneRoute:getDoneView');
+})->add($auth);
+
+$app->group('/titles', function () {
+    /*$this->get('/title/{id}/info', '\Routes\TitleRoute:titleInfo');
+    $this->get('/opac', '\Routes\TitleRoute:getOPACLink');
+    $this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
+    $this->delete('/delete', '\Routes\TitleRoute:delete');*/
+})->add($auth);
+
 $app->run();
 

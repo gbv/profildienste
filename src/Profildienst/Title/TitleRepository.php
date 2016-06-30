@@ -10,6 +10,7 @@ namespace Profildienst\Title;
 
 
 use Config\Configuration;
+use Exceptions\UserException;
 use Profildienst\User\User;
 
 class TitleRepository {
@@ -36,8 +37,30 @@ class TitleRepository {
         return $this->gateway->getTitleCountWithStatus($status);
     }
 
-    public function findTitleById($id) {
-
+    public function findTitlesById($ids) {
+        $titleData = $this->gateway->getTitlesById($ids);
+        return $this->titleFactory->createTitleList($titleData);
     }
+
+    public function changeStatusOfTitles($ids, $newStatus){
+
+        $titles = $this->findTitlesById($ids);
+
+        foreach($titles as $title){
+            if(!$this->allowReject($title->getStatus()) || $title->isInWatchlist()){
+                throw new UserException('This selection of titles can not be rejected');
+            }
+        }
+        
+        if (!$this->gateway->updateTitlesWithIds($ids, $newStatus)){
+            throw new UserException('Nothing to change or updating failed.');
+        }
+    }
+
+    private function allowReject($oldState){
+        return $oldState !== 'cart' && $oldState !== 'done' && $oldState !== 'pending';
+    }
+
+
 
 }

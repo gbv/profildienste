@@ -11,7 +11,7 @@ namespace Routes;
 
 use Responses\BasicResponse;
 
-class SearchRoute extends Route{
+class SearchRoute extends ViewRoute{
 
     public function getSearchOptions($request, $response, $args){
 
@@ -41,5 +41,26 @@ class SearchRoute extends Route{
         return self::generateJSONResponse(new BasicResponse($data), $response);
 
     }
+
+
+// TODO
+//  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
+//    try {
+//
+//      if($queryType === 'advanced'){
+//        $query = json_decode($query, true);
+//      }
+//
+//      $m = new \Search\Search($query, $queryType, $num, $auth);
+//      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
+//    } catch (\Exception $e) {
+//      printResponse(NULL, true, $e->getMessage());
+//    }
+//
+//  });
+//
+
+//});
+//
 
 }

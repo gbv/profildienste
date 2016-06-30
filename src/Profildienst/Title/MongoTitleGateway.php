@@ -30,8 +30,17 @@ class MongoTitleGateway implements TitleGateway {
         $this->user = $user;
     }
 
-    public function getTitleById($titleId) {
-        // TODO: Implement getTitleById() method.
+    public function getTitlesById(array $titleIds) {
+        $query = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $titleIds]]]];
+
+        $cursor = $this->titles->find($query);
+
+        $titles = [];
+        foreach ($cursor as $titleData) {
+            $titles[] = $titleData;
+        }
+
+        return $titles;
     }
 
     public function deleteTitle($id) {
@@ -62,6 +71,24 @@ class MongoTitleGateway implements TitleGateway {
         }
 
         return $titles;
+    }
 
+
+    public function updateTitlesWithStatus($oldStatus, $newStatus) {
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['status' => $oldStatus]]];
+        $update = ['$set' => ['status' => $newStatus]];
+        
+        $result = $this->titles->updateMany($criterion, $update);
+
+        return $result->isAcknowledged() && ($result->getModifiedCount() > 0);
+    }
+
+    public function updateTitlesWithIds(array $ids, $newStatus) {
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];
+        $update = ['$set' => ['status' => $newStatus]];
+
+        $result = $this->titles->updateMany($criterion, $update);
+
+        return $result->isAcknowledged();
     }
 }

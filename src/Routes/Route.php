@@ -11,7 +11,7 @@ namespace Routes;
 
 use Interop\Container\ContainerInterface;
 use Responses\APIResponse;
-use Responses\TitlelistResponse;
+use Responses\ErrorResponse;
 use Slim\Http\Response;
 
 abstract class Route {
@@ -36,22 +36,4 @@ abstract class Route {
         return $out->withJson($resp, $status);
 
     }
-
-    protected static function validatePage($args){
-        $page = ($args['page'] ?? 0);
-
-        if (empty($page) || !filter_var($page, FILTER_VALIDATE_INT) || $page < 0){
-            $page = 0;
-        }
-
-        return $page;
-    }
-
-    public function titlePageResponse($titles, $page, $totalCount, $response){
-
-        $more = ($this->ci->get('config')->getPagesize() * ($page+1) < $totalCount);
-
-        return self::generateJSONResponse(new TitlelistResponse($titles, $totalCount, $more), $response);
-    }
-
 }
