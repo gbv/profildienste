@@ -132,8 +132,8 @@ $app->post('/settings', '\Routes\SettingsRoute:changeSetting')->add($auth);
 $app->group('/cart', function () {
     $this->get('[/page/{page}]', '\Routes\CartRoute:getCartView');
     $this->get('/info', '\Routes\CartRoute:getCartInformation');
-    // add
-    // remove
+    $this->post('/add', '\Routes\CartRoute:addTitlesToCart');
+    $this->post('/remove', '\Routes\CartRoute:removeTitlesFromCart');
     // orderlist
     // order
 })->add($auth);

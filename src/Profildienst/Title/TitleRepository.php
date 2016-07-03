@@ -43,23 +43,14 @@ class TitleRepository {
     }
 
     public function changeStatusOfTitles($ids, $newStatus){
-
-        $titles = $this->findTitlesById($ids);
-
-        foreach($titles as $title){
-            if(!$this->allowReject($title->getStatus()) || $title->isInWatchlist()){
-                throw new UserException('This selection of titles can not be rejected');
-            }
-        }
-        
-        if (!$this->gateway->updateTitlesWithIds($ids, $newStatus)){
-            throw new UserException('Nothing to change or updating failed.');
-        }
+        return $this->gateway->updateTitlesWithIds($ids, $newStatus);
     }
 
-    private function allowReject($oldState){
-        return $oldState !== 'cart' && $oldState !== 'done' && $oldState !== 'pending';
+    public function changeStatusOfView($oldStatus, $newStatus){
+        return $this->gateway->updateTitlesWithStatus($oldStatus, $newStatus);
     }
+
+
 
 
 

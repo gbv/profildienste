@@ -14,6 +14,8 @@ use Responses\ActionResponse;
 
 class RejectRoute extends ViewRoute {
 
+    use ActionHandler;
+
     public function getRejectedView($request, $response, $args) {
         $page = self::validatePage($args);
         return $this->makeTitleResponse('rejected', $page, $response);
@@ -21,70 +23,28 @@ class RejectRoute extends ViewRoute {
 
     public function addRejectedTitles($request, $response, $args) {
 
-        $parameters = $request->getParsedBody();
-
-        $affected = $parameters['affected'];
-
-        if (is_null($affected) || empty($affected)) {
-            throw new UserException('At least one title must be affected by the change!');
+        $affected = $this->handleStatusChange($request, 'rejected', function ($oldState) {
+            return $oldState !== 'cart' && $oldState !== 'done' && $oldState !== 'pending';
+        });
+        if (is_null($affected)) {
+            throw new UserException('Failed to update rejected titles.');
         }
 
-        if(is_array($affected)){
-            $this->titleRepository->changeStatusOfTitles($affected, 'rejected');
-        } else {
-            // view betroffen TODO
-        }
-        
         return self::generateJSONResponse(new ActionResponse($affected, 'rejected'), $response);
 
     }
 
     public function removeRejectedTitles($request, $response, $args) {
 
-        $parameters = $request->getParsedBody();
-
-        $affected = $parameters['affected'];
-
-        if (is_null($affected) || empty($affected)) {
-            throw new UserException('At least one title must be affected by the change!');
-        }
-
-        if(is_array($affected)){
-            $this->titleRepository->changeStatusOfTitles($affected, 'normal');
-        } else {
-            // view betroffen TODO
+        $affected = $this->handleStatusChange($request, 'normal', function ($oldState){
+            return $oldState === 'rejected';
+        });
+        if (is_null($affected)) {
+            throw new UserException('Failed to remove rejected titles.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'overview'), $response);
 
     }
-
-
-    //
-///** TODO */
-// * Reject
-// */
-//$app->group('/reject', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->post('/remove', function () use ($app, $auth) {
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\RemoveReject($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//
-//  $app->post('/add', function () use ($app, $auth) {
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\Reject($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//});
-//
-
 
 }

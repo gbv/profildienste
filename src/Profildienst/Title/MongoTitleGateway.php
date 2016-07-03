@@ -9,6 +9,7 @@
 namespace Profildienst\Title;
 
 use Config\Configuration;
+use MongoDB\BSON\UTCDatetime;
 use MongoDB\Database;
 use Profildienst\Common\MongoOptionHelper;
 use Profildienst\Title;
@@ -76,16 +77,22 @@ class MongoTitleGateway implements TitleGateway {
 
     public function updateTitlesWithStatus($oldStatus, $newStatus) {
         $criterion = ['$and' => [['user' => $this->user->getId()], ['status' => $oldStatus]]];
-        $update = ['$set' => ['status' => $newStatus]];
+        $update = ['$set' => [
+            'status' => $newStatus,
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
         
         $result = $this->titles->updateMany($criterion, $update);
 
-        return $result->isAcknowledged() && ($result->getModifiedCount() > 0);
+        return $result->isAcknowledged();
     }
 
     public function updateTitlesWithIds(array $ids, $newStatus) {
         $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];
-        $update = ['$set' => ['status' => $newStatus]];
+        $update = ['$set' => [
+            'status' => $newStatus,
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
 
         $result = $this->titles->updateMany($criterion, $update);
 

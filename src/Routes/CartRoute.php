@@ -10,9 +10,12 @@ namespace Routes;
 
 
 use Interop\Container\ContainerInterface;
+use Responses\ActionResponse;
 use Responses\BasicResponse;
 
-class CartRoute extends ViewRoute{
+class CartRoute extends ViewRoute {
+
+    use ActionHandler;
 
     private $cart;
 
@@ -21,7 +24,7 @@ class CartRoute extends ViewRoute{
         $this->cart = $this->ci->get('cart');
     }
 
-    public function getCartView($request, $response, $args){
+    public function getCartView($request, $response, $args) {
         $page = self::validatePage($args);
         $titles = $this->cart->getTitles($page);
         $totalCount = $this->cart->getCount();
@@ -29,7 +32,7 @@ class CartRoute extends ViewRoute{
         return self::titlePageResponse($titles, $page, $totalCount, $response);
     }
 
-    public function getCartInformation($request, $response, $args){
+    public function getCartInformation($request, $response, $args) {
 
         $data = [
             'count' => $this->cart->getCount(),
@@ -43,31 +46,31 @@ class CartRoute extends ViewRoute{
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
-    ///** TODO */
-// * Cart
-// */
-//$app->group('/cart', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $app->post('/remove', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\RemoveCart($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//
-//  $app->post('/add', function () use ($app, $auth) {
-//
-//    $id = $app->request()->post('id');
-//    $view = $app->request()->post('view');
-//
-//    $m = new \AJAX\Cart($id, $view, $auth);
-//    printResponse($m->getResponse());
-//  });
-//
-//});
+    public function addTitlesToCart($request, $response, $args) {
+
+        $affected = $this->handleStatusChange($request, 'cart', function ($oldStatus) {
+            return $oldStatus !== 'done' && $oldStatus !== 'pending' && $oldStatus !== 'rejected';
+        });
+        
+        if (is_null($affected)) {
+            throw new UserException('Failed to update titles in cart.');
+        }
+
+        return self::generateJSONResponse(new ActionResponse($affected, 'cart'), $response);
+    }
+
+    public function removeTitlesFromCart($request, $response, $args) {
+
+        $affected = $this->handleStatusChange($request, 'normal', function ($oldStatus) {
+            return $oldStatus === 'cart';
+        });
+
+        if (is_null($affected)) {
+            throw new UserException('Failed to remove titles from cart.');
+        }
+
+        return self::generateJSONResponse(new ActionResponse($affected, 'overview'), $response);
+    }
 
 ///** TODO */
 // * Order
