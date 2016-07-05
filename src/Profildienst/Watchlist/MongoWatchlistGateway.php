@@ -10,6 +10,7 @@ namespace Profildienst\Watchlist;
 
 
 use Config\Configuration;
+use MongoDB\BSON\UTCDatetime;
 use MongoDB\Database;
 use Profildienst\Common\MongoOptionHelper;
 use Profildienst\User\User;
@@ -63,5 +64,29 @@ class MongoWatchlistGateway implements WatchlistGateway{
     public function getWatchlists() {
         $wlData = $this->users->findOne(['_id' => $this->user->getId()], ['projection' => ['watchlists' => true]]);
         return $wlData['watchlists'];
+    }
+
+    public function updateTitlesWatchlist(array $ids, $watchlistId) {
+        // TODO: check if watchlist is null before updating
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];
+        $update = ['$set' => [
+            'watchlist' => $watchlistId,
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
+
+        $result = $this->titles->updateMany($criterion, $update);
+        return $result->isAcknowledged();
+    }
+
+    public function updateViewsWatchlist($status, $watchlistId) {
+        // TODO: check if watchlist is null before updating
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['status' => $status]]];
+        $update = ['$set' => [
+            'watchlist' => $watchlistId,
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
+
+        $result = $this->titles->updateMany($criterion, $update);
+        return $result->isAcknowledged();
     }
 }

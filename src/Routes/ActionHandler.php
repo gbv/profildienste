@@ -13,7 +13,7 @@ use Exceptions\UserException;
 
 trait ActionHandler {
 
-    private function handleStatusChange($request, $newStatus, $allow){
+    private function validateAffectedTitles($request) {
 
         $parameters = $request->getParsedBody();
 
@@ -23,16 +23,23 @@ trait ActionHandler {
             throw new UserException('At least one title must be affected by the change!');
         }
 
-        if(is_array($affected)){
+        return $affected;
+    }
+
+    private function handleStatusChange($request, $newStatus, $allow) {
+
+        $affected = $this->validateAffectedTitles($request);
+
+        if (is_array($affected)) {
 
             $titles = $this->titleRepository->findTitlesById($affected);
 
-            if (count($titles) === 0){
+            if (count($titles) === 0) {
                 throw new UserException('No titles with the given IDs found!');
             }
 
-            foreach($titles as $title){
-                if(!$allow($title->getStatus(), $title->isInWatchlist())){
+            foreach ($titles as $title) {
+                if (!$allow($title->getStatus(), $title->isInWatchlist())) {
                     throw new UserException('This action is not allowed on the selection of titles!');
                 }
             }
@@ -45,7 +52,7 @@ trait ActionHandler {
                 $affected = 'normal';
             }
 
-            if(!$this->allow($newStatus, null)){
+            if (!$this->allow($newStatus, null)) {
                 throw new UserException('This action is not allowed on the selection of titles!');
             }
 

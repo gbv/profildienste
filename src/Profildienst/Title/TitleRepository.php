@@ -50,8 +50,12 @@ class TitleRepository {
         return $this->gateway->updateTitlesWithStatus($oldStatus, $newStatus);
     }
 
+    public function changeWatchlistOfTitles($ids, $newWatchlist){
 
+    }
 
-
+    public function changeWatchlistOfView($status, $newWatchlist){
+        return $this->gateway->updateTitlesWatchlistsWithIds($ids, $newStatus);
+    }
 
 }

@@ -12,6 +12,7 @@
  * @package Profildienst
  */
 namespace Profildienst\Title;
+use Profildienst\Watchlist\WatchlistManager;
 
 /**
  * Class which represents a title
@@ -95,13 +96,17 @@ class Title {
      */
     private $ilns;
 
+    private $watchlistManager;
+
     /**
      * Creates a new title from the given JSON.
      *
      * @param $json array JSON Data
+     * @param WatchlistManager $watchlistManager
      */
-    public function __construct($json) {
+    public function __construct($json, WatchlistManager $watchlistManager) {
         $this->j = $json;
+        $this->watchlistManager = $watchlistManager;
 
         if (is_null($json['XX02']) || !$json['XX02']) {
             $this->cover = null;
@@ -226,7 +231,7 @@ class Title {
      * @param $v string Property
      * @return string|array
      */
-    public function getDirectly($v) {
+    private function getDirectly($v) {
         return isset($this->j[$v]) ? $this->j[$v] : null;
     }
 
@@ -254,8 +259,8 @@ class Title {
      *
      * @return int|null the ID of the watchlist
      */
-    public function getWlID() {
-        return $this->j['watchlist'];
+    public function getWatchlist() {
+        return $this->isInWatchlist() ? $this->watchlistManager->getWatchlist($this->j['watchlist']) : null;
     }
 
     /**
@@ -447,6 +452,10 @@ class Title {
         return $this->j['status'];
     }
 
+    public function getId() {
+        return $this->getDirectly('_id');
+    }
+
     /**
      * Extracts the relevant information from a title to display it.
      *
@@ -455,56 +464,60 @@ class Title {
      */
     public function toJson() {
 
+        $watchlist = $this->getWatchlist();
+        $wlName = is_null($watchlist) ? null : $watchlist->getName();
+        $wlId= is_null($watchlist) ? null : $watchlist->getId();
+
         $r = [
-            'id' => $this->getDirectly('_id'),
+            'id' => $this->getId(),
 
-            'hasCover'     => $this->hasCover(),
-            'cover_md'     => $this->getMediumCover(),
-            'cover_lg'     => $this->getLargeCover(),
+            'hasCover' => $this->hasCover(),
+            'cover_md' => $this->getMediumCover(),
+            'cover_lg' => $this->getLargeCover(),
 
-            'titel'        => $this->get('titel'),
-            'untertitel'   => $this->get('untertitel'),
-            'verfasser'    => $this->get('verfasser'),
+            'titel' => $this->get('titel'),
+            'untertitel' => $this->get('untertitel'),
+            'verfasser' => $this->get('verfasser'),
             'ersch_termin' => $this->get('voraus_ersch_termin'),
-            'verlag'       => $this->get('verlag'),
-            'ort'          => $this->get('ort'),
-            'umfang'       => $this->get('umfang'),
-            'ill_angabe'   => $this->get('illustrations_angabe'),
-            'format'       => $this->get('format'),
+            'verlag' => $this->get('verlag'),
+            'ort' => $this->get('ort'),
+            'umfang' => $this->get('umfang'),
+            'ill_angabe' => $this->get('illustrations_angabe'),
+            'format' => $this->get('format'),
 
-            'preis'        => $this->get('lieferbedingungen_preis'),
-            'preis_kom'    => $this->get('kommentar_lieferbedingungen_preis'),
+            'preis' => $this->get('lieferbedingungen_preis'),
+            'preis_kom' => $this->get('kommentar_lieferbedingungen_preis'),
 
-            'mak'          => $this->getMAK(),
-            'ilns'         => $this->getILNS(),
-            'ppn'          => $this->get('gvkt_ppn'),
+            'mak' => $this->getMAK(),
+            'ilns' => $this->getILNS(),
+            'ppn' => $this->get('gvkt_ppn'),
 
-            'ersch_jahr'   => $this->get('erscheinungsjahr'),
-            'gattung'      => $this->get('gattung'),
-            'dnbnum'       => $this->get('dnb_nummer'),
-            'wvdnb'        => $this->get('wv_dnb'),
-            'sachgruppe'   => $this->get('sachgruppe'),
-            'zugeordnet'   => $this->getAssigned(),
+            'ersch_jahr' => $this->get('erscheinungsjahr'),
+            'gattung' => $this->get('gattung'),
+            'dnbnum' => $this->get('dnb_nummer'),
+            'wvdnb' => $this->get('wv_dnb'),
+            'sachgruppe' => $this->get('sachgruppe'),
+            'zugeordnet' => $this->getAssigned(),
 
-            'addInfURL'    => $this->get('addr_erg_ang_url'),
+            'addInfURL' => $this->get('addr_erg_ang_url'),
 
-            'lft'          => $this->getLft(),
-            'budget'       => $this->getBdg(),
-            'selcode'      => $this->getSelcode(),
-            'ssgnr'        => $this->getSSGNr(),
-            'comment'      => $this->getComment(),
+            'lft' => $this->getLft(),
+            'budget' => $this->getBdg(),
+            'selcode' => $this->getSelcode(),
+            'ssgnr' => $this->getSSGNr(),
+            'comment' => $this->getComment(),
 
             'status' => [
-                'rejected'     => $this->isRejected(),
-                'done'         => $this->isDone(),
-                'cart'         => $this->isInCart(),
-                'pending'      => $this->isPending(),
-                'lastChange'   => ($this->isPending() || $this->isDone()) ? (int)((string)$this->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
-                'selected'     => false,
-                'watchlist'    => [
-                    'watched'      => $this->isInWatchlist(),
-                    'id'           => $this->getWlID(),
-                    'name'         => $this->getWlName()
+                'rejected' => $this->isRejected(),
+                'done' => $this->isDone(),
+                'cart' => $this->isInCart(),
+                'pending' => $this->isPending(),
+                'lastChange' => ($this->isPending() || $this->isDone()) ? (int)((string)$this->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
+                'selected' => false,
+                'watchlist' => [
+                    'watched' => $this->isInWatchlist(),
+                    'id' => $wlId,
+                    'name' => $wlName
                 ]
             ]
         ];
@@ -534,12 +547,12 @@ class Title {
         if (!is_null($this->get('dnb_nummer'))) {
             $r['dnb_link'] = 'http://d-nb.info/' . $this->get('dnb_nummer');
         }
-        
+
         return $r;
     }
 
 
-    public function getRawJson(){
+    public function getRawJson() {
         return $this->j;
     }
 

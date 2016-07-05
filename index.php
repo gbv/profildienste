@@ -25,7 +25,6 @@ set_error_handler(function ($errno, $errstr) {
     throw new Exception($errstr, $errno);
 }, E_ALL);
 
-
 $slimConfiguration = [
     'settings' => [
         'displayErrorDetails' => true,
@@ -69,12 +68,12 @@ $container['titleRepository'] = function ($container) {
 };
 
 $container['titleFactory'] = function ($container) {
-    return new TitleFactory();
+    return new TitleFactory($container['watchlistManager']);
 };
 
 $container['watchlistManager'] = function ($container) {
     $gateway = new MongoWatchlistGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
-    return new WatchlistManager($gateway, $container['user']);
+    return new WatchlistManager($gateway);
 };
 
 $container['dataGateway'] = function ($container) {
@@ -141,8 +140,8 @@ $app->group('/cart', function () {
 $app->group('/watchlist', function () {
     $this->get('/list', '\Routes\WatchlistRoute:getWatchlists');
     $this->get('/{id}[/page/{page}]', '\Routes\WatchlistRoute:getWatchlistView');
-    // add
-    // remove
+    $this->post('/{id}/add', '\Routes\WatchlistRoute:addTitlesToWatchlist');
+    $this->post('/{id}/remove', '\Routes\WatchlistRoute:removeTitlesFromWatchlist');
     // manage
 })->add($auth);
 

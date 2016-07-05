@@ -15,5 +15,6 @@ interface WatchlistGateway {
     public function getWatchlistTitleCount($watchlistId);
     public function getWatchlistTitles($watchlistId, $page);
     public function getWatchlists();
+    public function updateTitlesWatchlist(array $ids, $watchlistId);
 
 }

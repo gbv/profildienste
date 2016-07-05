@@ -10,14 +10,21 @@ namespace Profildienst\Watchlist;
 
 
 use Exceptions\UserException;
+use Profildienst\Title\TitleFactory;
 
 class WatchlistManager {
 
     private $watchlists = [];
+
     private $gateway;
+    private $titleFactory;
 
     public function __construct(WatchlistGateway $gateway) {
         $this->gateway = $gateway;
+    }
+
+    public function setTitleFactory(TitleFactory $titleFactory){
+        $this->titleFactory = $titleFactory;
     }
 
     public function getWatchlist($id) {
@@ -59,7 +66,7 @@ class WatchlistManager {
             throw new UserException('The watchlist with this id does not exist.');
         }
 
-        return new Watchlist($id, $data['name'], $data['default'], $this->gateway);
+        return new Watchlist($id, $data['name'], $data['default'], $this->gateway, $this->titleFactory);
     }
 
 }
