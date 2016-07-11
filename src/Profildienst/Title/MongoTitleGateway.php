@@ -98,4 +98,21 @@ class MongoTitleGateway implements TitleGateway {
 
         return $result->isAcknowledged();
     }
+
+    public function updateTitlesOrderInformation(array $ids, $orderInformation) {
+
+        $toUpdate = [];
+        foreach (['budget', 'selcode', 'ssgnr', 'lieft', 'comment'] as $orderInfoField){
+            if (isset($orderInformation[$orderInfoField])){
+                $toUpdate[$orderInfoField] = $orderInformation[$orderInfoField];
+            }
+        }
+
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];
+        $update = ['$set' => $toUpdate];
+
+        $result = $this->titles->updateMany($criterion, $update);
+
+        return $result->isAcknowledged();
+    }
 }

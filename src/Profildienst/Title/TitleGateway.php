@@ -18,4 +18,7 @@ interface TitleGateway {
     public function deleteTitle($id);
     public function updateTitlesWithStatus($oldStatus, $newStatus);
     public function updateTitlesWithIds(array $ids, $newStatus);
+    public function updateTitlesOrderInformation(array $ids, $orderInformation);
+    /* TODO: Currently unsupported
+    public function updateViewOrderInformation(array $ids, $orderInformation); */
 }

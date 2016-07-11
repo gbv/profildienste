@@ -170,10 +170,10 @@ $app->group('/done', function () {
 })->add($auth);
 
 $app->group('/titles', function () {
-    /*$this->get('/title/{id}/info', '\Routes\TitleRoute:titleInfo');
-    $this->get('/opac', '\Routes\TitleRoute:getOPACLink');
+    //$this->get('/{id}/info', '\Routes\TitleRoute:titleInfo');
+    //$this->get('/opac', '\Routes\TitleRoute:getOPACLink');
     $this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
-    $this->delete('/delete', '\Routes\TitleRoute:delete');*/
+    //$this->delete('/delete', '\Routes\TitleRoute:delete');
 })->add($auth);
 
 $app->run();

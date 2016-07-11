@@ -42,20 +42,16 @@ class TitleRepository {
         return $this->titleFactory->createTitleList($titleData);
     }
 
-    public function changeStatusOfTitles($ids, $newStatus){
+    public function changeStatusOfTitles($ids, $newStatus) {
         return $this->gateway->updateTitlesWithIds($ids, $newStatus);
     }
 
-    public function changeStatusOfView($oldStatus, $newStatus){
+    public function changeStatusOfView($oldStatus, $newStatus) {
         return $this->gateway->updateTitlesWithStatus($oldStatus, $newStatus);
     }
 
-    public function changeWatchlistOfTitles($ids, $newWatchlist){
-
-    }
-
-    public function changeWatchlistOfView($status, $newWatchlist){
-        return $this->gateway->updateTitlesWatchlistsWithIds($ids, $newStatus);
+    public function changeOrderInformationOfTitles($ids, $orderInformation) {
+        return $this->gateway->updateTitlesOrderInformation($ids, $orderInformation);
     }
 
 }

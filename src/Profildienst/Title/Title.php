@@ -12,6 +12,7 @@
  * @package Profildienst
  */
 namespace Profildienst\Title;
+use Exceptions\UserException;
 use Profildienst\Watchlist\WatchlistManager;
 
 /**
@@ -20,6 +21,10 @@ use Profildienst\Watchlist\WatchlistManager;
  * Class Title
  */
 class Title {
+
+    private static $allowed_status = [
+      'normal', 'pending', 'done', 'cart', 'watchlist', 'rejected'
+    ];
 
     /**
      * @var array Mapping of readable names to the PICA fields
@@ -232,7 +237,7 @@ class Title {
      * @return string|array
      */
     private function getDirectly($v) {
-        return isset($this->j[$v]) ? $this->j[$v] : null;
+        return $this->j[$v] ?? null;
     }
 
     /**
@@ -264,31 +269,11 @@ class Title {
     }
 
     /**
-     * Returns the name of the watchlist the title is in, or null if the title
-     * is not in a watchlist
-     *
-     * @return string|null Name of the watchlist
-     */
-    public function getWlName() {
-        return $this->wl_name;
-    }
-
-    /**
-     * Sets the name of the watchlist. This is only a simple getter
-     * and does not store anything in the database.
-     *
-     * @param $name string Name
-     */
-    public function setWlName($name) {
-        $this->wl_name = $name;
-    }
-
-    /**
      * Get the Lieferant
      *
      * @return string Lieferant
      */
-    public function getLft() {
+    public function getSupplier() {
         return $this->j['lieft'];
     }
 
@@ -297,12 +282,12 @@ class Title {
      *
      * @return string Budget
      */
-    public function getBdg() {
+    public function getBudget() {
         return $this->j['budget'];
     }
 
     /**
-     * Getter for the complete JSON of the title
+     * Returns relevant export information of this title
      *
      * @return array JSON
      */
@@ -356,6 +341,7 @@ class Title {
         return $this->j['selcode'];
     }
 
+
     /**
      * Getter for the comment
      *
@@ -381,11 +367,7 @@ class Title {
      * @return null|string URL of the medium sized cover
      */
     public function getMediumCover() {
-        if (!is_null($this->cover)) {
-            return $this->cover['md'];
-        } else {
-            return null;
-        }
+        return !is_null($this->cover) ? $this->cover['md'] : null;
     }
 
     /**
@@ -395,11 +377,7 @@ class Title {
      * @return null|string URL of the large cover
      */
     public function getLargeCover() {
-        if (!is_null($this->cover)) {
-            return $this->cover['lg'];
-        } else {
-            return null;
-        }
+        return !is_null($this->cover) ? $this->cover['lg'] : null;
     }
 
     /**
@@ -452,6 +430,7 @@ class Title {
         return $this->j['status'];
     }
 
+
     public function getId() {
         return $this->getDirectly('_id');
     }
@@ -501,8 +480,8 @@ class Title {
 
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
-            'lft' => $this->getLft(),
-            'budget' => $this->getBdg(),
+            'lft' => $this->getSupplier(),
+            'budget' => $this->getBudget(),
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),
@@ -552,7 +531,7 @@ class Title {
     }
 
 
-    public function getRawJson() {
+    public function persist() {
         return $this->j;
     }
 

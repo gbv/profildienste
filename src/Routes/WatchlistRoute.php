@@ -40,9 +40,9 @@ class WatchlistRoute extends ViewRoute {
 
         $watchlists = $this->watchlistManager->getWatchlists();
 
-        $data = [];
+        $data['watchlists'] = [];
         foreach ($watchlists as $watchlist) {
-            $data[] = [
+            $data['watchlists'][] = [
                 'id' => $watchlist->getId(),
                 'name' => $watchlist->getName(),
                 'count' => $watchlist->getTitleCount(),
@@ -70,7 +70,9 @@ class WatchlistRoute extends ViewRoute {
             throw new UserException('Failed to add titles to watchlist.');
         }
 
-        return self::generateJSONResponse(new ActionResponse($affected, 'watchlist', ['id' => $newWatchlist]), $response);
+        $watchlist = $this->watchlistManager->getWatchlist($newWatchlist);
+
+        return self::generateJSONResponse(new ActionResponse($affected, 'watchlist', ['id' => $newWatchlist, 'name' => $watchlist->getName()]), $response);
     }
 
     public function removeTitlesFromWatchlist($request, $response, $args) {
