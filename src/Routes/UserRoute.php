@@ -9,6 +9,7 @@
 namespace Routes;
 
 
+use Exceptions\UserException;
 use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
 
@@ -17,35 +18,37 @@ class UserRoute extends Route {
     private $user;
     private $cart;
     private $config;
+    private $userController;
 
-    public function __construct(ContainerInterface $ci){
+    public function __construct(ContainerInterface $ci) {
         parent::__construct($ci);
 
         $this->user = $this->ci->get('user');
         $this->cart = $this->ci->get('cart');
         $this->config = $this->ci->get('config');
+        $this->userController = $this->ci->get('userController');
     }
 
     public function getUserInformation($request, $response, $args) {
-        
+
         $defaults = $this->user->getDefaults();
 
         $data = [
             'name' => $this->user->getName(),
             'motd' => $this->config->getMOTD(),
             'defaults' => [
-                'lft'     => $defaults['lieft'],
-                'budget'  => $defaults['budget'],
-                'ssgnr'   => $defaults['ssgnr'],
+                'lft' => $defaults['lieft'],
+                'budget' => $defaults['budget'],
+                'ssgnr' => $defaults['ssgnr'],
                 'selcode' => $defaults['selcode']
             ],
             'budgets' => $this->user->getBudgets()
         ];
 
-        return $this->generateJSONResponse(new BasicResponse($data), $response);
+        return self::generateJSONResponse(new BasicResponse($data), $response);
     }
-    
-    public function getSettings($request, $response, $args){
+
+    public function getSettings($request, $response, $args) {
 
         $data = [
             'settings' => $this->user->getSettings()
@@ -54,7 +57,7 @@ class UserRoute extends Route {
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
-    public function getOrderlist($request, $response, $args){
+    public function getOrderlist($request, $response, $args) {
         throw new \RuntimeException('Not implemented yet!');
 //        try {
 //      $m = new \Special\Orderlist($auth);
@@ -64,5 +67,46 @@ class UserRoute extends Route {
 //      printResponse(NULL, true, $e->getMessage());
 //    }
         // TODO
+    }
+
+
+    public function changeSetting($request, $response, $args) {
+
+        // validate parameters
+        $parameters = $request->getParsedBody();
+        $type = $parameters['type'];
+        $value = $parameters['value'];
+
+
+        if (empty($type) || !in_array($type, ['order', 'sortby'])) {
+            throw new UserException('Unknown or empty setting');
+        }
+
+        if ($type === 'order' && !in_array($value, array_keys($this->config->getOrderOptions()))) {
+            throw new UserException('Unknown order option');
+        }
+
+        if ($type === 'sortby' && !in_array($value, array_keys($this->config->getSortOptions()))) {
+            throw new UserException('Unknown sort option');
+        }
+
+        // update settings
+        if ($type === 'order') {
+            $this->user->setOrderSetting($value);
+        } else if ($type === 'sortby') {
+            $this->user->setSortSetting($value);
+        }
+
+        // persist changes
+        $this->userController->persist($this->user);
+
+        // response
+        $data = [
+            'type' => $type,
+            'value' => $value
+        ];
+
+        return self::generateJSONResponse(new BasicResponse($data), $response);
+
     }
 }

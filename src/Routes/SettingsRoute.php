@@ -38,20 +38,6 @@ class SettingsRoute extends Route {
         return $nvlist;
     }
 
-    public function changeSetting($request, $response, $args) {
-        ///**
-// * Settings
-// */
-//$app->post('/settings', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $type = $app->request()->post('type');
-//  $value = $app->request()->post('value');
-//
-//  $m = new \AJAX\ChangeSetting($type, $value, $auth);
-//  printResponse($m->getResponse());
-//});
-//
-//
-    }
+    
 
 }

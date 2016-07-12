@@ -34,10 +34,9 @@ trait MongoOptionHelper {
 
         $order = $userSettings['order'] === 'asc' ? 1 : -1;
 
-        $options['sort'] = [
+        $opt['sort'] = [
             self::$sortMapping[$userSettings['sortby']] => $order
         ];
-
 
         return $opt;
     }

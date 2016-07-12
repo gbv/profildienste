@@ -97,4 +97,12 @@ class User {
         return $this->budgets;
     }
 
+    public function setOrderSetting($order){
+        $this->settings['order'] = $order;
+    }
+
+    public function setSortSetting($sortby){
+        $this->settings['sortby'] = $sortby;
+    }
+
 }

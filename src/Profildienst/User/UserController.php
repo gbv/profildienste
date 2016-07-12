@@ -9,6 +9,8 @@
 namespace Profildienst\User;
 
 
+use Exceptions\UserException;
+
 class UserController {
 
     private $gateway;
@@ -29,5 +31,16 @@ class UserController {
 
     public function userExists($id) {
         return !is_null($this->findByID($id));
+    }
+    
+    public function persist(User $user){
+        
+        $userData = [
+            'settings' => $user->getSettings()
+        ];
+
+        if (!$this->gateway->updateUserData($user->getId(), $userData)){
+            throw new UserException('Failed to update user data');
+        }
     }
 }

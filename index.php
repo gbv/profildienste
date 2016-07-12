@@ -119,6 +119,7 @@ $app->get('/libraries', '\Routes\LibraryRoute:getLibraries');
 $app->group('/user', function () {
     $this->get('[/]', '\Routes\UserRoute:getUserInformation');
     $this->get('/settings', '\Routes\UserRoute:getSettings');
+    $this->post('/settings', '\Routes\UserRoute:changeSetting');
 
 })->add($auth);
 
@@ -126,7 +127,6 @@ $app->group('/user', function () {
  * Settings
  */
 $app->get('/settings', '\Routes\SettingsRoute:getSettings')->add($auth);
-$app->post('/settings', '\Routes\SettingsRoute:changeSetting')->add($auth);
 
 $app->group('/cart', function () {
     $this->get('[/page/{page}]', '\Routes\CartRoute:getCartView');
