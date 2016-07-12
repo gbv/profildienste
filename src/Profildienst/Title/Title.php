@@ -430,6 +430,22 @@ class Title {
         return $this->j['status'];
     }
 
+    public function getAdditionalInfoMimeType(){
+        return $this->get('addr_erg_ang_mime');
+    }
+
+    public function getAdditionalInfoURL(){
+        return $this->get('addr_erg_ang_url');
+    }
+
+    public function getTitle(){
+        return $this->get('titel');
+    }
+
+    public function getAuthor(){
+        return $this->get('verfasser');
+    }
+
 
     public function getId() {
         return $this->getDirectly('_id');

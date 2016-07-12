@@ -18,20 +18,46 @@ use Profildienst\Watchlist\MongoWatchlistGateway;
 use Profildienst\Watchlist\WatchlistManager;
 use Responses\ErrorResponse;
 use Profildienst\User\MongoUserGateway;
+use Routes\Route;
 
 require 'vendor/autoload.php';
-
-set_error_handler(function ($errno, $errstr) {
-    throw new Exception($errstr, $errno);
-}, E_ALL);
 
 $slimConfiguration = [
     'settings' => [
         'displayErrorDetails' => true,
-    ],
+    ]
 ];
 
 $container = new \Slim\Container($slimConfiguration);
+
+$errorHandler = function ($container) {
+    return function ($request, $response, $exception) use ($container) {
+
+        if ($exception instanceof BaseException) {
+
+            $errResp = new ErrorResponse($exception->getModule() . ' error: ' . $exception->getMessage());
+            return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
+
+        } else {
+
+            // mail
+
+            $errResp = new ErrorResponse('An internal error occured');
+            return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
+        }
+
+    };
+};
+
+$container['errorHandler'] = $errorHandler;
+$container['phpErrorHandler'] = $errorHandler;
+
+$container['notFoundHandler'] = function ($container) {
+    return function ($request, $response) use ($container) {
+        return $response->withStatus(404);
+    };
+};
+
 
 $container['config'] = function ($container) {
     return new Configuration();
@@ -81,41 +107,13 @@ $container['dataGateway'] = function ($container) {
 };
 
 $app = new \Slim\App($container);
+
 $app->add(new JSONPMiddleware());
-
 $auth = new AuthMiddleware($container);
-/*
-$container['errorHandler'] = function ($container) {
-    return function ($request, $response, $exception) use ($container) {
-
-        if ($exception instanceof BaseException) {
-
-            $errResp = new ErrorResponse($exception->getModule() . ' error: ' . $exception->getMessage());
-            return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
-
-        } else {
-
-            // mail
-
-            $errResp = new ErrorResponse('An internal error occured:' . $exception->getMessage());
-            return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
-        }
-
-    };
-};*/
-
-$container['notFoundHandler'] = function ($container) {
-    return function ($request, $response) use ($container) {
-        return $response->withStatus(404);
-    };
-};
 
 $app->post('/auth', '\Routes\AuthRoute:performAuthentication');
 $app->get('/libraries', '\Routes\LibraryRoute:getLibraries');
 
-/**
- * User related information
- */
 $app->group('/user', function () {
     $this->get('[/]', '\Routes\UserRoute:getUserInformation');
     $this->get('/settings', '\Routes\UserRoute:getSettings');
@@ -123,9 +121,6 @@ $app->group('/user', function () {
 
 })->add($auth);
 
-/**
- * Settings
- */
 $app->get('/settings', '\Routes\SettingsRoute:getSettings')->add($auth);
 
 $app->group('/cart', function () {
@@ -170,8 +165,8 @@ $app->group('/done', function () {
 })->add($auth);
 
 $app->group('/titles', function () {
-    //$this->get('/{id}/info', '\Routes\TitleRoute:titleInfo');
-    //$this->get('/opac', '\Routes\TitleRoute:getOPACLink');
+    $this->get('/{id}/info', '\Routes\TitleRoute:titleInfo');
+    $this->get('/{id}/opac', '\Routes\TitleRoute:getOPACLink');
     $this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
     //$this->delete('/delete', '\Routes\TitleRoute:delete');
 })->add($auth);

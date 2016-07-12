@@ -8,21 +8,24 @@
 
 namespace Routes;
 
-
 use Exceptions\UserException;
 use Interop\Container\ContainerInterface;
-use Profildienst\GetView;
 use Responses\ActionResponse;
+use Responses\BasicResponse;
 
 class TitleRoute extends Route {
 
     use ActionHandler;
 
     private $titleRepository;
+    private $libraryController;
+    private $user;
 
     public function __construct(ContainerInterface $ci) {
         parent::__construct($ci);
         $this->titleRepository = $this->ci->get('titleRepository');
+        $this->user = $this->ci->get('user');
+        $this->libraryController = $this->ci->get('libraryController');
     }
 
 
@@ -76,41 +79,65 @@ class TitleRoute extends Route {
     }
 
     public function titleInfo($request, $response, $args) {
-///**
-// * Verlagsmeldung
-// */
-//$app->post('/info', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $id = $app->request()->post('id');
-//
-//  $m = new \AJAX\Info($id, $auth);
-//  printResponse($m->getResponse());
-//});
 
+        $id = $args['id'];
+
+        if (empty($id)) {
+            throw new UserException('No title ID given');
+        }
+
+        $titles = $this->titleRepository->findTitlesById([$id]);
+
+        if (count($titles) !== 1) {
+            throw new UserException('No title with that ID found');
+        }
+
+        $title = $titles[0];
+
+        $data = [];
+
+        $url = $title->getAdditionalInfoURL();
+        $mime = $title->getAdditionalInfoMimeType();
+
+        if ($mime === 'text/html') {
+            $f = file_get_contents($url);
+            preg_match('/<body>(.*?)<\/body>/si', $f, $matches);
+            $data['type'] = 'html';
+            $data['content'] = $matches[1];
+        } else {
+            $data['type'] = 'other';
+            $data['content'] = $url;
+        }
+
+        return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
     public function getOPACLink($request, $response, $args) {
-//
-///**
-// * OPAC Abfrage
-// */
-//$app->post('/opac', $authenticate($app, $auth), function () use ($app, $auth) {
-//
-//  $titel = $app->request()->post('titel');
-//  $verfasser = $app->request()->post('verfasser');
-//
-//  $query = $titel . ' ' . $verfasser;
-//
-//  $isil = \Profildienst\DB::getUserData('isil', $auth);
-//
-//  $opac_url = Config::$bibliotheken[$isil]['opac'];
-//
-//  $url = preg_replace('/%SEARCH_TERM%/', urlencode($query), $opac_url);
-//
-//  printResponse(array('data' => array('url' => $url)));
-//
-//});
-//
+
+        $id = $args['id'];
+
+        if (empty($id)) {
+            throw new UserException('No title ID given');
+        }
+
+        $titles = $this->titleRepository->findTitlesById([$id]);
+
+        if (count($titles) !== 1) {
+            throw new UserException('No title with that ID found');
+        }
+
+        $query = $titles[0]->getTitle() . ' ' . $titles[0]->getAuthor();
+
+        $opacUrl = $this->libraryController->getLibrary($this->user)->getOPACURL();
+
+        if (empty($opacUrl)) {
+            throw new UserException('No OPAC set for your library.');
+        }
+
+        $url = preg_replace('/%SEARCH_TERM%/', urlencode($query), $opacUrl);
+
+        return self::generateJSONResponse(new BasicResponse(['opac' => $url]), $response);
+
     }
 
 }
