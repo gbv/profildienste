@@ -23,7 +23,7 @@ class WatchlistManager {
         $this->gateway = $gateway;
     }
 
-    public function setTitleFactory(TitleFactory $titleFactory){
+    public function setTitleFactory(TitleFactory $titleFactory) {
         $this->titleFactory = $titleFactory;
     }
 
@@ -31,11 +31,41 @@ class WatchlistManager {
         return $this->watchlists[$id] ?? $this->createWatchlist($id);
     }
 
-    public function addWatchlist() {
-        // returns id and/or additional info
+    public function addWatchlist($name) {
+
+        // generate id
+        $id = null;
+        do {
+            $id = uniqid();
+        } while ($this->watchlistExists($id));
+
+        $watchlistData = [
+            'id' => $id,
+            'name' => $name,
+            'default' => false
+        ];
+
+        if (!$this->gateway->createWatchlist($watchlistData)) {
+            throw new UserException('Failed to create a new watchlist');
+        }
+
+        return $this->getWatchlist($id);
     }
 
-    public function removeWatchlist() {
+    public function deleteWatchlist(Watchlist $watchlist) {
+
+        if (!$this->gateway->removeAllTitlesFromWatchlist($watchlist->getId())) {
+            throw new UserException('Failed to remove all titles from watchlist.');
+        }
+
+        if (!$this->gateway->deleteWatchlist($watchlist->getId())) {
+            throw new UserException('Failed to delete watchlist.');
+        }
+
+        // removed cache watchlist
+        if (isset($this->watchlists[$watchlist->getId()])) {
+            unset($this->watchlists[$watchlist->getId()]);
+        }
 
     }
 
@@ -50,7 +80,7 @@ class WatchlistManager {
                 'default' => $wlData['default']
             ];
 
-            $watchlists[] = $this->getWatchlist($wlData['id'], $data);
+            $watchlists[] = $this->watchlists[$wlData['id']] ?? $this->createWatchlist($wlData['id'], $data);
         }
 
         return $watchlists;
@@ -62,11 +92,31 @@ class WatchlistManager {
             $data = $this->gateway->getWatchlistData($id);
         }
 
-        if(is_null($data)){
+        if (is_null($data)) {
             throw new UserException('The watchlist with this id does not exist.');
         }
 
         return new Watchlist($id, $data['name'], $data['default'], $this->gateway, $this->titleFactory);
+    }
+
+    private function watchlistExists($id) {
+        return !is_null($this->gateway->getWatchlistData($id));
+    }
+
+    public function changeWatchlistOrder(array $order) {
+
+        $newWatchlistOrder = [];
+
+        foreach ($order as $watchlistId) {
+            $watchlist = $this->getWatchlist($watchlistId);
+            $newWatchlistOrder[] = [
+                'id' => $watchlist->getId(),
+                'name' => $watchlist->getName(),
+                'default' => $watchlist->isDefaultWatchlist()
+            ];
+        }
+
+        $this->gateway->updateWatchlists($newWatchlistOrder);
     }
 
 }

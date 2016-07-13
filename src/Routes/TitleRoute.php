@@ -33,7 +33,7 @@ class TitleRoute extends Route {
 
         $affected = $this->validateAffectedTitles($request);
 
-        // currenty saving information is only supported for a single title
+        // currently saving information is only supported for a single title
         if (!is_array($affected) || count($affected) > 1) {
             throw new UserException('This operation is currently not implemented for views or multiple titles.');
         }

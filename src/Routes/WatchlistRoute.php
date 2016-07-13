@@ -140,4 +140,55 @@ class WatchlistRoute extends ViewRoute {
 
         } TODO: implement watchlist view change*/
     }
+
+    public function addWatchlist($request, $response, $args) {
+
+        $parameters = $request->getParsedBody();
+        $name = $parameters['name'];
+
+        if (empty($name)) {
+            throw new UserException('The watchlist name must not be empty');
+        }
+
+        $newWatchlist = $this->watchlistManager->addWatchlist($name);
+
+        $data = [
+            'id' => $newWatchlist->getId(),
+            'name' => $newWatchlist->getName(),
+            'count' => $newWatchlist->getTitleCount(),
+            'default' => $newWatchlist->isDefaultWatchlist()
+        ];
+
+        return self::generateJSONResponse(new BasicResponse($data), $response);
+    }
+
+    public function deleteWatchlist($request, $response, $args) {
+
+        $id = $args['id'];
+
+        if (empty($id)) {
+            throw new UserException('The watchlist id must not be empty');
+        }
+
+        $watchlist = $this->watchlistManager->getWatchlist($id);
+
+        $this->watchlistManager->deleteWatchlist($watchlist);
+
+        return self::generateJSONResponse(new BasicResponse([]), $response);
+    }
+
+    public function changeWatchlistOrder($request, $response, $args) {
+        $parameters = $request->getParsedBody();
+        $order = $parameters['order'];
+
+        $watchlists = $this->watchlistManager->getWatchlists();
+
+        if (empty($order) || !is_array($order) || count($order) !== count($watchlists)) {
+            throw new UserException('Illegal order options (watchlists missing or empty)');
+        }
+
+        $this->watchlistManager->changeWatchlistOrder($order);
+
+        return self::generateJSONResponse(new BasicResponse([]), $response);
+    }
 }

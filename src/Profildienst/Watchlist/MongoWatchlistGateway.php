@@ -39,7 +39,17 @@ class MongoWatchlistGateway implements WatchlistGateway{
         $query = ['$and' => [['_id' => $this->user->getId()], ['watchlists.id' => $watchlistId]]];
         $wlData = $this->users->findOne($query, ['projection' => ['watchlists' => true]]);
 
-        return $wlData['watchlists'][0] ?? null;
+        if (is_null($wlData)){
+            return null;
+        }
+
+        foreach ($wlData['watchlists'] as $watchlist){
+            if ($watchlist['id'] === $watchlistId){
+                return $watchlist;
+            }
+        }
+
+        return null;
     }
 
     public function getWatchlistTitleCount($watchlistId) {
@@ -87,6 +97,68 @@ class MongoWatchlistGateway implements WatchlistGateway{
         ]];
 
         $result = $this->titles->updateMany($criterion, $update);
+        return $result->isAcknowledged();
+    }
+
+    public function createWatchlist(array $watchlistData) {
+        $watchlists = $this->getWatchlists();
+        $watchlists[] = $watchlistData;
+
+        $result = $this->users->updateOne(
+            ['_id' => $this->user->getId()],
+            ['$set' => ['watchlists' => $watchlists]]
+        );
+        return $result->isAcknowledged();
+
+    }
+
+    public function deleteWatchlist($watchlistId) {
+
+        $watchlists = $this->getWatchlists();
+
+        $updatedWatchlists = [];
+        foreach ($watchlists as $watchlist){
+            if ($watchlist['id'] === $watchlistId){
+                continue;
+            }
+            $updatedWatchlists[] = $watchlist;
+        }
+
+        $result = $this->users->updateOne(
+            ['_id' => $this->user->getId()],
+            ['$set' => ['watchlists' => $updatedWatchlists]]
+        );
+        return $result->isAcknowledged();
+
+    }
+
+    public function renameWatchlist($watchlistId, $name) {
+        // TODO: Implement renameWatchlist() method.
+    }
+
+    public function updateDefaultWatchlist($watchlistId) {
+        // TODO: Implement updateDefaultWatchlist() method.
+    }
+
+    public function removeAllTitlesFromWatchlist($watchlistId) {
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['watchlist' => $watchlistId]]];
+
+        $update = ['$set' => [
+            'watchlist' => null,
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
+
+        $result = $this->titles->updateMany($criterion, $update);
+        return $result->isAcknowledged();
+    }
+
+    public function updateWatchlists(array $watchlists) {
+
+        $result = $this->users->updateOne(
+            ['_id' => $this->user->getId()],
+            ['$set' => ['watchlists' => $watchlists]]
+        );
+        
         return $result->isAcknowledged();
     }
 }

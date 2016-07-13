@@ -30,6 +30,7 @@ $slimConfiguration = [
 
 $container = new \Slim\Container($slimConfiguration);
 
+/*
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
 
@@ -51,7 +52,7 @@ $errorHandler = function ($container) {
 
 $container['errorHandler'] = $errorHandler;
 $container['phpErrorHandler'] = $errorHandler;
-
+*/
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
         return $response->withStatus(404);
@@ -137,7 +138,10 @@ $app->group('/watchlist', function () {
     $this->get('/{id}[/page/{page}]', '\Routes\WatchlistRoute:getWatchlistView');
     $this->post('/{id}/add', '\Routes\WatchlistRoute:addTitlesToWatchlist');
     $this->post('/{id}/remove', '\Routes\WatchlistRoute:removeTitlesFromWatchlist');
-    // manage
+    $this->delete('/{id}', '\Routes\WatchlistRoute:deleteWatchlist');
+    $this->put('/new', '\Routes\WatchlistRoute:addWatchlist');
+    $this->patch('/order', '\Routes\WatchlistRoute:changeWatchlistOrder');
+    $this->patch('/{id}', '\Routes\WatchlistRoute:addTitlesToWatchlist'); //mit rename + default setzen
 })->add($auth);
 
 $app->group('/search', function () {
