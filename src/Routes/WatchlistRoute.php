@@ -191,4 +191,42 @@ class WatchlistRoute extends ViewRoute {
 
         return self::generateJSONResponse(new BasicResponse([]), $response);
     }
+
+    public function renameWatchlist($request, $response, $args){
+
+        $id = $args['id'];
+
+        if (empty($id)) {
+            throw new UserException('The watchlist id must not be empty');
+        }
+
+        $parameters = $request->getParsedBody();
+        $name = $parameters['name'];
+
+        if (empty($name)) {
+            throw new UserException('The new watchlist name must not be empty');
+        }
+
+        $watchlist = $this->watchlistManager->getWatchlist($id);
+
+        $this->watchlistManager->renameWatchlist($watchlist, $name);
+
+        return self::generateJSONResponse(new BasicResponse([]), $response);
+    }
+
+    public function changeDefaultWatchlist($request, $response, $args){
+
+        $parameters = $request->getParsedBody();
+        $id = $parameters['id'];
+
+        if (empty($id)) {
+            throw new UserException('The new watchlist name must not be empty');
+        }
+
+        $watchlist = $this->watchlistManager->getWatchlist($id);
+
+        $this->watchlistManager->setDefaultWatchlist($watchlist);
+
+        return self::generateJSONResponse(new BasicResponse([]), $response);
+    }
 }

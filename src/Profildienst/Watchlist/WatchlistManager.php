@@ -119,4 +119,20 @@ class WatchlistManager {
         $this->gateway->updateWatchlists($newWatchlistOrder);
     }
 
+    public function renameWatchlist(Watchlist $watchlist, $name){
+        if (!$this->gateway->renameWatchlist($watchlist->getId(), $name)){
+            throw new UserException('Failed to rename watchlist');
+        }
+
+        // TODO: changed cached watchlist
+    }
+
+    public function setDefaultWatchlist(Watchlist $watchlist){
+
+        if (!$this->gateway->updateDefaultWatchlist($watchlist->getId())){
+            throw new UserException('Failed to update default watchlist');
+        }
+
+        // TODO: changed cached watchlist
+    }
 }

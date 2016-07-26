@@ -133,11 +133,44 @@ class MongoWatchlistGateway implements WatchlistGateway{
     }
 
     public function renameWatchlist($watchlistId, $name) {
-        // TODO: Implement renameWatchlist() method.
+        $criterion = ['$and' => [['_id' => $this->user->getId()], ['watchlists.id' => $watchlistId]]];
+
+        $update = ['$set' => [
+            'watchlists.$.name' => $name
+        ]];
+
+        $result = $this->users->updateOne($criterion, $update);
+
+        return $result->isAcknowledged();
     }
 
     public function updateDefaultWatchlist($watchlistId) {
-        // TODO: Implement updateDefaultWatchlist() method.
+
+        // first unset the old default watchlist
+
+        $criterion = ['$and' => [['_id' => $this->user->getId()], ['watchlists.default' => true]]];
+
+        $update = ['$set' => [
+            'watchlists.$.default' => false
+        ]];
+
+        $result = $this->users->updateOne($criterion, $update);
+
+        if (!$result->isAcknowledged()){
+            return false;
+        }
+
+        $criterion = ['$and' => [['_id' => $this->user->getId()], ['watchlists.id' => $watchlistId]]];
+
+        $update = ['$set' => [
+            'watchlists.$.default' => true
+        ]];
+
+        $result = $this->users->updateOne($criterion, $update);
+
+        return $result->isAcknowledged();
+
+
     }
 
     public function removeAllTitlesFromWatchlist($watchlistId) {

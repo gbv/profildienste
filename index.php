@@ -141,7 +141,8 @@ $app->group('/watchlist', function () {
     $this->delete('/{id}', '\Routes\WatchlistRoute:deleteWatchlist');
     $this->put('/new', '\Routes\WatchlistRoute:addWatchlist');
     $this->patch('/order', '\Routes\WatchlistRoute:changeWatchlistOrder');
-    $this->patch('/{id}', '\Routes\WatchlistRoute:addTitlesToWatchlist'); //mit rename + default setzen
+    $this->post('/{id}/rename', '\Routes\WatchlistRoute:renameWatchlist');
+    $this->post('/default', '\Routes\WatchlistRoute:changeDefaultWatchlist');
 })->add($auth);
 
 $app->group('/search', function () {
