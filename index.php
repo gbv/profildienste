@@ -10,6 +10,8 @@ use Profildienst\Cart\Cart;
 use Profildienst\Common\ConnectionFactory;
 use Profildienst\Common\MongoDataGateway;
 use Profildienst\Library\LibraryController;
+use Profildienst\Search\MongoSearchGateway;
+use Profildienst\Search\SearchFactory;
 use Profildienst\Title\MongoTitleGateway;
 use Profildienst\Title\TitleFactory;
 use Profildienst\Title\TitleRepository;
@@ -107,6 +109,14 @@ $container['dataGateway'] = function ($container) {
     return new MongoDataGateway($container['connectionFactory']->getConnection());
 };
 
+$container['searchFactory'] = function ($container){
+    return new SearchFactory($container['config'], $container['searchGateway'], $container['titleFactory']);
+};
+
+$container['searchGateway'] = function ($container){
+  return new MongoSearchGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
+};
+
 $app = new \Slim\App($container);
 
 $app->add(new JSONPMiddleware());
@@ -146,7 +156,7 @@ $app->group('/watchlist', function () {
 })->add($auth);
 
 $app->group('/search', function () {
-    // search
+    $this->get('/{query}/{queryType}[/page/{page}]', '\Routes\SearchRoute:searchTitles');
     $this->get('/options', '\Routes\SearchRoute:getSearchOptions');
 })->add($auth);
 

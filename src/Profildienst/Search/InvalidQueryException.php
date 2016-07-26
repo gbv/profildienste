@@ -6,7 +6,7 @@
  * Time: 15:48
  */
 
-namespace Search;
+namespace Profildienst\Search;
 
 
 class InvalidQueryException extends \Exception {

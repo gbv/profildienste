@@ -34,11 +34,11 @@ abstract class ViewRoute extends Route{
         return $page;
     }
 
-    protected function titlePageResponse($titles, $page, $totalCount, $response){
+    protected function titlePageResponse($titles, $page, $totalCount, $response, $additionalInformation = null){
 
         $more = ($this->ci->get('config')->getPagesize() * ($page+1) < $totalCount);
 
-        return self::generateJSONResponse(new TitlelistResponse($titles, $totalCount, $more), $response);
+        return self::generateJSONResponse(new TitlelistResponse($titles, $totalCount, $more, $additionalInformation), $response);
     }
 
     protected function makeTitleResponse($view, $page, $response){

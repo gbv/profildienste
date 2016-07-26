@@ -6,66 +6,66 @@
  * Time: 13:26
  */
 
-namespace Search;
+namespace Profildienst\Search;
 
 
 class MultipleFieldSearch extends SearchQuery {
 
-  private $criteria;
+    private $criteria;
 
-  public function __construct() {
-    parent::__construct('advanced');
-  }
-
-  public function getCriteria() {
-    return $this->criteria;
-  }
-
-  public function setCriteria($criteria) {
-    $this->criteria = $criteria;
-  }
-
-  /**
-   * @return QueryBuilder Query ready to be used for the database
-   */
-  public function getDatabaseQuery() {
-
-    // collect all critera referencing the same field
-    $criteria = [];
-    foreach ($this->criteria as $searchCriterion) {
-      if (isset($criteria[$searchCriterion->getField()])) {
-        $criteria[$searchCriterion->getField()][] = $searchCriterion;
-      } else {
-        $criteria[$searchCriterion->getField()] = [$searchCriterion];
-      }
+    public function __construct() {
+        parent::__construct('advanced');
     }
 
-    //build query
+    public function getCriteria() {
+        return $this->criteria;
+    }
 
-    foreach ($criteria as $searchkey => $searchCriteria) {
-      if (count($searchCriteria) > 1) {
-        $subquery = new QueryBuilder();
-        foreach ($searchCriteria as $searchCriterion) {
-          $subquery->insertRaw($searchCriterion->getDatabaseQuery()->getQuery());
+    public function setCriteria($criteria) {
+        $this->criteria = $criteria;
+    }
+
+    /**
+     * @return QueryBuilder Query ready to be used for the database
+     */
+    public function getDatabaseQuery() {
+
+        // collect all critera referencing the same field
+        $criteria = [];
+        foreach ($this->criteria as $searchCriterion) {
+            if (isset($criteria[$searchCriterion->getField()])) {
+                $criteria[$searchCriterion->getField()][] = $searchCriterion;
+            } else {
+                $criteria[$searchCriterion->getField()] = [$searchCriterion];
+            }
         }
-        $subquery->joinWithOr();
-        $this->dbquery->insertRaw($subquery->getQuery());
-      } else {
-        $this->dbquery->insertRaw($searchCriteria[0]->getDatabaseQuery()->getQuery());
-      }
+
+        //build query
+
+        foreach ($criteria as $searchkey => $searchCriteria) {
+            if (count($searchCriteria) > 1) {
+                $subquery = new QueryBuilder();
+                foreach ($searchCriteria as $searchCriterion) {
+                    $subquery->insertRaw($searchCriterion->getDatabaseQuery()->getQuery());
+                }
+                $subquery->joinWithOr();
+                $this->dbquery->insertRaw($subquery->getQuery());
+            } else {
+                $this->dbquery->insertRaw($searchCriteria[0]->getDatabaseQuery()->getQuery());
+            }
+        }
+
+        return $this->dbquery;
     }
 
-    return $this->dbquery;
-  }
-
-  /**
-   * @return array Returns a representation of the search critera as a plain array.
-   */
-  public function getSearchAsArray() {
-    $r = [];
-    foreach ($this->criteria as $searchCriterion) {
-      $r[] = $searchCriterion->getSearchAsArray();
+    /**
+     * @return array Returns a representation of the search critera as a plain array.
+     */
+    public function getSearchAsArray() {
+        $r = [];
+        foreach ($this->criteria as $searchCriterion) {
+            $r[] = $searchCriterion->getSearchAsArray();
+        }
+        return $r;
     }
-    return $r;
-  }
 }

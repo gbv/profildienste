@@ -9,11 +9,22 @@
 namespace Routes;
 
 
+use ErrorException;
+use Exception;
+use Exceptions\UserException;
+use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
 
-class SearchRoute extends ViewRoute{
+class SearchRoute extends ViewRoute {
 
-    public function getSearchOptions($request, $response, $args){
+    private $searchFactory;
+
+    public function __construct(ContainerInterface $ci) {
+        parent::__construct($ci);
+        $this->searchFactory = $ci->get('searchFactory');
+    }
+
+    public function getSearchOptions($request, $response, $args) {
 
         $config = $this->ci->get('config');
 
@@ -40,6 +51,40 @@ class SearchRoute extends ViewRoute{
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
 
+    }
+
+    public function searchTitles($request, $response, $args) {
+
+        // validate arguments
+        $page = self::validatePage($args);
+
+        $queryType = $args['queryType'];
+        if (empty($queryType) || !in_array($queryType, ['advanced', 'keyword'])){
+            throw new UserException('Invalid or empty query type');
+        }
+
+        $query = $args['query'];
+
+        if (empty($query)){
+            throw new UserException('Empty queries are not allowed');
+        }
+
+
+        if($queryType === 'advanced') {
+            try {
+                $query = json_decode($query, true);
+            } catch (Exception $e) {
+                throw new UserException('Invalid query');
+            } catch (ErrorException $e) {
+                throw new UserException('Invalid query');
+            }
+        }
+
+        $search = $this->searchFactory->createSearch($query, $queryType);
+
+        $titles = $search->getTitles($page);
+
+        return self::titlePageResponse($titles, $page, $search->getTotalCount(), $response, $search->getSearchInformation());
     }
 
 

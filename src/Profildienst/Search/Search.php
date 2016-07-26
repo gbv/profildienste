@@ -6,11 +6,11 @@
 /**
  * @package Search
  */
-namespace Search;
+namespace Profildienst\Search;
 
-use Middleware\AuthToken;
-use Profildienst\DB;
-use Profildienst\TitleList;
+use Config\Configuration;
+use Profildienst\Title\TitleFactory;
+use Profildienst\User\User;
 
 /**
  * Performs a search.
@@ -19,65 +19,64 @@ use Profildienst\TitleList;
  */
 class Search {
 
-  /**
-   * @var TitleList  List of found titles
-   */
-  private $titlelist;
-  /**
-   * @var int total amount of titles
-   */
-  private $total;
+    private $gateway;
+    private $titleFactory;
 
-  private $search;
+    private $search;
+    private $dbquery;
 
-  /**
-   * Performs a search
-   *
-   * @param $q string|array Search query
-   * @param $queryType Type of the search query(keyword or advanced)
-   * @param $num int Requested page
-   * @param AuthToken $auth Token
-   * @throws \Exception
-   */
-  public function __construct($q, $queryType, $num, AuthToken $auth) {
+    /**
+     * Performs a search
+     *
+     * @param $q string|array Search query
+     * @param $queryType string Type of the search query(keyword or advanced)
+     * @param SearchGateway $gateway
+     * @param User $user
+     * @param Configuration $config
+     * @param TitleFactory $titleFactory
+     * @internal param int $num Requested page
+     * @internal param AuthToken $auth Token
+     */
+    public function __construct($q, $queryType, SearchGateway $gateway, Configuration $config, TitleFactory $titleFactory) {
 
-    $query = new QueryValidator($q, $queryType);
-    $this->search = $query->getSearch();
+        $query = new QueryValidator($q, $queryType, $config);
+        $this->search = $query->getSearch();
 
-    $dbquery = $this->search->getDatabaseQuery();
-    $dbquery->searchTitlesWithStatus('normal')
-      ->restrictToUser($auth->getID())
-      ->joinWithAnd();
+        $this->dbquery = $this->search->getDatabaseQuery();
+        $this->dbquery->searchTitlesWithStatus('normal')
+            ->joinWithAnd();
 
-    $t = DB::getTitleList($dbquery->getQuery(), $num, $auth);
-    $this->titlelist = $t['titlelist'];
-    $this->total = $t['total'];
-  }
+        $this->gateway = $gateway;
+        $this->titleFactory = $titleFactory;
+    }
 
-  /**
-   * Getter for titles
-   *
-   * @return TitleList Found titles
-   */
-  public function getTitles() {
-    return $this->titlelist;
-  }
+    /**
+     * Getter for titles
+     *
+     * @param int $page
+     * @return array Page of matching titles
+     */
+    public function getTitles($page = 0) {
 
-  /**
-   * Getter for the total amount of titles
-   *
-   * @return int total amount of titles found
-   */
-  public function getTotalCount() {
-    return $this->total;
-  }
+        $titles = $this->gateway->getTitles($this->dbquery->getQuery(), $page);
+        return $this->titleFactory->createTitleList($titles);
+    }
 
-  public function getSearchInformation() {
-    return array(
-      'type' => $this->search->getType(),
-      'criteria' => $this->search->getSearchAsArray()
-    );
-  }
+    /**
+     * Getter for the total amount of titles
+     *
+     * @return int total amount of titles found
+     */
+    public function getTotalCount() {
+        return $this->gateway->getMatchingTitleCount($this->dbquery->getQuery());
+    }
+
+    public function getSearchInformation() {
+        return array(
+            'type' => $this->search->getType(),
+            'criteria' => $this->search->getSearchAsArray()
+        );
+    }
 
 
 }

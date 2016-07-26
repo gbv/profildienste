@@ -9,6 +9,7 @@
 namespace Routes;
 
 
+use Exceptions\UserException;
 use Interop\Container\ContainerInterface;
 use Responses\ActionResponse;
 use Responses\BasicResponse;

@@ -6,8 +6,10 @@
  * Time: 12:29
  */
 
-namespace Search;
+namespace Profildienst\Search;
 
+
+use MongoDB\BSON\Regex;
 
 abstract class SearchQuery {
 
@@ -37,10 +39,12 @@ abstract class SearchQuery {
   protected function handleSearchterm($searchterm, $mode) {
 
     if ($mode === 'contains') {
-      return new \MongoDB\BSON\Regex("^.*$searchterm.*$", 'i');
+      return new Regex("^.*$searchterm.*$", 'i');
     } else if ($mode === 'is') {
       return $searchterm;
     }
+
+    return null;
   }
 
 }
