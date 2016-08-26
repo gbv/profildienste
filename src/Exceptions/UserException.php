@@ -14,4 +14,5 @@ class UserException extends BaseException{
     public function getModule() {
         return 'User';
     }
+
 }

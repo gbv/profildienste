@@ -11,6 +11,8 @@ namespace Routes;
 
 use Exceptions\UserException;
 use Interop\Container\ContainerInterface;
+use Profildienst\Cart\Cart;
+use Profildienst\Cart\OrderController;
 use Responses\ActionResponse;
 use Responses\BasicResponse;
 
@@ -18,11 +20,20 @@ class CartRoute extends ViewRoute {
 
     use ActionHandler;
 
+    /**
+     * @var Cart
+     */
     private $cart;
+
+    /**
+     * @var OrderController
+     */
+    private $orderController;
 
     public function __construct(ContainerInterface $ci) {
         parent::__construct($ci);
         $this->cart = $this->ci->get('cart');
+        $this->orderController = $this->ci->get('orderController');
     }
 
     public function getCartView($request, $response, $args) {
@@ -93,13 +104,7 @@ class CartRoute extends ViewRoute {
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
-///** TODO */
-// * Order
-// */
-//$app->post('/order', $authenticate($app, $auth), function () use ($app, $auth) {
-//  $m = new \Special\Order($auth);
-//  printResponse($m->getResponse());
-//});
-//
-
+    public function order() {
+        $this->ci->get('orderController')->order($this->cart);
+    }
 }

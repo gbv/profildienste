@@ -10,13 +10,16 @@ namespace Profildienst\User;
 
 
 use Exceptions\UserException;
+use Profildienst\Library\LibraryController;
 
 class UserController {
 
     private $gateway;
+    private $libraryController;
 
-    public function __construct(UserGateway $gateway) {
+    public function __construct(UserGateway $gateway, LibraryController $libraryController) {
         $this->gateway = $gateway;
+        $this->libraryController = $libraryController;
     }
 
     public function findByID($id) {
@@ -26,7 +29,7 @@ class UserController {
             return null;
         }
 
-        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets'], $data['suppliers']);
+        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets'], $data['suppliers'], $this->libraryController);
     }
 
     public function userExists($id) {

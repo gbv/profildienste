@@ -46,6 +46,13 @@ class Cart {
     }
 
 
+    /**
+     * Returns all titles in the cart (if page is null) or
+     * a page of titles from the cart.
+     *
+     * @param int|null $page
+     * @return array Titles
+     */
     public function getTitles($page = null) {
         return is_null($page)
             ? $this->titleRepository->getAllTitlesByStatus('cart')

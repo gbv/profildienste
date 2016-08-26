@@ -1,6 +1,7 @@
 <?php
 
 namespace Profildienst\User;
+use Profildienst\Library\Library;
 
 /**
  * Represents the user in the whole application.
@@ -18,6 +19,8 @@ class User {
     private $budgets;
     private $suppliers;
 
+    private $libraryController;
+
     /**
      * User constructor.
      * @param $id
@@ -28,7 +31,7 @@ class User {
      * @param $budgets
      * @param $suppliers
      */
-    public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers) {
+    public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers, $libraryController) {
         $this->name = $name;
         $this->id = $id;
         $this->settings = $settings;
@@ -50,6 +53,8 @@ class User {
                 'value' => $supplier['value']
             ];
         }
+
+        $this->libraryController = $libraryController;
     }
 
     /**
@@ -98,6 +103,13 @@ class User {
      */
     public function getIsil() {
         return $this->isil;
+    }
+
+    /**
+     * @return Library
+     */
+    public function getLibrary(){
+        return $this->libraryController->getLibrary($this);
     }
 
     /**

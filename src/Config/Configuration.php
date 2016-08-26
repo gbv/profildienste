@@ -270,4 +270,16 @@ class Configuration {
     public function getPagesize(){
         return $this->config['general']['pagesize'];
     }
+
+    public function getExportHost(){
+        return $this->config['export']['host'];
+    }
+
+    public function getExportUser(){
+        return $this->config['export']['user'];
+    }
+
+    public function getExportBasedir(){
+        return $this->config['export']['basedir'];
+    }
 }

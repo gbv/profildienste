@@ -61,12 +61,12 @@ class Library {
     }
 
     public function usesAdvancedExport() {
-        return $this->libraryData['export']['advancedExport'];
+        return $this->libraryData['export']['advanced'];
     }
 
     public function getExportDir() {
 
-        if ($this->libraryData['export']['advancedExport']) {
+        if ($this->libraryData['export']['advanced']) {
             throw new ConfigurationException('Method ineligible for chosen export method');
         }
 

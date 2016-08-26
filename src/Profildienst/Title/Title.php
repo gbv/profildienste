@@ -455,6 +455,14 @@ class Title {
         return $this->get('gvkt_mak');
     }
 
+    public function getReihe(){
+        return $this->get('reihe');
+    }
+
+    public function getPPN() {
+        return $this->get('ppn');
+    }
+
     /**
      * Extracts the relevant information from a title to display it.
      *

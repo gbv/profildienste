@@ -7,6 +7,8 @@ use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
 
 use Profildienst\Cart\Cart;
+use Profildienst\Cart\OrderController;
+use Profildienst\Cart\TestController;
 use Profildienst\Common\ConnectionFactory;
 use Profildienst\Common\MongoDataGateway;
 use Profildienst\Library\LibraryController;
@@ -31,7 +33,7 @@ $slimConfiguration = [
 ];
 
 $container = new \Slim\Container($slimConfiguration);
-/*
+
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
 
@@ -44,7 +46,7 @@ $errorHandler = function ($container) {
 
             // mail
 
-            $errResp = new ErrorResponse('An internal error occured');
+            $errResp = new ErrorResponse('An internal error occured: '.$exception->getMessage());
             return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
         }
 
@@ -52,7 +54,7 @@ $errorHandler = function ($container) {
 };
 
 $container['errorHandler'] = $errorHandler;
-$container['phpErrorHandler'] = $errorHandler;*/
+$container['phpErrorHandler'] = $errorHandler;
 
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
@@ -75,7 +77,7 @@ $container['auth'] = function ($container) {
 
 $container['userController'] = function ($container) {
     $gateway = new MongoUserGateway($container['connectionFactory']->getConnection());
-    return new UserController($gateway);
+    return new UserController($gateway, $container['libraryController']);
 };
 
 $container['libraryController'] = function ($container) {
@@ -116,6 +118,10 @@ $container['searchGateway'] = function ($container){
   return new MongoSearchGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
 };
 
+$container['orderController'] = function ($container){
+    return new OrderController($container['user'], $container['config'], $container['titleRepository']);
+};
+
 $app = new \Slim\App($container);
 
 $app->add(new JSONPMiddleware());
@@ -139,7 +145,7 @@ $app->group('/cart', function () {
     $this->post('/add', '\Routes\CartRoute:addTitlesToCart');
     $this->post('/remove', '\Routes\CartRoute:removeTitlesFromCart');
     $this->get('/orderlist', '\Routes\CartRoute:getOrderlist');
-    // order
+    $this->post('/order', '\Routes\CartRoute:order');
 })->add($auth);
 
 $app->group('/watchlist', function () {

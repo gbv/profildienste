@@ -18,14 +18,12 @@ class TitleRoute extends Route {
     use ActionHandler;
 
     private $titleRepository;
-    private $libraryController;
     private $user;
 
     public function __construct(ContainerInterface $ci) {
         parent::__construct($ci);
         $this->titleRepository = $this->ci->get('titleRepository');
         $this->user = $this->ci->get('user');
-        $this->libraryController = $this->ci->get('libraryController');
     }
 
 
@@ -128,8 +126,7 @@ class TitleRoute extends Route {
 
         $query = $titles[0]->getTitle() . ' ' . $titles[0]->getAuthor();
 
-        $opacUrl = $this->libraryController->getLibrary($this->user)->getOPACURL();
-
+        $opacUrl = $this->user->getLibrary()->getOPACURL();
         if (empty($opacUrl)) {
             throw new UserException('No OPAC set for your library.');
         }
