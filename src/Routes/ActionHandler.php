@@ -52,12 +52,21 @@ trait ActionHandler {
                 $affected = 'normal';
             }
 
-            if (!$this->allow($newStatus, null)) {
+            if (!$allow($newStatus, null)) {
                 throw new UserException('This action is not allowed on the selection of titles!');
             }
 
-            return $this->titleRepository->changeStatusOfView($affected, $newStatus) ? $affected : null;
+            if (preg_match('/watchlist\/(.*)/', $affected, $match)) {
+                $watchlistId = $match[1] ?? null;
 
+                if(is_null($watchlistId)){
+                    throw new UserException('Invalid watchlist format');
+                }
+
+                return $this->titleRepository->changeStatusOfWatchlist($watchlistId, $newStatus) ? $affected : null;
+            } else {
+                return $this->titleRepository->changeStatusOfView($affected, $newStatus) ? $affected : null;
+            }
         }
 
 

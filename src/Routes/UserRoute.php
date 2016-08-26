@@ -37,12 +37,13 @@ class UserRoute extends Route {
             'name' => $this->user->getName(),
             'motd' => $this->config->getMOTD(),
             'defaults' => [
-                'lft' => $defaults['lieft'],
+                // v TODO: rework, remove from here, integrate into budgets. Same for suppliers
                 'budget' => $defaults['budget'],
                 'ssgnr' => $defaults['ssgnr'],
                 'selcode' => $defaults['selcode']
             ],
-            'budgets' => $this->user->getBudgets()
+            'budgets' => $this->user->getBudgets(),
+            'suppliers' => $this->user->getSuppliers()
         ];
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
@@ -56,19 +57,6 @@ class UserRoute extends Route {
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
-
-    public function getOrderlist($request, $response, $args) {
-        throw new \RuntimeException('Not implemented yet!');
-//        try {
-//      $m = new \Special\Orderlist($auth);
-//
-//      printResponse(array('data' => array('orderlist' => $m->getOrderlist())));
-//    } catch (\Exception $e) {
-//      printResponse(NULL, true, $e->getMessage());
-//    }
-        // TODO
-    }
-
 
     public function changeSetting($request, $response, $args) {
 

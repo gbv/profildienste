@@ -52,7 +52,7 @@ class CartRoute extends ViewRoute {
         $affected = $this->handleStatusChange($request, 'cart', function ($oldStatus) {
             return $oldStatus !== 'done' && $oldStatus !== 'pending' && $oldStatus !== 'rejected';
         });
-        
+
         if (is_null($affected)) {
             throw new UserException('Failed to update titles in cart.');
         }
@@ -63,7 +63,7 @@ class CartRoute extends ViewRoute {
     public function removeTitlesFromCart($request, $response, $args) {
 
         $affected = $this->handleStatusChange($request, 'normal', function ($oldStatus) {
-            return $oldStatus === 'cart';
+            return true;
         });
 
         if (is_null($affected)) {
@@ -71,6 +71,26 @@ class CartRoute extends ViewRoute {
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'overview'), $response);
+    }
+
+    public function getOrderlist($request, $response, $args) {
+
+        $data = [];
+
+        foreach ($this->cart->getTitles() as $title) {
+            $data[] = array(
+                'title' => $title->getTitle(),
+                'lieft' => $title->getSupplier(),
+                'budget' => $title->getBudget(),
+                'ssgnr' => $title->getSSGNr(),
+                'selcode' => $title->getSelcode(),
+                'comment' => $title->getComment(),
+                'supplier' => $title->getSupplier(),
+                'gvkt' => $title->getGVKInfo()
+            );
+        }
+
+        return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
 ///** TODO */

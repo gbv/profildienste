@@ -451,6 +451,10 @@ class Title {
         return $this->getDirectly('_id');
     }
 
+    public function getGVKInfo(){
+        return $this->get('gvkt_mak');
+    }
+
     /**
      * Extracts the relevant information from a title to display it.
      *
@@ -496,7 +500,7 @@ class Title {
 
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
-            'lft' => $this->getSupplier(),
+            'supplier' => $this->getSupplier(),
             'budget' => $this->getBudget(),
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
@@ -508,7 +512,6 @@ class Title {
                 'cart' => $this->isInCart(),
                 'pending' => $this->isPending(),
                 'lastChange' => ($this->isPending() || $this->isDone()) ? (int)((string)$this->getDirectly('lastStatusChange')) : '', // only show last status change for pending and done titles
-                'selected' => false,
                 'watchlist' => [
                     'watched' => $this->isInWatchlist(),
                     'id' => $wlId,

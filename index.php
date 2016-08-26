@@ -31,7 +31,6 @@ $slimConfiguration = [
 ];
 
 $container = new \Slim\Container($slimConfiguration);
-
 /*
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
@@ -53,8 +52,8 @@ $errorHandler = function ($container) {
 };
 
 $container['errorHandler'] = $errorHandler;
-$container['phpErrorHandler'] = $errorHandler;
-*/
+$container['phpErrorHandler'] = $errorHandler;*/
+
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
         return $response->withStatus(404);
@@ -139,7 +138,7 @@ $app->group('/cart', function () {
     $this->get('/info', '\Routes\CartRoute:getCartInformation');
     $this->post('/add', '\Routes\CartRoute:addTitlesToCart');
     $this->post('/remove', '\Routes\CartRoute:removeTitlesFromCart');
-    // orderlist
+    $this->get('/orderlist', '\Routes\CartRoute:getOrderlist');
     // order
 })->add($auth);
 

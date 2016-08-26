@@ -26,6 +26,7 @@ class RejectRoute extends ViewRoute {
         $affected = $this->handleStatusChange($request, 'rejected', function ($oldState) {
             return $oldState !== 'cart' && $oldState !== 'done' && $oldState !== 'pending';
         });
+
         if (is_null($affected)) {
             throw new UserException('Failed to update rejected titles.');
         }
@@ -39,6 +40,7 @@ class RejectRoute extends ViewRoute {
         $affected = $this->handleStatusChange($request, 'normal', function ($oldState){
             return $oldState === 'rejected';
         });
+
         if (is_null($affected)) {
             throw new UserException('Failed to remove rejected titles.');
         }

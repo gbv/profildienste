@@ -16,17 +16,19 @@ class User {
     private $defaults;
     private $isil;
     private $budgets;
+    private $suppliers;
 
     /**
      * User constructor.
-     * @param $name
      * @param $id
+     * @param $name
      * @param $settings
      * @param $defaults
      * @param $isil
      * @param $budgets
+     * @param $suppliers
      */
-    public function __construct($id, $name, $settings, $defaults, $isil, $budgets) {
+    public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers) {
         $this->name = $name;
         $this->id = $id;
         $this->settings = $settings;
@@ -38,6 +40,14 @@ class User {
             $this->budgets[] = [
                 'name' => $budget['c'],
                 'value' => $budget['0']
+            ];
+        }
+
+        $this->suppliers = [];
+        foreach($suppliers as $supplier){
+            $this->suppliers[] = [
+                'name' => $supplier['name'],
+                'value' => $supplier['value']
             ];
         }
     }
@@ -95,6 +105,10 @@ class User {
      */
     public function getBudgets() {
         return $this->budgets;
+    }
+
+    public function getSuppliers(){
+        return $this->suppliers;
     }
 
     public function setOrderSetting($order){

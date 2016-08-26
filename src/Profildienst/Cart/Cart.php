@@ -46,8 +46,10 @@ class Cart {
     }
 
 
-    public function getTitles($page) {
-        return $this->titleRepository->getTitlesByStatus('cart', $page);
+    public function getTitles($page = null) {
+        return is_null($page)
+            ? $this->titleRepository->getAllTitlesByStatus('cart')
+            : $this->titleRepository->getTitlesByStatus('cart', $page);
     }
 
     public function addTitle(Title $title) {

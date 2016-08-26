@@ -8,11 +8,6 @@
 
 namespace Profildienst\Title;
 
-
-use Config\Configuration;
-use Exceptions\UserException;
-use Profildienst\User\User;
-
 class TitleRepository {
 
     private $gateway;
@@ -52,6 +47,10 @@ class TitleRepository {
 
     public function changeOrderInformationOfTitles($ids, $orderInformation) {
         return $this->gateway->updateTitlesOrderInformation($ids, $orderInformation);
+    }
+
+    public function changeStatusOfWatchlist($watchlistId, $newStatus){
+        return $this->gateway->updateTitlesInWatchlist($watchlistId, $newStatus);
     }
 
 }

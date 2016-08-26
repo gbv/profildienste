@@ -26,7 +26,7 @@ class UserController {
             return null;
         }
 
-        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets']);
+        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets'], $data['suppliers']);
     }
 
     public function userExists($id) {
