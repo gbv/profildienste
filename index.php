@@ -98,7 +98,7 @@ $container['titleRepository'] = function ($container) {
 };
 
 $container['titleFactory'] = function ($container) {
-    return new TitleFactory($container['watchlistManager']);
+    return new TitleFactory($container['watchlistManager'], $container['user']);
 };
 
 $container['watchlistManager'] = function ($container) {

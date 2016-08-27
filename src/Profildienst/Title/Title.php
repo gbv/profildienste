@@ -13,6 +13,8 @@
  */
 namespace Profildienst\Title;
 use Exceptions\UserException;
+use Profildienst\User\User;
+use Profildienst\Watchlist\Watchlist;
 use Profildienst\Watchlist\WatchlistManager;
 
 /**
@@ -101,15 +103,24 @@ class Title {
      */
     private $ilns;
 
+    /**
+     * @var WatchlistManager
+     */
     private $watchlistManager;
+
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * Creates a new title from the given JSON.
      *
      * @param $json array JSON Data
      * @param WatchlistManager $watchlistManager
+     * @param User $user
      */
-    public function __construct($json, WatchlistManager $watchlistManager) {
+    public function __construct($json, WatchlistManager $watchlistManager, User $user) {
         $this->j = $json;
         $this->watchlistManager = $watchlistManager;
 
@@ -126,6 +137,7 @@ class Title {
             $this->mak = $this->get('gvkt_mak');
             $this->ilns = null;
         }
+        $this->user = $user;
     }
 
     /**
@@ -259,10 +271,10 @@ class Title {
     }
 
     /**
-     * Returns the ID of the watchlist the title is in, or null if the title
-     * is not associated with a watchlist
+     * Returns the titles watchlist as a watchlist object or null if
+     * is not associated with a watchlist.
      *
-     * @return int|null the ID of the watchlist
+     * @return Watchlist|null Titles watchlist
      */
     public function getWatchlist() {
         return $this->isInWatchlist() ? $this->watchlistManager->getWatchlist($this->j['watchlist']) : null;
@@ -418,7 +430,7 @@ class Title {
      * @return mixed Owners user ID
      */
     public function getUser() {
-        return $this->j['user'];
+        return $this->user;
     }
 
     /**
@@ -466,7 +478,6 @@ class Title {
     /**
      * Extracts the relevant information from a title to display it.
      *
-     * @param Title $t Title
      * @return array Array containing relevant information
      */
     public function toJson() {
@@ -508,8 +519,8 @@ class Title {
 
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
-            'supplier' => $this->getSupplier(),
-            'budget' => $this->getBudget(),
+            'supplier' => $this->user->getSupplier($this->getSupplier())['name'],
+            'budget' => $this->user->getBudget($this->getBudget())['name'],
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),

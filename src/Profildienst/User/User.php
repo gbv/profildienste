@@ -121,7 +121,7 @@ class User {
     }
 
     public function getBudget($value){
-        return $this->budgets[$value] ?? 'DEFNOTFOUND';
+        return $this->budgets[$value] ?? ['name' => 'NOTFOUND', 'value' => $value];
     }
 
     public function getSuppliers(){
@@ -129,7 +129,7 @@ class User {
     }
 
     public function getSupplier($value) {
-        return $this->suppliers[$value] ?? 'DEFNOTFOUND';
+        return $this->suppliers[$value] ?? ['name' => 'NOTFOUND', 'value' => $value];
     }
 
     public function setOrderSetting($order){
