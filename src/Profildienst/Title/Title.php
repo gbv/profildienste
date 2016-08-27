@@ -274,7 +274,7 @@ class Title {
      * @return string Lieferant
      */
     public function getSupplier() {
-        return $this->j['lieft'];
+        return $this->getDirectly('supplier');
     }
 
     /**
@@ -283,7 +283,7 @@ class Title {
      * @return string Budget
      */
     public function getBudget() {
-        return $this->j['budget'];
+        return $this->getDirectly('budget');
     }
 
     /**
@@ -329,7 +329,7 @@ class Title {
      * @return string SSG-Nr.
      */
     public function getSSGNr() {
-        return $this->j['ssgnr'];
+        return $this->getDirectly('ssgnr');
     }
 
     /**
@@ -338,7 +338,7 @@ class Title {
      * @return string Selektionscode
      */
     public function getSelcode() {
-        return $this->j['selcode'];
+        return $this->getDirectly('selcode');
     }
 
 
@@ -348,7 +348,7 @@ class Title {
      * @return string comment
      */
     public function getComment() {
-        return $this->j['comment'];
+        return $this->getDirectly('comment');
     }
 
     /**

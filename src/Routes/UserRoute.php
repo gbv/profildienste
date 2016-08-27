@@ -37,7 +37,7 @@ class UserRoute extends Route {
             'name' => $this->user->getName(),
             'motd' => $this->config->getMOTD(),
             'defaults' => [
-                // v TODO: rework, remove from here, integrate into budgets. Same for suppliers
+                'supplier' => '0000', //value, TODO
                 'budget' => $defaults['budget'],
                 'ssgnr' => $defaults['ssgnr'],
                 'selcode' => $defaults['selcode']

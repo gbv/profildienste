@@ -41,8 +41,8 @@ abstract class ViewRoute extends Route{
         return self::generateJSONResponse(new TitlelistResponse($titles, $totalCount, $more, $additionalInformation), $response);
     }
 
-    protected function makeTitleResponse($view, $page, $response){
-        $titles = $this->titleRepository->getTitlesByStatus($view, $page);
+    protected function makeTitleResponse($view, $page, $response, $dateSorted = false){
+        $titles = $this->titleRepository->getTitlesByStatus($view, $page, $dateSorted);
         $totalCount = $this->titleRepository->getTitleCountWithStatus($view);
 
         return self::titlePageResponse($titles, $page, $totalCount, $response);

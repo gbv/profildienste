@@ -23,7 +23,7 @@ trait MongoOptionHelper {
         'per' => '028A.a'
     ];
 
-    private static function sortedPageOptions(Configuration $config, User $user, $page) {
+    private static function sortedPageOptions(Configuration $config, User $user, $page, $dateSorted = false) {
         $opt = [];
 
         $opt['limit'] = $config->getPagesize();
@@ -37,6 +37,14 @@ trait MongoOptionHelper {
         $opt['sort'] = [
             self::$sortMapping[$userSettings['sortby']] => $order
         ];
+
+        if ($dateSorted) {
+            $opt['sort']['lastStatusChange'] = -1;
+            // if sorting by date is enabled, the date should be the first priority
+            // and thus the order has of sorting criterias has to be reversed, so that
+            // the date comes first
+            $opt['sort'] = array_reverse($opt['sort']);
+        }
 
         return $opt;
     }

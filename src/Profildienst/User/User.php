@@ -38,9 +38,10 @@ class User {
         $this->defaults = $defaults;
         $this->isil = $isil;
 
+        // TODO: Change this once the new schema is implemented (c and 0 key)
         $this->budgets = [];
         foreach($budgets as $budget){
-            $this->budgets[] = [
+            $this->budgets[$budget['0']] = [
                 'name' => $budget['c'],
                 'value' => $budget['0']
             ];
@@ -48,7 +49,7 @@ class User {
 
         $this->suppliers = [];
         foreach($suppliers as $supplier){
-            $this->suppliers[] = [
+            $this->suppliers[$supplier['value']] = [
                 'name' => $supplier['name'],
                 'value' => $supplier['value']
             ];
@@ -116,11 +117,19 @@ class User {
      * @return mixed
      */
     public function getBudgets() {
-        return $this->budgets;
+        return array_values($this->budgets);
+    }
+
+    public function getBudget($value){
+        return $this->budgets[$value] ?? 'DEFNOTFOUND';
     }
 
     public function getSuppliers(){
-        return $this->suppliers;
+        return array_values($this->suppliers);
+    }
+
+    public function getSupplier($value) {
+        return $this->suppliers[$value] ?? 'DEFNOTFOUND';
     }
 
     public function setOrderSetting($order){

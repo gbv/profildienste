@@ -33,7 +33,7 @@ $slimConfiguration = [
 ];
 
 $container = new \Slim\Container($slimConfiguration);
-
+/*
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
 
@@ -55,7 +55,7 @@ $errorHandler = function ($container) {
 
 $container['errorHandler'] = $errorHandler;
 $container['phpErrorHandler'] = $errorHandler;
-
+*/
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
         return $response->withStatus(404);

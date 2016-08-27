@@ -53,8 +53,8 @@ class MongoTitleGateway implements TitleGateway {
         return $this->titles->count($query);
     }
 
-    public function getTitlesByStatus($status, $page) {
-        $options = self::sortedPageOptions($this->config, $this->user, $page);
+    public function getTitlesByStatus($status, $page, $dateSorted) {
+        $options = self::sortedPageOptions($this->config, $this->user, $page, $dateSorted);
         return $this->getTitles($status, $options);
     }
 
@@ -102,10 +102,14 @@ class MongoTitleGateway implements TitleGateway {
     public function updateTitlesOrderInformation(array $ids, $orderInformation) {
 
         $toUpdate = [];
-        foreach (['budget', 'selcode', 'ssgnr', 'lieft', 'comment'] as $orderInfoField){
+        foreach (['budget', 'selcode', 'ssgnr', 'supplier', 'comment'] as $orderInfoField){
             if (isset($orderInformation[$orderInfoField])){
                 $toUpdate[$orderInfoField] = $orderInformation[$orderInfoField];
             }
+        }
+
+        if(count($toUpdate) == 0){
+            return false;
         }
 
         $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];

@@ -154,25 +154,20 @@ class OrderController {
 
         $toUpdate = [];
 
-        // check if budget is not empty
         if (empty($title->getBudget())) {
-            throw new UserException('Budget is not allowed to be empty');
+            $toUpdate['budget'] = $defaults['budget'];
         }
-        // check if supplier is not empty
+
         if (empty($title->getSupplier())) {
-            throw new UserException('Supplier is not allowed to be empty');
+            $toUpdate['supplier'] = $defaults['supplier'];
         }
 
-        $selcode = $title->getSelcode();
-        if (empty($selcode)) {
-            $selcode = $defaults['selcode'];
-            $toUpdate['selcode'] = $selcode;
+        if (empty($title->getSSGNr())) {
+            $toUpdate['ssgnr'] = $defaults['ssgnr'];
         }
 
-        $ssgnr = $title->getSSGNr();
-        if (empty($ssgnr)) {
-            $ssgnr = $defaults['ssgnr'];
-            $toUpdate['ssgnr'] = $ssgnr;
+        if (empty($title->getSelcode())) {
+            $toUpdate['selcode'] = $defaults['selcode'];
         }
 
         if (count($toUpdate) > 0) {

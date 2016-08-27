@@ -49,7 +49,7 @@ class TitleRoute extends Route {
             $type = $orderInfo['type'] ?? null;
             $value = $orderInfo['value'] ?? null;
 
-            if (is_null($type) || is_null($value) || !in_array($type, ['budget', 'lieft', 'selcode', 'ssgnr', 'comment'])) {
+            if (is_null($type) || is_null($value) || !in_array($type, ['budget', 'supplier', 'selcode', 'ssgnr', 'comment'])) {
                 throw new UserException('Save parameter must have a valid type and value');
             }
 

@@ -23,8 +23,8 @@ class TitleRepository {
         return $this->titleFactory->createTitleList($titleData);
     }
 
-    public function getTitlesByStatus($status, $page) {
-        $titleData = $this->gateway->getTitlesByStatus($status, $page);
+    public function getTitlesByStatus($status, $page, $dateSorted = false) {
+        $titleData = $this->gateway->getTitlesByStatus($status, $page, $dateSorted);
         return $this->titleFactory->createTitleList($titleData);
     }
 
