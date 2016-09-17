@@ -117,8 +117,6 @@ class WatchlistManager {
         if (!$this->gateway->renameWatchlist($watchlist->getId(), $name)){
             throw new UserErrorException('Failed to rename watchlist');
         }
-
-        // TODO: changed cached watchlist
     }
 
     public function setDefaultWatchlist(Watchlist $watchlist){
@@ -126,7 +124,5 @@ class WatchlistManager {
         if (!$this->gateway->updateDefaultWatchlist($watchlist->getId())){
             throw new UserErrorException('Failed to update default watchlist');
         }
-
-        // TODO: changed cached watchlist
     }
 }

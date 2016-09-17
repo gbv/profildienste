@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+
 require 'init.php';
 require 'errorHandler.php';
 require 'routes.php';

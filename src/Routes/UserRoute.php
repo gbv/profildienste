@@ -36,12 +36,6 @@ class UserRoute extends Route {
         $data = [
             'name' => $this->user->getName(),
             'motd' => $this->config->getMOTD(),
-            'defaults' => [
-                'supplier' => '0000', //value, TODO
-                'budget' => $defaults['budget'],
-                'ssgnr' => $defaults['ssgnr'],
-                'selcode' => $defaults['selcode']
-            ],
             'budgets' => $this->user->getBudgets(),
             'suppliers' => $this->user->getSuppliers()
         ];
