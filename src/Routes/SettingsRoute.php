@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 31.05.16
- * Time: 19:20
- */
 
 namespace Routes;
-
 
 use Responses\BasicResponse;
 

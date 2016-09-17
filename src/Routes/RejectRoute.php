@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 30.06.16
- * Time: 11:38
- */
 
 namespace Routes;
 
 
-use Exceptions\UserException;
 use Responses\ActionResponse;
+use Exceptions\UserErrorException;
 
 class RejectRoute extends ViewRoute {
 
@@ -28,7 +22,7 @@ class RejectRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to update rejected titles.');
+            throw new UserErrorException('Failed to update rejected titles.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'rejected'), $response);
@@ -42,7 +36,7 @@ class RejectRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to remove rejected titles.');
+            throw new UserErrorException('Failed to remove rejected titles.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'overview'), $response);

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 27.07.16
- * Time: 00:32
- */
 
 namespace Profildienst\Search;
 

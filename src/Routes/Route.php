@@ -9,10 +9,10 @@
 namespace Routes;
 
 
-use Interop\Container\ContainerInterface;
+use Slim\Http\Response;
 use Responses\APIResponse;
 use Responses\ErrorResponse;
-use Slim\Http\Response;
+use Interop\Container\ContainerInterface;
 
 abstract class Route {
 

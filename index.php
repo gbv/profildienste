@@ -3,6 +3,7 @@
 use Auth\Auth;
 use Config\Configuration;
 use Exceptions\BaseException;
+use Exceptions\UserErrorException;
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
 
@@ -37,7 +38,7 @@ $container = new \Slim\Container($slimConfiguration);
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
 
-        if ($exception instanceof BaseException) {
+        if ($exception instanceof UserErrorException) {
 
             $errResp = new ErrorResponse($exception->getMessage());
             return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 30.06.16
- * Time: 11:31
- */
 
 namespace Routes;
 

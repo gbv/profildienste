@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 05.06.16
- * Time: 22:51
- */
 
 namespace Routes;
 
 
-use Exceptions\UserException;
-use Interop\Container\ContainerInterface;
-use Responses\ActionResponse;
 use Responses\BasicResponse;
+use Responses\ActionResponse;
+use Exceptions\UserErrorException;
+use Interop\Container\ContainerInterface;
 
 class WatchlistRoute extends ViewRoute {
 
@@ -58,7 +52,7 @@ class WatchlistRoute extends ViewRoute {
         $newWatchlist = $args['id'];
 
         if (is_null($newWatchlist)) {
-            throw new UserException('No watchlist id given!');
+            throw new UserErrorException('No watchlist id given!');
         }
 
 
@@ -67,7 +61,7 @@ class WatchlistRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to add titles to watchlist.');
+            throw new UserErrorException('Failed to add titles to watchlist.');
         }
 
         $watchlist = $this->watchlistManager->getWatchlist($newWatchlist);
@@ -80,7 +74,7 @@ class WatchlistRoute extends ViewRoute {
         $oldWatchlist = $args['id'];
 
         if (is_null($oldWatchlist)) {
-            throw new UserException('No watchlist id given!');
+            throw new UserErrorException('No watchlist id given!');
         }
 
 
@@ -89,7 +83,7 @@ class WatchlistRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to remove titles from watchlist.');
+            throw new UserErrorException('Failed to remove titles from watchlist.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, ''), $response);
@@ -99,7 +93,7 @@ class WatchlistRoute extends ViewRoute {
     private function handleWatchlistChange($request, $oldWatchlist, $newWatchlist, $allow) {
 
         if (is_null($oldWatchlist) && is_null($newWatchlist)) {
-            throw new UserException('At least the old watchlist or new watchlist have to be specified');
+            throw new UserErrorException('At least the old watchlist or new watchlist have to be specified');
         }
 
         $affected = $this->validateAffectedTitles($request);
@@ -109,12 +103,12 @@ class WatchlistRoute extends ViewRoute {
             $titles = $this->titleRepository->findTitlesById($affected);
 
             if (count($titles) === 0) {
-                throw new UserException('No titles with the given IDs found!');
+                throw new UserErrorException('No titles with the given IDs found!');
             }
 
             foreach ($titles as $title) {
                 if (!$allow($title->getStatus(), $title->isInWatchlist())) {
-                    throw new UserException('This action is not allowed on the selection of titles!');
+                    throw new UserErrorException('This action is not allowed on the selection of titles!');
                 }
             }
 
@@ -147,7 +141,7 @@ class WatchlistRoute extends ViewRoute {
         $name = $parameters['name'];
 
         if (empty($name)) {
-            throw new UserException('The watchlist name must not be empty');
+            throw new UserErrorException('The watchlist name must not be empty');
         }
 
         $newWatchlist = $this->watchlistManager->addWatchlist($name);
@@ -167,7 +161,7 @@ class WatchlistRoute extends ViewRoute {
         $id = $args['id'];
 
         if (empty($id)) {
-            throw new UserException('The watchlist id must not be empty');
+            throw new UserErrorException('The watchlist id must not be empty');
         }
 
         $watchlist = $this->watchlistManager->getWatchlist($id);
@@ -184,7 +178,7 @@ class WatchlistRoute extends ViewRoute {
         $watchlists = $this->watchlistManager->getWatchlists();
 
         if (empty($order) || !is_array($order) || count($order) !== count($watchlists)) {
-            throw new UserException('Illegal order options (watchlists missing or empty)');
+            throw new UserErrorException('Illegal order options (watchlists missing or empty)');
         }
 
         $this->watchlistManager->changeWatchlistOrder($order);
@@ -197,14 +191,14 @@ class WatchlistRoute extends ViewRoute {
         $id = $args['id'];
 
         if (empty($id)) {
-            throw new UserException('The watchlist id must not be empty');
+            throw new UserErrorException('The watchlist id must not be empty');
         }
 
         $parameters = $request->getParsedBody();
         $name = $parameters['name'];
 
         if (empty($name)) {
-            throw new UserException('The new watchlist name must not be empty');
+            throw new UserErrorException('The new watchlist name must not be empty');
         }
 
         $watchlist = $this->watchlistManager->getWatchlist($id);
@@ -220,7 +214,7 @@ class WatchlistRoute extends ViewRoute {
         $id = $parameters['id'];
 
         if (empty($id)) {
-            throw new UserException('The new watchlist name must not be empty');
+            throw new UserErrorException('The new watchlist name must not be empty');
         }
 
         $watchlist = $this->watchlistManager->getWatchlist($id);

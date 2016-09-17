@@ -8,10 +8,10 @@
 
 namespace Routes;
 
-use Exceptions\UserException;
-use Interop\Container\ContainerInterface;
-use Responses\ActionResponse;
 use Responses\BasicResponse;
+use Responses\ActionResponse;
+use Exceptions\UserErrorException;
+use Interop\Container\ContainerInterface;
 
 class TitleRoute extends Route {
 
@@ -33,7 +33,7 @@ class TitleRoute extends Route {
 
         // currently saving information is only supported for a single title
         if (!is_array($affected) || count($affected) > 1) {
-            throw new UserException('This operation is currently not implemented for views or multiple titles.');
+            throw new UserErrorException('This operation is currently not implemented for views or multiple titles.');
         }
 
         // validate values to update
@@ -41,7 +41,7 @@ class TitleRoute extends Route {
         $save = $parameters['save'];
 
         if (!is_array($save) || count($save) < 1) {
-            throw new UserException('Illegal format for save parameters');
+            throw new UserErrorException('Illegal format for save parameters');
         }
 
         $updatedOrderInformation = [];
@@ -50,7 +50,7 @@ class TitleRoute extends Route {
             $value = $orderInfo['value'] ?? null;
 
             if (is_null($type) || is_null($value) || !in_array($type, ['budget', 'supplier', 'selcode', 'ssgnr', 'comment'])) {
-                throw new UserException('Save parameter must have a valid type and value');
+                throw new UserErrorException('Save parameter must have a valid type and value');
             }
 
             $updatedOrderInformation[$type] = $value;
@@ -58,7 +58,7 @@ class TitleRoute extends Route {
 
 
         if (!$this->titleRepository->changeOrderInformationOfTitles($affected, $updatedOrderInformation)) {
-            throw new UserException('Failed to save the updated order information');
+            throw new UserErrorException('Failed to save the updated order information');
         }
 
 
@@ -66,15 +66,8 @@ class TitleRoute extends Route {
     }
 
     public function delete($request, $response, $args) {
-///**
-// * Delete titles
-// */
-//$app->post('/delete', $authenticate($app, $auth), function () use ($app, $auth) {
-//  $m = new \AJAX\Delete($auth);
-//  printResponse($m->getResponse());
-//});
-//
-        throw new UserException('User exception yet!');
+        // TODO
+        throw new UserErrorException('User exception yet!');
     }
 
     public function titleInfo($request, $response, $args) {
@@ -82,13 +75,13 @@ class TitleRoute extends Route {
         $id = $args['id'];
 
         if (empty($id)) {
-            throw new UserException('No title ID given');
+            throw new UserErrorException('No title ID given');
         }
 
         $titles = $this->titleRepository->findTitlesById([$id]);
 
         if (count($titles) !== 1) {
-            throw new UserException('No title with that ID found');
+            throw new UserErrorException('No title with that ID found');
         }
 
         $title = $titles[0];
@@ -116,20 +109,20 @@ class TitleRoute extends Route {
         $id = $args['id'];
 
         if (empty($id)) {
-            throw new UserException('No title ID given');
+            throw new UserErrorException('No title ID given');
         }
 
         $titles = $this->titleRepository->findTitlesById([$id]);
 
         if (count($titles) !== 1) {
-            throw new UserException('No title with that ID found');
+            throw new UserErrorException('No title with that ID found');
         }
 
         $query = $titles[0]->getTitle() . ' ' . $titles[0]->getAuthor();
 
         $opacUrl = $this->user->getLibrary()->getOPACURL();
         if (empty($opacUrl)) {
-            throw new UserException('No OPAC set for your library.');
+            throw new UserErrorException('No OPAC set for your library.');
         }
 
         $url = preg_replace('/%SEARCH_TERM%/', urlencode($query), $opacUrl);

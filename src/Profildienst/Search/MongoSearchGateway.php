@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 27.07.16
- * Time: 01:03
- */
 
 namespace Profildienst\Search;
 
 
-use Config\Configuration;
 use MongoDB\Database;
-use Profildienst\Common\MongoOptionHelper;
+use Config\Configuration;
 use Profildienst\User\User;
+use Profildienst\Common\MongoOptionHelper;
 
 class MongoSearchGateway implements SearchGateway {
 

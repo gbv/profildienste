@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 31.05.16
- * Time: 19:08
- */
 
 namespace Routes;
 
-use Exceptions\AuthException;
 use Firebase\JWT\JWT;
 use Responses\BasicResponse;
+use Exceptions\UserErrorException;
 
 class AuthRoute extends Route{
 
@@ -22,7 +16,7 @@ class AuthRoute extends Route{
 
         // have we got a username and a password?
         if (empty($credentials['user']) || empty($credentials['pass'])) {
-            throw new AuthException('Bitte geben Sie einen Benutzername und ein Passwort ein.');
+            throw new UserErrorException('Bitte geben Sie einen Benutzername und ein Passwort ein.');
         }
 
         // Perform authentication. If the authentication fails, an exception will be thrown and

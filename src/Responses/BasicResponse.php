@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 03.05.16
- * Time: 14:50
- */
 
 namespace Responses;
 

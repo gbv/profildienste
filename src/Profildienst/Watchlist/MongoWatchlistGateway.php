@@ -9,11 +9,11 @@
 namespace Profildienst\Watchlist;
 
 
-use Config\Configuration;
-use MongoDB\BSON\UTCDatetime;
 use MongoDB\Database;
-use Profildienst\Common\MongoOptionHelper;
+use Config\Configuration;
 use Profildienst\User\User;
+use MongoDB\BSON\UTCDatetime;
+use Profildienst\Common\MongoOptionHelper;
 
 class MongoWatchlistGateway implements WatchlistGateway{
 

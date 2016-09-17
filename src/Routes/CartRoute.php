@@ -9,13 +9,13 @@
 namespace Routes;
 
 
-use Exceptions\UserException;
-use Interop\Container\ContainerInterface;
 use Profildienst\Cart\Cart;
-use Profildienst\Cart\OrderController;
 use Profildienst\User\User;
-use Responses\ActionResponse;
 use Responses\BasicResponse;
+use Responses\ActionResponse;
+use Exceptions\UserErrorException;
+use Profildienst\Cart\OrderController;
+use Interop\Container\ContainerInterface;
 
 class CartRoute extends ViewRoute {
 
@@ -72,7 +72,7 @@ class CartRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to update titles in cart.');
+            throw new UserErrorException('Failed to update titles in cart.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'cart'), $response);
@@ -85,7 +85,7 @@ class CartRoute extends ViewRoute {
         });
 
         if (is_null($affected)) {
-            throw new UserException('Failed to remove titles from cart.');
+            throw new UserErrorException('Failed to remove titles from cart.');
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, 'overview'), $response);

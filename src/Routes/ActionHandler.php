@@ -1,15 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 02.07.16
- * Time: 00:35
- */
 
 namespace Routes;
 
-
-use Exceptions\UserException;
+use Exceptions\UserErrorException;
 
 trait ActionHandler {
 
@@ -20,7 +13,7 @@ trait ActionHandler {
         $affected = $parameters['affected'];
 
         if (is_null($affected) || empty($affected)) {
-            throw new UserException('At least one title must be affected by the change!');
+            throw new UserErrorException('At least one title must be affected by the change!');
         }
 
         return $affected;
@@ -35,12 +28,12 @@ trait ActionHandler {
             $titles = $this->titleRepository->findTitlesById($affected);
 
             if (count($titles) === 0) {
-                throw new UserException('No titles with the given IDs found!');
+                throw new UserErrorException('No titles with the given IDs found!');
             }
 
             foreach ($titles as $title) {
                 if (!$allow($title->getStatus(), $title->isInWatchlist())) {
-                    throw new UserException('This action is not allowed on the selection of titles!');
+                    throw new UserErrorException('This action is not allowed on the selection of titles!');
                 }
             }
 
@@ -53,14 +46,14 @@ trait ActionHandler {
             }
 
             if (!$allow($newStatus, null)) {
-                throw new UserException('This action is not allowed on the selection of titles!');
+                throw new UserErrorException('This action is not allowed on the selection of titles!');
             }
 
             if (preg_match('/watchlist\/(.*)/', $affected, $match)) {
                 $watchlistId = $match[1] ?? null;
 
                 if(is_null($watchlistId)){
-                    throw new UserException('Invalid watchlist format');
+                    throw new UserErrorException('Invalid watchlist format');
                 }
 
                 return $this->titleRepository->changeStatusOfWatchlist($watchlistId, $newStatus) ? $affected : null;

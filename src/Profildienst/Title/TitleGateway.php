@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 04.06.16
- * Time: 14:02
- */
 
 namespace Profildienst\Title;
 

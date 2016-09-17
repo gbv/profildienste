@@ -31,6 +31,7 @@ class User {
      * @param $isil
      * @param $budgets
      * @param $suppliers
+     * @param $libraryController
      */
     public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers, $libraryController) {
         $this->name = $name;
@@ -39,7 +40,6 @@ class User {
         $this->defaults = $defaults;
         $this->isil = $isil;
 
-        // TODO: Change this once the new schema is implemented (c and 0 key)
         $this->budgets = [];
         foreach ($budgets as $budget) {
             $this->budgets[$budget['value']] = [

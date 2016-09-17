@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 21.06.16
- * Time: 14:24
- */
 
 namespace Profildienst\Watchlist;
 
 
-use Exceptions\UserException;
+use Exceptions\UserErrorException;
 use Profildienst\Title\TitleFactory;
 
 class WatchlistManager {
@@ -46,7 +40,7 @@ class WatchlistManager {
         ];
 
         if (!$this->gateway->createWatchlist($watchlistData)) {
-            throw new UserException('Failed to create a new watchlist');
+            throw new UserErrorException('Failed to create a new watchlist');
         }
 
         return $this->getWatchlist($id);
@@ -55,11 +49,11 @@ class WatchlistManager {
     public function deleteWatchlist(Watchlist $watchlist) {
 
         if (!$this->gateway->removeAllTitlesFromWatchlist($watchlist->getId())) {
-            throw new UserException('Failed to remove all titles from watchlist.');
+            throw new UserErrorException('Failed to remove all titles from watchlist.');
         }
 
         if (!$this->gateway->deleteWatchlist($watchlist->getId())) {
-            throw new UserException('Failed to delete watchlist.');
+            throw new UserErrorException('Failed to delete watchlist.');
         }
 
         // removed cache watchlist
@@ -93,7 +87,7 @@ class WatchlistManager {
         }
 
         if (is_null($data)) {
-            throw new UserException('The watchlist with this id does not exist.');
+            throw new UserErrorException('The watchlist with this id does not exist.');
         }
 
         return new Watchlist($id, $data['name'], $data['default'], $this->gateway, $this->titleFactory);
@@ -121,7 +115,7 @@ class WatchlistManager {
 
     public function renameWatchlist(Watchlist $watchlist, $name){
         if (!$this->gateway->renameWatchlist($watchlist->getId(), $name)){
-            throw new UserException('Failed to rename watchlist');
+            throw new UserErrorException('Failed to rename watchlist');
         }
 
         // TODO: changed cached watchlist
@@ -130,7 +124,7 @@ class WatchlistManager {
     public function setDefaultWatchlist(Watchlist $watchlist){
 
         if (!$this->gateway->updateDefaultWatchlist($watchlist->getId())){
-            throw new UserException('Failed to update default watchlist');
+            throw new UserErrorException('Failed to update default watchlist');
         }
 
         // TODO: changed cached watchlist

@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 26.06.16
- * Time: 16:01
- */
 
 namespace Profildienst\Common;
-
 
 use Config\Configuration;
 use Profildienst\User\User;

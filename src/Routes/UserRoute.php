@@ -9,9 +9,9 @@
 namespace Routes;
 
 
-use Exceptions\UserException;
-use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
+use Exceptions\UserErrorException;
+use Interop\Container\ContainerInterface;
 
 class UserRoute extends Route {
 
@@ -67,15 +67,15 @@ class UserRoute extends Route {
 
 
         if (empty($type) || !in_array($type, ['order', 'sortby'])) {
-            throw new UserException('Unknown or empty setting');
+            throw new UserErrorException('Unknown or empty setting');
         }
 
         if ($type === 'order' && !in_array($value, array_keys($this->config->getOrderOptions()))) {
-            throw new UserException('Unknown order option');
+            throw new UserErrorException('Unknown order option');
         }
 
         if ($type === 'sortby' && !in_array($value, array_keys($this->config->getSortOptions()))) {
-            throw new UserException('Unknown sort option');
+            throw new UserErrorException('Unknown sort option');
         }
 
         // update settings

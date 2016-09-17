@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 07.06.16
- * Time: 14:36
- */
 
 namespace Profildienst\Title;
-
 
 use Profildienst\User\User;
 use Profildienst\Watchlist\WatchlistManager;

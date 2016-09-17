@@ -1,16 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 30.06.16
- * Time: 11:45
- */
 
 namespace Routes;
 
-
-use Interop\Container\ContainerInterface;
 use Responses\TitlelistResponse;
+use Interop\Container\ContainerInterface;
 
 abstract class ViewRoute extends Route{
 

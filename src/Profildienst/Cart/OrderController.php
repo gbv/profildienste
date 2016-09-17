@@ -9,10 +9,10 @@
 namespace Profildienst\Cart;
 
 use Config\Configuration;
-use Exceptions\UserException;
+use Exceptions\UserErrorException;
+use Profildienst\User\User;
 use Profildienst\Title\Title;
 use Profildienst\Title\TitleRepository;
-use Profildienst\User\User;
 
 /**
  * Writes an order to a JSON file
@@ -50,7 +50,7 @@ class OrderController {
 
         // nothing to do if there are no titles in the cart
         if (count($titles) === 0) {
-            throw new UserException('Aktuell befinden sich keine Titel im Warenkorb, die bestellt werden könnten.');
+            throw new UserErrorException('Aktuell befinden sich keine Titel im Warenkorb, die bestellt werden könnten.');
         }
 
         $library = $this->user->getLibrary();
@@ -88,7 +88,7 @@ class OrderController {
                 exec('rsync -azPi ' . $dir . ' ' . $host . ' 2>&1', $output, $ret);
 
                 if ($ret != 0) {
-                    throw new UserException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
+                    throw new UserErrorException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
                 }
 
             }
@@ -115,7 +115,7 @@ class OrderController {
             exec('rsync -azPi ' . $dir . ' ' . $host . ' 2>&1', $output, $ret);
 
             if ($ret != 0) {
-                throw new UserException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
+                throw new UserErrorException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
             }
         }
 
@@ -129,7 +129,7 @@ class OrderController {
      *
      * @param bool|false|string $dir Directory to create the temp dir in
      * @return string Path of the created temp dir
-     * @throws UserException
+     * @throws UserErrorException
      */
     private function tempdir($dir = false) {
         if ($dir !== false) {
@@ -145,7 +145,7 @@ class OrderController {
             return $tempfile;
         }
 
-        throw new UserException('Failed to create a temporary dir');
+        throw new UserErrorException('Failed to create a temporary dir');
     }
 
     private function checkAndSetTitlesOrderInformation(Title $title) {
@@ -172,7 +172,7 @@ class OrderController {
 
         if (count($toUpdate) > 0) {
             if (!$this->titleRepository->changeOrderInformationOfTitles([$title->getId()], $toUpdate)) {
-                throw new UserException('Failed to update the order information of title ' . $title->getId());
+                throw new UserErrorException('Failed to update the order information of title ' . $title->getId());
             }
         }
     }

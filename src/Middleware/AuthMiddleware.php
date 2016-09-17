@@ -1,23 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 15.05.16
- * Time: 16:35
- */
 
 namespace Middleware;
 
 use Firebase\JWT\JWT;
 use Interop\Container\ContainerInterface;
-use Profildienst\User;
-use Slim\Container;
 
 class AuthMiddleware {
 
     private $ci;
 
-    public function __construct(ContainerInterface $ci){
+    public function __construct(ContainerInterface $ci) {
         $this->ci = $ci;
     }
 

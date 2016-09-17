@@ -9,7 +9,7 @@
 namespace Responses;
 
 
-use Exceptions\DatabaseException;
+use Exception;
 use Profildienst\Title\Title;
 
 class TitlelistResponse extends APIResponse{
@@ -21,7 +21,7 @@ class TitlelistResponse extends APIResponse{
             if ($title instanceof Title) {
                 $titlesOut[] = $title->toJson();
             } else {
-                throw new DatabaseException('Only Title objects can be used in a TitleList response');
+                throw new Exception('Only Title objects can be used in a TitleList response');
             }
         }
 

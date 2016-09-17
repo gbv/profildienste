@@ -1,19 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 31.05.16
- * Time: 19:16
- */
 
 namespace Routes;
 
 
-use ErrorException;
-use Exception;
-use Exceptions\UserException;
-use Interop\Container\ContainerInterface;
 use Responses\BasicResponse;
+use Exceptions\UserErrorException;
+use Interop\Container\ContainerInterface;
 
 class SearchRoute extends ViewRoute {
 
@@ -59,24 +51,22 @@ class SearchRoute extends ViewRoute {
         $page = self::validatePage($args);
 
         $queryType = $args['queryType'];
-        if (empty($queryType) || !in_array($queryType, ['advanced', 'keyword'])){
-            throw new UserException('Invalid or empty query type');
+        if (empty($queryType) || !in_array($queryType, ['advanced', 'keyword'])) {
+            throw new UserErrorException('Invalid or empty query type');
         }
 
         $query = $args['query'];
 
-        if (empty($query)){
-            throw new UserException('Empty queries are not allowed');
+        if (empty($query)) {
+            throw new UserErrorException('Empty queries are not allowed');
         }
 
 
-        if($queryType === 'advanced') {
+        if ($queryType === 'advanced') {
             try {
                 $query = json_decode($query, true);
-            } catch (Exception $e) {
-                throw new UserException('Invalid query');
-            } catch (ErrorException $e) {
-                throw new UserException('Invalid query');
+            } catch (\Exception $e) {
+                throw new UserErrorException('Invalid query');
             }
         }
 
@@ -86,26 +76,5 @@ class SearchRoute extends ViewRoute {
 
         return self::titlePageResponse($titles, $page, $search->getTotalCount(), $response, $search->getSearchInformation());
     }
-
-
-// TODO
-//  $app->get('/search/:query/:queryType/page/:num', function ($query, $queryType = 'keyword', $num = 0) use ($app, $auth) {
-//    try {
-//
-//      if($queryType === 'advanced'){
-//        $query = json_decode($query, true);
-//      }
-//
-//      $m = new \Search\Search($query, $queryType, $num, $auth);
-//      printTitles($m->getTitles(), $m->getTotalCount(), $m->getSearchInformation());
-//    } catch (\Exception $e) {
-//      printResponse(NULL, true, $e->getMessage());
-//    }
-//
-//  });
-//
-
-//});
-//
 
 }

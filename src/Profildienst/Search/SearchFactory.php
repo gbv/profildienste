@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 27.07.16
- * Time: 00:31
- */
 
 namespace Profildienst\Search;
 
@@ -16,7 +10,6 @@ class SearchFactory {
 
     private $config;
     private $gateway;
-    private $user;
     private $titleFactory;
 
     public function __construct(Configuration $config, SearchGateway $gateway, TitleFactory $titleFactory){

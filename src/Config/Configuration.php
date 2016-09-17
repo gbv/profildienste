@@ -1,15 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 30.04.16
- * Time: 14:25
- */
 
 namespace Config;
 
-
-use Exceptions\ConfigurationException;
+use Exceptions\UserErrorException;
 use Profildienst\Library\Library;
 
 /**
@@ -38,9 +31,6 @@ class Configuration {
     private static $CONFIG_FILE_NAME = 'config.json';
 
     /**
-     *
-     *
-     * /**
      * This is the default configuration, written if there is no configuration
      * file present. To ensure backwards compability with older versions, the
      * config from the configuration file and this default config are merged.
@@ -141,7 +131,7 @@ class Configuration {
         if (!file_exists($config_file_path)) {
 
             if (!is_writeable(self::$CONFIG_DIR)) {
-                throw new ConfigurationException('Das Konfigurationsverzeichnis ist nicht beschreibbar. Bitte Rechte überprüfen!');
+                throw new UserErrorException('Das Konfigurationsverzeichnis ist nicht beschreibbar. Bitte Rechte überprüfen!');
             }
 
             $msg = 'Keine Konfigurationsdatei für den Profildienst gefunden. ';
@@ -151,18 +141,18 @@ class Configuration {
                 $msg .= 'Es konnte zudem keine Konfigurationsdatei angelegt werden.';
             }
 
-            throw new ConfigurationException($msg);
+            throw new UserErrorException($msg);
         }
 
         $config = file_get_contents($config_file_path);
 
         if ($config === false) {
-            throw new ConfigurationException('Die Konfigurationsdatei konnte nicht gelesen werden.');
+            throw new UserErrorException('Die Konfigurationsdatei konnte nicht gelesen werden.');
         }
 
         $config = json_decode($config, true);
         if (is_null($config)) {
-            throw new ConfigurationException('Die Konfigurationsdatei ist kein valides JSON.');
+            throw new UserErrorException('Die Konfigurationsdatei ist kein valides JSON.');
         }
 
         $this->config = ConfigUtilities::array_merge_recursive_distinct(self::$DEFAULT_CONFIGURATION, $config);
@@ -173,8 +163,8 @@ class Configuration {
             ConfigUtilities::checkField($this->config, 'auth', 'token');
             ConfigUtilities::checkField($this->config['auth']['token'], 'issuer');
             ConfigUtilities::checkField($this->config, 'libraries');
-        } catch (ConfigurationException $e) {
-            throw new ConfigurationException('Unvollständige Konfiguration: ' . $e->getMessage());
+        } catch (UserErrorException $e) {
+            throw new UserErrorException('Unvollständige Konfiguration: ' . $e->getMessage());
         }
 
         // generate list of all libraries
@@ -184,8 +174,6 @@ class Configuration {
             $library = new Library($libraryData);
             $this->libraries[$library->getISIL()] = $library;
         }
-
-        // TODO: Getter and setter for all config params
     }
 
     /**
@@ -255,31 +243,31 @@ class Configuration {
         return $this->config['motd']['message'];
     }
 
-    public function getDatabaseHost(){
+    public function getDatabaseHost() {
         return $this->config['database']['host'];
     }
 
-    public function getDatabasePort(){
+    public function getDatabasePort() {
         return $this->config['database']['port'];
     }
 
-    public function getDatabaseName(){
+    public function getDatabaseName() {
         return $this->config['database']['database'];
     }
 
-    public function getPagesize(){
+    public function getPagesize() {
         return $this->config['general']['pagesize'];
     }
 
-    public function getExportHost(){
+    public function getExportHost() {
         return $this->config['export']['host'];
     }
 
-    public function getExportUser(){
+    public function getExportUser() {
         return $this->config['export']['user'];
     }
 
-    public function getExportBasedir(){
+    public function getExportBasedir() {
         return $this->config['export']['basedir'];
     }
 }

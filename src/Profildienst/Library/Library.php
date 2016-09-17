@@ -1,16 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 03.05.16
- * Time: 16:09
- */
 
 namespace Profildienst\Library;
 
-
 use Config\ConfigUtilities;
-use Exceptions\ConfigurationException;
+use Exceptions\UserErrorException;
 
 class Library {
 
@@ -33,14 +26,14 @@ class Library {
                 ConfigUtilities::checkField($this->libraryData, 'export', 'exportDir');
             }
 
-        } catch (ConfigurationException $e) {
+        } catch (UserErrorException $e) {
             $errMsg = $e->getMessage();
             if (!empty($this->libraryData['name'])) {
                 $errMsg .= ' for library ' . $this->libraryData['name'];
             } else {
                 $errMsg .= ' for unknown library';
             }
-            throw new ConfigurationException($errMsg);
+            throw new \Exception($errMsg);
         }
     }
 
@@ -67,7 +60,7 @@ class Library {
     public function getExportDir() {
 
         if ($this->libraryData['export']['advanced']) {
-            throw new ConfigurationException('Method ineligible for chosen export method');
+            throw new \Exception('Method ineligible for chosen export method');
         }
 
         return $this->libraryData['export']['exportDir'];

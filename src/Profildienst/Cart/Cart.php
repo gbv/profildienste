@@ -1,16 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 18.06.16
- * Time: 17:35
- */
 
 namespace Profildienst\Cart;
 
-
-use Profildienst\Common\DataGateway;
 use Profildienst\Title\Title;
+use Profildienst\Common\DataGateway;
 use Profildienst\Title\TitleRepository;
 
 class Cart {

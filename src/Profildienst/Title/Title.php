@@ -12,7 +12,6 @@
  * @package Profildienst
  */
 namespace Profildienst\Title;
-use Exceptions\UserException;
 use Profildienst\User\User;
 use Profildienst\Watchlist\Watchlist;
 use Profildienst\Watchlist\WatchlistManager;
@@ -86,18 +85,17 @@ class Title {
      * @var array JSON Data of this title
      */
     private $j;
-    /**
-     * @var string name of the watchlist the title is in
-     */
-    private $wl_name;
+
     /**
      * @var string URL of the cover
      */
     private $cover;
+
     /**
      * @var string MAK MAK of the title
      */
     private $mak;
+
     /**
      * @var string ILNS ILNs of the title
      */
@@ -574,5 +572,3 @@ class Title {
     }
 
 }
-
-?>

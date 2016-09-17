@@ -10,7 +10,6 @@ namespace Profildienst\Search;
 
 use Config\Configuration;
 use Profildienst\Title\TitleFactory;
-use Profildienst\User\User;
 
 /**
  * Performs a search.
@@ -31,7 +30,6 @@ class Search {
      * @param $q string|array Search query
      * @param $queryType string Type of the search query(keyword or advanced)
      * @param SearchGateway $gateway
-     * @param User $user
      * @param Configuration $config
      * @param TitleFactory $titleFactory
      * @internal param int $num Requested page
@@ -80,5 +78,3 @@ class Search {
 
 
 }
-
-?>

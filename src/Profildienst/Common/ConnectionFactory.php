@@ -8,10 +8,8 @@
 
 namespace Profildienst\Common;
 
-
-use Config\Configuration;
-use Exceptions\DatabaseException;
 use MongoDB\Client;
+use Config\Configuration;
 
 class ConnectionFactory{
 
@@ -25,7 +23,7 @@ class ConnectionFactory{
         try{
             $client = new Client('mongodb://'.$this->config->getDatabaseHost().':'.$this->config->getDatabasePort());
         } catch(\Exception $e){
-            throw new DatabaseException('Cannot connect to database');
+            throw new \Exception('Es konnte leider keine Verbindung zur Datenbank hergestellt werden.');
         }
         
         return $client->selectDatabase($this->config->getDatabaseName());

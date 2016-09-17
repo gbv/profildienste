@@ -12,7 +12,6 @@ use Config\Configuration;
 use MongoDB\BSON\UTCDatetime;
 use MongoDB\Database;
 use Profildienst\Common\MongoOptionHelper;
-use Profildienst\Title;
 use Profildienst\User\User;
 
 class MongoTitleGateway implements TitleGateway {

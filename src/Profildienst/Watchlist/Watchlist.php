@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 19.05.16
- * Time: 14:45
- */
 
 namespace Profildienst\Watchlist;
 

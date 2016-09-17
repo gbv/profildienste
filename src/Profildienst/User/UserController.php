@@ -9,7 +9,7 @@
 namespace Profildienst\User;
 
 
-use Exceptions\UserException;
+use Exceptions\UserErrorException;
 use Profildienst\Library\LibraryController;
 
 class UserController {
@@ -43,7 +43,7 @@ class UserController {
         ];
 
         if (!$this->gateway->updateUserData($user->getId(), $userData)){
-            throw new UserException('Failed to update user data');
+            throw new UserErrorException('Failed to update user data');
         }
     }
 }
