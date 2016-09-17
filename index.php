@@ -33,20 +33,20 @@ $slimConfiguration = [
 ];
 
 $container = new \Slim\Container($slimConfiguration);
-/*
+
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
 
         if ($exception instanceof BaseException) {
 
-            $errResp = new ErrorResponse($exception->getModule() . ' error: ' . $exception->getMessage());
+            $errResp = new ErrorResponse($exception->getMessage());
             return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
 
         } else {
 
-            // mail
+            // mail .$exception->getMessage()
 
-            $errResp = new ErrorResponse('An internal error occured: '.$exception->getMessage());
+            $errResp = new ErrorResponse('Leider ist ein interner Fehler aufgetreten. Eine anonymisierte Fehlermeldung wurde erstellt und wird schnellstmöglichst bearbeitet.', 500);
             return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
         }
 
@@ -55,7 +55,7 @@ $errorHandler = function ($container) {
 
 $container['errorHandler'] = $errorHandler;
 $container['phpErrorHandler'] = $errorHandler;
-*/
+
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
         return $response->withStatus(404);
@@ -188,7 +188,7 @@ $app->group('/titles', function () {
     $this->get('/{id}/info', '\Routes\TitleRoute:titleInfo');
     $this->get('/{id}/opac', '\Routes\TitleRoute:getOPACLink');
     $this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
-    //$this->delete('/delete', '\Routes\TitleRoute:delete');
+    $this->delete('/delete', '\Routes\TitleRoute:delete');
 })->add($auth);
 
 $app->run();

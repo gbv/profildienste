@@ -74,6 +74,7 @@ class TitleRoute extends Route {
 //  printResponse($m->getResponse());
 //});
 //
+        throw new UserException('User exception yet!');
     }
 
     public function titleInfo($request, $response, $args) {

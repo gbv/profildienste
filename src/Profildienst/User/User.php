@@ -1,6 +1,7 @@
 <?php
 
 namespace Profildienst\User;
+
 use Profildienst\Library\Library;
 
 /**
@@ -40,15 +41,15 @@ class User {
 
         // TODO: Change this once the new schema is implemented (c and 0 key)
         $this->budgets = [];
-        foreach($budgets as $budget){
-            $this->budgets[$budget['0']] = [
-                'name' => $budget['c'],
-                'value' => $budget['0']
+        foreach ($budgets as $budget) {
+            $this->budgets[$budget['value']] = [
+                'name' => $budget['name'],
+                'value' => $budget['value']
             ];
         }
 
         $this->suppliers = [];
-        foreach($suppliers as $supplier){
+        foreach ($suppliers as $supplier) {
             $this->suppliers[$supplier['value']] = [
                 'name' => $supplier['name'],
                 'value' => $supplier['value']
@@ -109,7 +110,7 @@ class User {
     /**
      * @return Library
      */
-    public function getLibrary(){
+    public function getLibrary() {
         return $this->libraryController->getLibrary($this);
     }
 
@@ -120,11 +121,11 @@ class User {
         return array_values($this->budgets);
     }
 
-    public function getBudget($value){
+    public function getBudget($value) {
         return $this->budgets[$value] ?? ['name' => 'NOTFOUND', 'value' => $value];
     }
 
-    public function getSuppliers(){
+    public function getSuppliers() {
         return array_values($this->suppliers);
     }
 
@@ -132,11 +133,11 @@ class User {
         return $this->suppliers[$value] ?? ['name' => 'NOTFOUND', 'value' => $value];
     }
 
-    public function setOrderSetting($order){
+    public function setOrderSetting($order) {
         $this->settings['order'] = $order;
     }
 
-    public function setSortSetting($sortby){
+    public function setSortSetting($sortby) {
         $this->settings['sortby'] = $sortby;
     }
 
