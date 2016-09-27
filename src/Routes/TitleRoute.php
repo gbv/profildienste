@@ -67,7 +67,7 @@ class TitleRoute extends Route {
 
     public function delete($request, $response, $args) {
         // TODO
-        throw new UserErrorException('User exception yet!');
+        throw new UserErrorException('Normal exception yet!', true);
     }
 
     public function titleInfo($request, $response, $args) {

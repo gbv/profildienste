@@ -171,6 +171,15 @@ class WatchlistRoute extends ViewRoute {
         return self::generateJSONResponse(new BasicResponse([]), $response);
     }
 
+    /**
+     * Handles a change in the watchlist order
+     *
+     * @param $request
+     * @param $response
+     * @param $args
+     * @return \Slim\Http\Response
+     * @throws UserErrorException
+     */
     public function changeWatchlistOrder($request, $response, $args) {
         $parameters = $request->getParsedBody();
         $order = $parameters['order'];
@@ -186,6 +195,15 @@ class WatchlistRoute extends ViewRoute {
         return self::generateJSONResponse(new BasicResponse([]), $response);
     }
 
+    /**
+     * Handles the renaming of a watchlist
+     *
+     * @param $request
+     * @param $response
+     * @param $args
+     * @return \Slim\Http\Response
+     * @throws UserErrorException
+     */
     public function renameWatchlist($request, $response, $args){
 
         $id = $args['id'];
@@ -208,6 +226,15 @@ class WatchlistRoute extends ViewRoute {
         return self::generateJSONResponse(new BasicResponse([]), $response);
     }
 
+    /**
+     * Handles a change of the default watchlist.
+     *
+     * @param $request
+     * @param $response
+     * @param $args
+     * @return \Slim\Http\Response
+     * @throws UserErrorException
+     */
     public function changeDefaultWatchlist($request, $response, $args){
 
         $parameters = $request->getParsedBody();

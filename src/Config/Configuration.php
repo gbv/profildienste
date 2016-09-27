@@ -67,8 +67,8 @@ class Configuration {
         ],
         'general' => [
             'pagesize' => 10,
-            'production' => true,
-            'maintenance' => false
+            'maintenance' => false,
+            'log_mails' => ['keidel@gbv.de']
         ],
         'search' => [
             'modes' => [
@@ -269,5 +269,13 @@ class Configuration {
 
     public function getExportBasedir() {
         return $this->config['export']['basedir'];
+    }
+
+    public function isInMaintenance(){
+        return $this->config['general']['maintenance'];
+    }
+
+    public function getLogMailAddresses(){
+        return $this->config['general']['log_mails'];
     }
 }

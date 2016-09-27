@@ -71,4 +71,5 @@ function initRoutes(App $app) {
         $this->delete('/delete', '\Routes\TitleRoute:delete');
     })->add($auth);
 
+    $app->get('/status', function (){});
 }

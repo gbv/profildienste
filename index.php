@@ -8,6 +8,7 @@ require 'routes.php';
 
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
+use Middleware\MaintenanceMiddleware;
 
 $slimConfiguration = [
     'settings' => [
@@ -27,6 +28,7 @@ initContainer($container);
  */
 $app = new \Slim\App($container);
 
+$app->add(new MaintenanceMiddleware($container));
 $app->add(new JSONPMiddleware());
 $auth = new AuthMiddleware($container);
 

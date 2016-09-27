@@ -19,7 +19,7 @@ trait ActionHandler {
         return $affected;
     }
 
-    private function handleStatusChange($request, $newStatus, $allow) {
+    private function handleStatusChange($request, $newStatus, $allow, $newWatchlist = false) {
 
         $affected = $this->validateAffectedTitles($request);
 
