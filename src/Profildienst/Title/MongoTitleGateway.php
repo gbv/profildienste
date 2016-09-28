@@ -119,15 +119,4 @@ class MongoTitleGateway implements TitleGateway {
         return $result->isAcknowledged();
     }
 
-    public function updateTitlesInWatchlist($watchlistId, $newStatus) {
-        $criterion = ['$and' => [['user' => $this->user->getId()], ['watchlist' => $watchlistId]]];
-        $update = ['$set' => [
-            'status' => $newStatus,
-            'lastStatusChange' => new UTCDateTime((time() * 1000))
-        ]];
-
-        $result = $this->titles->updateMany($criterion, $update);
-
-        return $result->isAcknowledged();
-    }
 }

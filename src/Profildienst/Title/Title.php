@@ -12,6 +12,7 @@
  * @package Profildienst
  */
 namespace Profildienst\Title;
+use Interop\Container\ContainerInterface;
 use Profildienst\User\User;
 use Profildienst\Watchlist\Watchlist;
 use Profildienst\Watchlist\WatchlistManager;
@@ -102,25 +103,18 @@ class Title {
     private $ilns;
 
     /**
-     * @var WatchlistManager
+     * @var ContainerInterface
      */
-    private $watchlistManager;
-
-    /**
-     * @var User
-     */
-    private $user;
+    private $ci;
 
     /**
      * Creates a new title from the given JSON.
      *
      * @param $json array JSON Data
-     * @param WatchlistManager $watchlistManager
-     * @param User $user
+     * @param ContainerInterface $ci
      */
-    public function __construct($json, WatchlistManager $watchlistManager, User $user) {
+    public function __construct($json, ContainerInterface $ci) {
         $this->j = $json;
-        $this->watchlistManager = $watchlistManager;
 
         if (is_null($json['XX02']) || !$json['XX02']) {
             $this->cover = null;
@@ -135,7 +129,20 @@ class Title {
             $this->mak = $this->get('gvkt_mak');
             $this->ilns = null;
         }
-        $this->user = $user;
+
+        // insert a convenience field with the potential watchlist id
+        if (preg_match('/watchlist\/(.*)/', $this->j['status'], $match)){
+            $this->j['watchlist'] = $match[1];
+            $this->j['status'] = 'watchlist';
+        } else {
+            $this->j['watchlist'] = null;
+        }
+
+        if ($this->j['status'] === 'overview'){
+            $this->j['status'] = 'normal';
+        }
+
+        $this->ci = $ci;
     }
 
     /**
@@ -275,7 +282,7 @@ class Title {
      * @return Watchlist|null Titles watchlist
      */
     public function getWatchlist() {
-        return $this->isInWatchlist() ? $this->watchlistManager->getWatchlist($this->j['watchlist']) : null;
+        return $this->isInWatchlist() ? $this->ci['watchlistManager']->getWatchlist($this->j['watchlist']) : null;
     }
 
     /**
@@ -428,7 +435,7 @@ class Title {
      * @return mixed Owners user ID
      */
     public function getUser() {
-        return $this->user;
+        return $this->ci['user'];
     }
 
     /**
@@ -517,8 +524,8 @@ class Title {
 
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
-            'supplier' => $this->user->getSupplier($this->getSupplier())['name'],
-            'budget' => $this->user->getBudget($this->getBudget())['name'],
+            'supplier' => $this->getUser()->getSupplier($this->getSupplier())['name'],
+            'budget' => $this->getUser()->getBudget($this->getBudget())['name'],
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),

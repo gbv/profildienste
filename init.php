@@ -53,12 +53,12 @@ function initContainer(Interop\Container\ContainerInterface $container) {
     };
 
     $container['titleFactory'] = function ($container) {
-        return new TitleFactory($container['watchlistManager'], $container['user']);
+        return new TitleFactory($container);
     };
 
     $container['watchlistManager'] = function ($container) {
         $gateway = new MongoWatchlistGateway($container['connectionFactory']->getConnection(), $container['user'], $container['config']);
-        return new WatchlistManager($gateway);
+        return new WatchlistManager($gateway, $container['titleRepository']);
     };
 
     $container['dataGateway'] = function ($container) {

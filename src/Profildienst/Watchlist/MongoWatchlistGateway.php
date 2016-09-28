@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 28.06.16
- * Time: 14:56
- */
 
 namespace Profildienst\Watchlist;
 
@@ -13,11 +7,8 @@ use MongoDB\Database;
 use Config\Configuration;
 use Profildienst\User\User;
 use MongoDB\BSON\UTCDatetime;
-use Profildienst\Common\MongoOptionHelper;
 
 class MongoWatchlistGateway implements WatchlistGateway{
-
-    use MongoOptionHelper;
 
     private $users;
     private $titles;
@@ -52,40 +43,9 @@ class MongoWatchlistGateway implements WatchlistGateway{
         return null;
     }
 
-    public function getWatchlistTitleCount($watchlistId) {
-        $query = ['$and' => [['user' => $this->user->getId()], ['watchlist' => $watchlistId]]];
-        return $this->titles->count($query);
-    }
-
-    public function getWatchlistTitles($watchlistId, $page) {
-        $query = ['$and' => [['user' => $this->user->getId()], ['watchlist' => $watchlistId]]];
-        $options = self::sortedPageOptions($this->config, $this->user, $page);
-
-        $cursor = $this->titles->find($query, $options);
-
-        $titles = [];
-        foreach ($cursor as $titleData) {
-            $titles[] = $titleData;
-        }
-
-        return $titles;
-    }
-
     public function getWatchlists() {
         $wlData = $this->users->findOne(['_id' => $this->user->getId()], ['projection' => ['watchlists' => true]]);
         return $wlData['watchlists'];
-    }
-
-    public function updateTitlesWatchlist(array $ids, $watchlistId) {
-        // TODO: check if watchlist is null before updating
-        $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => ['$in' => $ids]]]];
-        $update = ['$set' => [
-            'watchlist' => $watchlistId,
-            'lastStatusChange' => new UTCDateTime((time() * 1000))
-        ]];
-
-        $result = $this->titles->updateMany($criterion, $update);
-        return $result->isAcknowledged();
     }
 
     public function updateViewsWatchlist($status, $watchlistId) {

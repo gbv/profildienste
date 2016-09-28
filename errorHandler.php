@@ -36,7 +36,7 @@ $errorHandler = function ($container) {
  * @param Exception $ex
  * @param Configuration $config
  */
-function sendErrorMail(Exception $ex, ContainerInterface $container) {
+function sendErrorMail($err, ContainerInterface $container) {
 
     $user = '---';
     try {
@@ -44,7 +44,7 @@ function sendErrorMail(Exception $ex, ContainerInterface $container) {
     } catch (Exception $e) {}
 
     // construct body
-    $body = sprintf("%s\n\nUser: %s\n Date: %s", $ex, $user, date('d.m.Y - H:i:s'));
+    $body = sprintf("%s\n\nUser: %s\n Date: %s", $err, $user, date('d.m.Y - H:i:s'));
 
     $mail = new Message;
 

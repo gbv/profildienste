@@ -19,7 +19,7 @@ trait ActionHandler {
         return $affected;
     }
 
-    private function handleStatusChange($request, $newStatus, $allow, $newWatchlist = false) {
+    private function handleStatusChange($request, $newStatus, $allow) {
 
         $affected = $this->validateAffectedTitles($request);
 
@@ -32,7 +32,7 @@ trait ActionHandler {
             }
 
             foreach ($titles as $title) {
-                if (!$allow($title->getStatus(), $title->isInWatchlist())) {
+                if (!$allow($title->getStatus())) {
                     throw new UserErrorException('This action is not allowed on the selection of titles!');
                 }
             }
@@ -45,23 +45,14 @@ trait ActionHandler {
                 $affected = 'normal';
             }
 
-            if (!$allow($newStatus, null)) {
+            $affectedState = preg_match('/watchlist\/.*/', $affected) ? 'watchlist' : $affected;
+
+            if (!$allow($affectedState)) {
                 throw new UserErrorException('This action is not allowed on the selection of titles!');
             }
 
-            if (preg_match('/watchlist\/(.*)/', $affected, $match)) {
-                $watchlistId = $match[1] ?? null;
-
-                if(is_null($watchlistId)){
-                    throw new UserErrorException('Invalid watchlist format');
-                }
-
-                return $this->titleRepository->changeStatusOfWatchlist($watchlistId, $newStatus) ? $affected : null;
-            } else {
-                return $this->titleRepository->changeStatusOfView($affected, $newStatus) ? $affected : null;
-            }
+            return $this->titleRepository->changeStatusOfView($affected, $newStatus) ? $affected : null;
         }
-
 
     }
 

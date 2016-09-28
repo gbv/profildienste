@@ -18,7 +18,7 @@ class RejectRoute extends ViewRoute {
     public function addRejectedTitles($request, $response, $args) {
 
         $affected = $this->handleStatusChange($request, 'rejected', function ($oldState) {
-            return $oldState !== 'cart' && $oldState !== 'done' && $oldState !== 'pending';
+            return in_array($oldState, ['normal', 'watchlist']);
         });
 
         if (is_null($affected)) {

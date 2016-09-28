@@ -4,21 +4,20 @@ namespace Profildienst\Watchlist;
 
 
 use Exceptions\UserErrorException;
+use Profildienst\Title\Title;
 use Profildienst\Title\TitleFactory;
+use Profildienst\Title\TitleRepository;
 
 class WatchlistManager {
 
     private $watchlists = [];
 
     private $gateway;
-    private $titleFactory;
+    private $titleRepository;
 
-    public function __construct(WatchlistGateway $gateway) {
+    public function __construct(WatchlistGateway $gateway, TitleRepository $titleRepository) {
         $this->gateway = $gateway;
-    }
-
-    public function setTitleFactory(TitleFactory $titleFactory) {
-        $this->titleFactory = $titleFactory;
+        $this->titleRepository = $titleRepository;
     }
 
     public function getWatchlist($id) {
@@ -87,10 +86,10 @@ class WatchlistManager {
         }
 
         if (is_null($data)) {
-            throw new UserErrorException('The watchlist with this id does not exist.');
+            throw new UserErrorException('The watchlist with this id >'.$id.'< does not exist.');
         }
 
-        return new Watchlist($id, $data['name'], $data['default'], $this->gateway, $this->titleFactory);
+        return new Watchlist($id, $data['name'], $data['default'], $this->gateway, $this->titleRepository);
     }
 
     private function watchlistExists($id) {

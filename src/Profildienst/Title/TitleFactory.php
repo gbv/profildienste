@@ -2,7 +2,7 @@
 
 namespace Profildienst\Title;
 
-use Profildienst\User\User;
+use Interop\Container\ContainerInterface;
 use Profildienst\Watchlist\WatchlistManager;
 
 class TitleFactory {
@@ -10,18 +10,16 @@ class TitleFactory {
     private $watchlistManager;
 
     /**
-     * @var User
+     * @var ContainerInterface
      */
-    private $user;
+    private $ci;
 
-    public function __construct(WatchlistManager $watchlistManager, User $user){
-        $this->watchlistManager = $watchlistManager;
-        $this->watchlistManager->setTitleFactory($this);
-        $this->user = $user;
+    public function __construct(ContainerInterface $ci){
+        $this->ci = $ci;
     }
 
     public function createTitle($titleData){
-        return new Title($titleData, $this->watchlistManager, $this->user);
+        return new Title($titleData, $this->ci);
     }
 
     public function createTitleList(array $titleListData){

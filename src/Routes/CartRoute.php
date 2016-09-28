@@ -67,8 +67,8 @@ class CartRoute extends ViewRoute {
 
     public function addTitlesToCart($request, $response, $args) {
 
-        $affected = $this->handleStatusChange($request, 'cart', function ($oldStatus) {
-            return $oldStatus !== 'done' && $oldStatus !== 'pending' && $oldStatus !== 'rejected';
+        $affected = $this->handleStatusChange($request, 'cart', function ($oldState) {
+            return in_array($oldState, ['normal', 'watchlist']);
         });
 
         if (is_null($affected)) {
@@ -80,8 +80,8 @@ class CartRoute extends ViewRoute {
 
     public function removeTitlesFromCart($request, $response, $args) {
 
-        $affected = $this->handleStatusChange($request, 'normal', function ($oldStatus) {
-            return true;
+        $affected = $this->handleStatusChange($request, 'normal', function ($oldState) {
+            return $oldState === 'cart';
         });
 
         if (is_null($affected)) {

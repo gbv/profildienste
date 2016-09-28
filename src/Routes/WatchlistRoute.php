@@ -34,52 +34,39 @@ class WatchlistRoute extends ViewRoute {
 
         $watchlists = $this->watchlistManager->getWatchlists();
 
-        $data['watchlists'] = [];
-        foreach ($watchlists as $watchlist) {
-            $data['watchlists'][] = [
+        $data['watchlists'] = array_map(function ($watchlist) {
+            return [
                 'id' => $watchlist->getId(),
                 'name' => $watchlist->getName(),
                 'count' => $watchlist->getTitleCount(),
                 'default' => $watchlist->isDefaultWatchlist()
             ];
-        }
+        }, $watchlists);
 
         return self::generateJSONResponse(new BasicResponse($data), $response);
     }
 
     public function addTitlesToWatchlist($request, $response, $args) {
 
-        $newWatchlist = $args['id'];
+        $newWatchlist = $this->watchlistManager->getWatchlist($args['id']);
 
-        if (is_null($newWatchlist)) {
-            throw new UserErrorException('No watchlist id given!');
-        }
-
-
-        $affected = $this->handleWatchlistChange($request, null, $newWatchlist, function ($status, $inWatchlist) {
-            return $status !== 'rejected' && $status !== 'done' && $status !== 'pending' && $inWatchlist === false;
+        $affected = $this->handleStatusChange($request, 'watchlist/'.$newWatchlist->getId(), function ($oldState) {
+            return in_array($oldState, ['normal', 'cart', 'rejected']);
         });
 
         if (is_null($affected)) {
             throw new UserErrorException('Failed to add titles to watchlist.');
         }
 
-        $watchlist = $this->watchlistManager->getWatchlist($newWatchlist);
-
-        return self::generateJSONResponse(new ActionResponse($affected, 'watchlist', ['id' => $newWatchlist, 'name' => $watchlist->getName()]), $response);
+        return self::generateJSONResponse(new ActionResponse($affected, 'watchlist', ['id' => $newWatchlist, 'name' => $newWatchlist->getName()]), $response);
     }
 
     public function removeTitlesFromWatchlist($request, $response, $args) {
 
-        $oldWatchlist = $args['id'];
+        $oldWatchlist = $this->watchlistManager->getWatchlist($args['id']);
 
-        if (is_null($oldWatchlist)) {
-            throw new UserErrorException('No watchlist id given!');
-        }
-
-
-        $affected = $this->handleWatchlistChange($request, $oldWatchlist, null, function ($status, $inWatchlist) {
-            return $inWatchlist === true;
+        $affected = $this->handleStatusChange($request, 'normal', function ($oldState) {
+            return $oldState === 'watchlist';
         });
 
         if (is_null($affected)) {
@@ -87,52 +74,6 @@ class WatchlistRoute extends ViewRoute {
         }
 
         return self::generateJSONResponse(new ActionResponse($affected, ''), $response);
-    }
-
-
-    private function handleWatchlistChange($request, $oldWatchlist, $newWatchlist, $allow) {
-
-        if (is_null($oldWatchlist) && is_null($newWatchlist)) {
-            throw new UserErrorException('At least the old watchlist or new watchlist have to be specified');
-        }
-
-        $affected = $this->validateAffectedTitles($request);
-
-        if (is_array($affected)) {
-
-            $titles = $this->titleRepository->findTitlesById($affected);
-
-            if (count($titles) === 0) {
-                throw new UserErrorException('No titles with the given IDs found!');
-            }
-
-            foreach ($titles as $title) {
-                if (!$allow($title->getStatus(), $title->isInWatchlist())) {
-                    throw new UserErrorException('This action is not allowed on the selection of titles!');
-                }
-            }
-
-            if (!is_null($newWatchlist)) {
-                $watchlist = $this->watchlistManager->getWatchlist($newWatchlist);
-                return $watchlist->addTitles($titles) ? $affected : null;
-            } else {
-                $watchlist = $this->watchlistManager->getWatchlist($oldWatchlist);
-                return $watchlist->removeTitles($titles) ? $affected : null;
-            }
-
-        } /*else {
-
-            if ($affected === 'overview') {
-                $affected = 'normal';
-            }
-
-            if (!$this->allow($affected, null)) {
-                throw new UserException('This action is not allowed on the selection of titles!');
-            }
-
-            return $this->titleRepository->changeWatchlistOfView($affected, $newWatchlist) ? $affected : null;
-
-        } TODO: implement watchlist view change*/
     }
 
     public function addWatchlist($request, $response, $args) {
