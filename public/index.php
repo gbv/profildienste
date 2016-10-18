@@ -1,18 +1,19 @@
 <?php
 
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
-require 'init.php';
-require 'errorHandler.php';
-require 'routes.php';
+require '../bootstrap/init.php';
+require '../bootstrap/errorHandler.php';
+require '../bootstrap/routes.php';
 
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
 use Middleware\MaintenanceMiddleware;
+use Middleware\PublicPathMiddleware;
 
 $slimConfiguration = [
     'settings' => [
-        'displayErrorDetails' => true,
+        'displayErrorDetails' => false,
     ]
 ];
 
@@ -29,10 +30,12 @@ initContainer($container);
 $app = new \Slim\App($container);
 
 $app->add(new MaintenanceMiddleware($container));
+$app->add(new PublicPathMiddleware());
 $app->add(new JSONPMiddleware());
 $auth = new AuthMiddleware($container);
 
 initRoutes($app);
 
 $app->run();
+
 

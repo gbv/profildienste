@@ -21,7 +21,7 @@ class Configuration {
      *
      * @var string
      */
-    private static $CONFIG_DIR = 'config/';
+    private static $CONFIG_DIR = '../config/';
 
     /**
      * Name of the config file
