@@ -5,7 +5,7 @@
         <target>../doc/</target>
     </parser>
     <transformations>
-        <template name="responsive-twig" />
+        <template name="responsive-twig"/>
     </transformations>
     <transformer>
         <target>../doc/</target>
