@@ -21,7 +21,7 @@ $slimConfiguration = [
  * Initialise the DI container and error handling
  */
 $container = new \Slim\Container($slimConfiguration);
-//initErrorHandling($container);
+initErrorHandling($container);
 initContainer($container);
 
 /**
