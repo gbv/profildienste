@@ -14,7 +14,7 @@ class LibraryController {
     }
 
     public function getLibrary(User $user){
-        return $this->config->getLibrary($user->getISIL());
+        return $this->config->getLibrary($user->getIsil());
     }
 
     public function getLibraries(){
