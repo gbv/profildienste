@@ -57,7 +57,7 @@ class OrderController {
 
         if ($library->usesAdvancedExport()) {
 
-            $iln = $library->getILN();
+            $eln = $library->getELN();
 
             $base = $this->tempdir() . '/';
 
@@ -82,7 +82,7 @@ class OrderController {
             //upload
             foreach ($reihen as $reihe => $dir) {
 
-                $rdir = $this->config->getExportBasedir() . $iln . $reihe . '/return/';
+                $rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
                 $host = $this->config->getExportUser() . '@' . $this->config->getExportHost() . ':' . $rdir;
 
                 exec('rsync -azPi ' . $dir . ' ' . $host . ' 2>&1', $output, $ret);
