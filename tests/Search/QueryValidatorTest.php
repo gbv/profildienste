@@ -1,29 +1,32 @@
 <?php
 
+use Exceptions\UserErrorException;
+use Profildienst\Search\QueryValidator;
+
 class QueryValidatorTest extends PHPUnit_Framework_TestCase {
 
   public function testExceptionIfQueryEmpty() {
-    $this->expectException(\Search\InvalidQueryException::class);
-    new Search\QueryValidator('');
+    $this->expectException(UserErrorException::class);
+    new QueryValidator('');
   }
 
   public function testInvalidQueryType() {
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new Search\QueryValidator('nonsense', 3);
   }
 
   public function testExceptionIfInvalidQueryTypeArrayKeyword() {
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new Search\QueryValidator([]);
   }
 
   public function testExceptionIfInvalidQueryTypeArraySimple() {
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new Search\QueryValidator([], 'simple');
   }
 
   public function testExceptionIfInvalidQueryTypeStringAdvanced() {
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new Search\QueryValidator('test', 'advanced');
   }
 
@@ -38,7 +41,7 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
   }
 
   public function testMalformedCriterium() {
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new \Search\QueryValidator([array(
       'apples' => 'banana'
     )], 'advanced');
@@ -61,7 +64,7 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals(count($sq->getSearch()), count($query) - 1);
 
     $query[0]['value'] = '';
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new \Search\QueryValidator($query, 'advanced');
   }
 
@@ -73,14 +76,14 @@ class QueryValidatorTest extends PHPUnit_Framework_TestCase {
       'value' => 'test'
     )], 'advanced');
 
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new \Search\QueryValidator([array(
       'field' => 'tit',
       'mode' => 'foo',
       'value' => 'test'
     )], 'advanced');
 
-    $this->expectException(\Search\InvalidQueryException::class);
+    $this->expectException(InvalidQueryException::class);
     new \Search\QueryValidator([array(
       'field' => 'foo',
       'mode' => 'bar',

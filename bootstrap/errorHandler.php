@@ -1,6 +1,7 @@
 <?php
 
 use Config\Configuration;
+use Exceptions\CustomMailMessageException;
 use Interop\Container\ContainerInterface;
 use Responses\ErrorResponse;
 use Middleware\JSONPMiddleware;
@@ -15,7 +16,11 @@ $errorHandler = function ($container) {
         if ($exception instanceof UserErrorException) {
 
             if ($exception->shouldCauseMail()) {
-                sendErrorMail($exception, $container);
+                if ($exception instanceof CustomMailMessageException) {
+                    sendErrorMail($exception, $container, $exception->getMailText());
+                } else {
+                    sendErrorMail($exception, $container);
+                }
             }
 
             $errResp = new ErrorResponse($exception->getMessage());
@@ -36,7 +41,7 @@ $errorHandler = function ($container) {
  * @param Exception $ex
  * @param Configuration $config
  */
-function sendErrorMail($err, ContainerInterface $container) {
+function sendErrorMail($err, ContainerInterface $container, $additionalInfo = '') {
 
     $user = '---';
     try {
@@ -44,7 +49,7 @@ function sendErrorMail($err, ContainerInterface $container) {
     } catch (Exception $e) {}
 
     // construct body
-    $body = sprintf("%s\n\nUser: %s\n Date: %s", $err, $user, date('d.m.Y - H:i:s'));
+    $body = sprintf("%s\n---\nAdditional Info: %s\n---\n\nUser: %s\n Date: %s", $err, $additionalInfo ,$user, date('d.m.Y - H:i:s'));
 
     $mail = new Message;
 

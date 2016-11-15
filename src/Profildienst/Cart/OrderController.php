@@ -9,10 +9,12 @@
 namespace Profildienst\Cart;
 
 use Config\Configuration;
+use Exception;
+use Exceptions\CustomMailMessageException;
 use Exceptions\UserErrorException;
-use Profildienst\User\User;
 use Profildienst\Title\Title;
 use Profildienst\Title\TitleRepository;
+use Profildienst\User\User;
 
 /**
  * Writes an order to a JSON file
@@ -20,6 +22,8 @@ use Profildienst\Title\TitleRepository;
  * Class Order
  */
 class OrderController {
+
+    use OrderUtilities;
 
     private $user;
 
@@ -32,6 +36,8 @@ class OrderController {
      */
     private $titleRepository;
 
+    private $host;
+
     /**
      * Writes the cart to a JSON file and resets the cart.
      * @param User $user
@@ -42,6 +48,8 @@ class OrderController {
         $this->user = $user;
         $this->config = $config;
         $this->titleRepository = $titleRepository;
+
+        $this->host = $this->config->getExportUser() . '@' . $this->config->getExportHost();
     }
 
     public function order(Cart $cart) {
@@ -53,16 +61,19 @@ class OrderController {
             throw new UserErrorException('Aktuell befinden sich keine Titel im Warenkorb, die bestellt werden könnten.');
         }
 
-        $library = $this->user->getLibrary();
+        // Ensure that everything works before we continue
+        $this->checkPrerequisites();
 
+        $library = $this->user->getLibrary();
         if ($library->usesAdvancedExport()) {
 
             $eln = $library->getELN();
 
             $base = $this->tempdir() . '/';
 
+            // sort titles respective to their "reihe".
+            // each reihe has its own dir where the JSON dumps of the titles are stored
             $reihen = [];
-
             foreach ($titles as $title) {
 
                 $reihe = $title->getReihe();
@@ -79,16 +90,23 @@ class OrderController {
                 file_put_contents($dir . $ppn . '.json', json_encode($output, JSON_PRETTY_PRINT));
             }
 
-            //upload
+            // check if all necessary remote directories exist
+            foreach (array_keys($reihen) as $reihe) {
+                $rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
+                $this->checkRemoteDirectoryExists($rdir);
+            }
+
+            //upload to the JSON dumps to the server
             foreach ($reihen as $reihe => $dir) {
 
                 $rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
-                $host = $this->config->getExportUser() . '@' . $this->config->getExportHost() . ':' . $rdir;
+                $remoteLocation = $this->host . ':' . $rdir;
 
-                exec('rsync -azPi ' . $dir . ' ' . $host . ' 2>&1', $output, $ret);
+                exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
 
-                if ($ret != 0) {
-                    throw new UserErrorException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
+                if ($ret !== 0) {
+                    throw new CustomMailMessageException('Bei der Datenübertragung ist ein Fehler aufgetreten.',
+                        $this->formatOutputError('Bestellung fehlgeschlagen (ELN: ' . $eln . ')', $output));
                 }
 
             }
@@ -108,44 +126,23 @@ class OrderController {
                 file_put_contents($dir . $ppn . '.json', json_encode($output, JSON_PRETTY_PRINT));
             }
 
-            // upload
             $rdir = $this->config->getExportBasedir() . $library->getExportDir() . '/return/';
-            $host = $this->config->getExportUser() . '@' . $this->config->getExportHost() . ':' . $rdir;
 
-            exec('rsync -azPi ' . $dir . ' ' . $host . ' 2>&1', $output, $ret);
+            // check if the remote directories exist
+            $this->checkRemoteDirectoryExists($rdir);
 
-            if ($ret != 0) {
-                throw new UserErrorException('Bei der Datenübertragung ist ein Fehler aufgetreten.');
+            // upload JSON dumps
+            $remoteLocation = $this->host . ':' . $rdir;
+            exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
+
+            if ($ret !== 0) {
+                throw new CustomMailMessageException('Bei der Datenübertragung ist ein Fehler aufgetreten.',
+                    $this->formatOutputError('Bestellung fehlgeschlagen (ELN: ' . $eln . ')', $output));
             }
         }
 
         // update the status of the ordered titles
         return $this->titleRepository->changeStatusOfView('cart', 'pending');
-    }
-
-    /**
-     * Creates a temporary directory, either in $dir (if specified)
-     * or in the default system temp dir.
-     *
-     * @param bool|false|string $dir Directory to create the temp dir in
-     * @return string Path of the created temp dir
-     * @throws UserErrorException
-     */
-    private function tempdir($dir = false) {
-        if ($dir !== false) {
-            $tempfile = tempnam($dir, 'pd_');
-        } else {
-            $tempfile = tempnam(sys_get_temp_dir(), 'pd_');
-        }
-        if (file_exists($tempfile)) {
-            unlink($tempfile);
-        }
-        mkdir($tempfile);
-        if (is_dir($tempfile)) {
-            return $tempfile;
-        }
-
-        throw new UserErrorException('Failed to create a temporary dir');
     }
 
     private function checkAndSetTitlesOrderInformation(Title $title) {
@@ -188,5 +185,4 @@ class OrderController {
             'user' => $this->user->getId()
         ];
     }
-
 }

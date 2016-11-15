@@ -46,11 +46,11 @@ class Library {
     }
 
     public function getILN() {
-        return $this->libraryData['iln'];
+        return $this->libraryData['ILN'];
     }
 
     public function getELN() {
-        return $this->libraryData['eln'];
+        return $this->libraryData['ELN'];
     }
 
     public function usesAdvancedExport() {
