@@ -110,6 +110,7 @@ class Configuration {
                 'ELN' => '1999',
                 'ILN' => '1',
                 'opac' => '',
+                'hidden' => false,
                 'export' => [
                     'advanced' => false,
                     'exportDir' => 'test'

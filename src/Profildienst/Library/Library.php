@@ -69,4 +69,8 @@ class Library {
     public function getOPACURL() {
         return $this->libraryData['opac'];
     }
+
+    public function isHidden() {
+        return $this->libraryData['hidden'] ?? false;
+    }
 }

@@ -9,7 +9,11 @@ class LibraryRoute extends Route{
 
     public function getLibraries($request, $response, $args) {
         $data = [];
-        foreach ($this->ci->get('libraryController')->getLibraries() as $library) {
+        $libraries = array_filter($this->ci->get('libraryController')->getLibraries(), function ($library) {
+            return !$library->isHidden();
+        });
+
+        foreach ($libraries as $library) {
             $data[] = [
                 'isil' => $library->getISIL(),
                 'name' => $library->getName()
