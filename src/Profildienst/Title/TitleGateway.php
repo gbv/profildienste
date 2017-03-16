@@ -10,6 +10,7 @@ interface TitleGateway {
     public function getAllTitlesByStatus($status);
     public function getTitleCountWithStatus($status);
     public function deleteTitle($id);
+    public function deleteTitlesWithStatus($status);
     public function updateTitlesWithStatus($oldStatus, $newStatus);
     public function updateTitlesWithIds(array $ids, $newStatus);
     public function updateTitlesOrderInformation(array $ids, $orderInformation);

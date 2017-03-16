@@ -8,6 +8,8 @@
 
 namespace Routes;
 
+use Profildienst\Title\TitleRepository;
+use Profildienst\User\User;
 use Responses\BasicResponse;
 use Responses\ActionResponse;
 use Exceptions\UserErrorException;
@@ -17,7 +19,14 @@ class TitleRoute extends Route {
 
     use ActionHandler;
 
+    /**
+     * @var TitleRepository
+     */
     private $titleRepository;
+
+    /**
+     * @var User
+     */
     private $user;
 
     public function __construct(ContainerInterface $ci) {
@@ -66,7 +75,11 @@ class TitleRoute extends Route {
     }
 
     public function delete($request, $response, $args) {
-        throw new UserErrorException('Diese Funktion steht in Kürze wieder zu Verfügung.');
+        if (!$this->titleRepository->deleteRejectedTitles()) {
+            throw new UserErrorException('Failed to delete rejected titles.', true);
+        }
+
+        return self::generateJSONResponse(new BasicResponse([]), $response);
     }
 
     public function titleInfo($request, $response, $args) {

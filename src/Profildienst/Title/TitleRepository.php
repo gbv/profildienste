@@ -7,6 +7,10 @@ use Profildienst\Watchlist\WatchlistManager;
 class TitleRepository {
 
     private $gateway;
+
+    /**
+     * @var TitleFactory
+     */
     private $titleFactory;
 
     public function __construct(TitleGateway $gateway, TitleFactory $titleFactory) {
@@ -47,6 +51,10 @@ class TitleRepository {
 
     public function changeOrderInformationOfTitles($ids, $orderInformation) {
         return $this->gateway->updateTitlesOrderInformation($ids, $orderInformation);
+    }
+
+    public function deleteRejectedTitles() {
+        return $this->gateway->deleteTitlesWithStatus('rejected');
     }
 
 }

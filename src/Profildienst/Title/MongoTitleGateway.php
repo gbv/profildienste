@@ -119,4 +119,11 @@ class MongoTitleGateway implements TitleGateway {
         return $result->isAcknowledged();
     }
 
+    public function deleteTitlesWithStatus($status) {
+
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['status' => $status]]];
+        $result = $this->titles->deleteMany($criterion);
+
+        return $result->isAcknowledged();
+    }
 }

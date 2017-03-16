@@ -3,11 +3,8 @@
 namespace Profildienst\Title;
 
 use Interop\Container\ContainerInterface;
-use Profildienst\Watchlist\WatchlistManager;
 
 class TitleFactory {
-
-    private $watchlistManager;
 
     /**
      * @var ContainerInterface
