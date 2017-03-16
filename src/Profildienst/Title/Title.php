@@ -43,6 +43,7 @@ class Title {
         'kommentar_lieferbedingungen_preis' => ['004A', 'm'],
         'kommentar_isbn' => ['004A', 'c'],
         'ean' => ['004L', '0'],
+        'dnb_nummer_typ' => ['006L', 'c'],
         'dnb_nummer' => ['006L', '0'],
         'verbund_id_num' => ['006L', '0'],
         'verbund_id_num_vortext' => ['006L', 'c'],
@@ -566,7 +567,8 @@ class Title {
         );
 
         // Create DNB link
-        if (!is_null($this->get('dnb_nummer'))) {
+        $r['dnb_link'] = null;
+        if ($this->get('dnb_nummer_typ') === 'DNB' && !is_null($this->get('dnb_nummer'))) {
             $r['dnb_link'] = 'http://d-nb.info/' . $this->get('dnb_nummer');
         }
 
