@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: luca
- * Date: 20.09.16
- * Time: 17:07
- */
 
 namespace Middleware;
 

@@ -4,6 +4,11 @@ namespace Exceptions;
 
 /**
  * Class UserErrorException
+ *
+ * An exception intended to be shown to the user. A raised exception
+ * of this type either means that the user did something wrong or that
+ * something happened the user should be made aware of.
+ *
  * @package Exceptions
  */
 class UserErrorException extends \Exception {

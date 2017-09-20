@@ -2,7 +2,15 @@
 
 namespace Middleware;
 
-
+/**
+ * Class JSONPMiddleware
+ *
+ * Middleware handling JSONP requests. If a query parameter
+ * named 'callback' is present, the JSON response will be wrapped
+ * in a function named as specified in the callback parameter.
+ *
+ * @package Middleware
+ */
 class JSONPMiddleware {
 
     public function __invoke($request, $response, $next) {

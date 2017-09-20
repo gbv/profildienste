@@ -2,8 +2,10 @@
 
 namespace Profildienst\Title;
 
-use Profildienst\Watchlist\WatchlistManager;
-
+/**
+ * Class TitleRepository
+ * @package Profildienst\Title
+ */
 class TitleRepository {
 
     private $gateway;
@@ -16,10 +18,6 @@ class TitleRepository {
     public function __construct(TitleGateway $gateway, TitleFactory $titleFactory) {
         $this->gateway = $gateway;
         $this->titleFactory = $titleFactory;
-    }
-
-    public function setWatchlistManager(WatchlistManager $watchlistManager){
-        $this->titleFactory->setWatchlistManager($watchlistManager);
     }
 
     public function getAllTitlesByStatus($status) {

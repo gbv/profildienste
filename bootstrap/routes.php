@@ -2,6 +2,8 @@
 use Slim\App;
 
 /**
+ * Route Definition.
+ * This function initializes all routes/endpoints of the API.
  * @param App $app
  */
 function initRoutes(App $app) {

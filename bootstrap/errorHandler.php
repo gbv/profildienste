@@ -1,14 +1,18 @@
 <?php
+/**
+ *  Definition of our custom error handlers
+ */
 
-use Config\Configuration;
-use Exceptions\CustomMailMessageException;
-use Interop\Container\ContainerInterface;
-use Responses\ErrorResponse;
-use Middleware\JSONPMiddleware;
-use Exceptions\UserErrorException;
+
 use Routes\Route;
 use Nette\Mail\Message;
+use Config\Configuration;
+use Responses\ErrorResponse;
 use Nette\Mail\SendmailMailer;
+use Middleware\JSONPMiddleware;
+use Exceptions\UserErrorException;
+use Interop\Container\ContainerInterface;
+use Exceptions\CustomMailMessageException;
 
 $errorHandler = function ($container) {
     return function ($request, $response, $exception) use ($container) {
@@ -38,8 +42,9 @@ $errorHandler = function ($container) {
 };
 
 /**
- * @param Exception $ex
- * @param Configuration $config
+ * @param string $err The error message
+ * @param ContainerInterface $container The DI container
+ * @param string $additionalInfo Additional information about the error
  */
 function sendErrorMail($err, ContainerInterface $container, $additionalInfo = '') {
 

@@ -17,6 +17,12 @@ use Profildienst\Library\LibraryController;
 use Profildienst\Watchlist\WatchlistManager;
 use Profildienst\Watchlist\MongoWatchlistGateway;
 
+/**
+ * Initializes the dependency injection (DI) container by registering all
+ * necessary gateways, controllers, repositores and factories.
+ *
+ * @param \Interop\Container\ContainerInterface $container The DI container
+ */
 function initContainer(Interop\Container\ContainerInterface $container) {
     $container['config'] = function ($container) {
         return new Configuration();

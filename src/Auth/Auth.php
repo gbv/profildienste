@@ -30,7 +30,7 @@ class Auth {
     /**
      * @var null ISIL of the library
      */
-    private $isil = NULL;
+    private $isil = null;
 
     /**
      * Auth constructor.

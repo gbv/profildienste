@@ -1,4 +1,7 @@
 <?php
+/**
+ * This is the entrypoint of the application.
+ */
 
 require '../vendor/autoload.php';
 
@@ -8,8 +11,8 @@ require '../bootstrap/routes.php';
 
 use Middleware\AuthMiddleware;
 use Middleware\JSONPMiddleware;
-use Middleware\MaintenanceMiddleware;
 use Middleware\PublicPathMiddleware;
+use Middleware\MaintenanceMiddleware;
 
 $slimConfiguration = [
     'settings' => [

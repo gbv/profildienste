@@ -5,6 +5,16 @@ namespace Middleware;
 use Firebase\JWT\JWT;
 use Interop\Container\ContainerInterface;
 
+/**
+ * Class AuthMiddleware
+ *
+ * Authentication middleware. This middleware checks if the user is authenticated
+ * and registers the user to the DI container (upon successful authentication).
+ * Authentication is performed by passing a JWT in the 'Authorization'-Header of
+ * the request.
+ *
+ * @package Middleware
+ */
 class AuthMiddleware {
 
     private $ci;
