@@ -69,6 +69,7 @@ function initRoutes(App $app) {
     $app->group('/titles', function () {
         $this->get('/{id}/info', '\Routes\TitleRoute:titleInfo');
         $this->get('/{id}/opac', '\Routes\TitleRoute:getOPACLink');
+        $this->get('/{id}/pica', '\Routes\TitleRoute:getTitlePicaData');
         $this->post('/save', '\Routes\TitleRoute:saveTitleInformation');
         $this->delete('/delete', '\Routes\TitleRoute:delete');
     })->add($auth);

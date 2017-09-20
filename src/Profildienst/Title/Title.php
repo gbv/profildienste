@@ -575,9 +575,26 @@ class Title {
         return $r;
     }
 
-
     public function persist() {
         return $this->j;
+    }
+
+    /**
+     * Returns the titles PICA data
+     *
+     * @return array Pica data
+     */
+    public function getPicaData(){
+        $picaData = [];
+
+        foreach ($this->j as $cat => $catData) {
+            // TODO: Is the assumption correct that every PICA entry starts with 0?
+            if ($cat[0] === '0') {
+                $picaData[$cat] = $catData;
+            }
+        }
+
+        return $picaData;
     }
 
 }

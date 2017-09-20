@@ -143,4 +143,33 @@ class TitleRoute extends Route {
 
     }
 
+    /**
+     * Returns the raw pica data for a title
+     *
+     * @param $request
+     * @param $response
+     * @param $args
+     * @return \Slim\Http\Response
+     * @throws UserErrorException
+     */
+    public function getTitlePicaData($request, $response, $args){
+
+        $id = $args['id'];
+
+        if (empty($id)) {
+            throw new UserErrorException('No title ID given');
+        }
+
+        $titles = $this->titleRepository->findTitlesById([$id]);
+
+        if (count($titles) !== 1) {
+            throw new UserErrorException('No title with that ID found');
+        }
+
+        $title = $titles[0];
+
+        $titleData = $title->getPicaData();
+        return self::generateJSONResponse(new BasicResponse(['pica' => $titleData]), $response);
+    }
+
 }
