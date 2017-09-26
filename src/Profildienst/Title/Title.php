@@ -590,7 +590,14 @@ class Title {
         foreach ($this->j as $cat => $catData) {
             // TODO: Is the assumption correct that every PICA entry starts with 0?
             if ($cat[0] === '0') {
-                $picaData[$cat] = $catData;
+                $cats = [];
+                foreach ($catData as $subCat => $value) {
+                    $cats[] = [
+                        'subfield' =>$subCat,
+                        'value' => $value
+                    ];
+                }
+                $picaData[$cat] = $cats;
             }
         }
 
