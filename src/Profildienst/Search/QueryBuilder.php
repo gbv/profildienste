@@ -57,7 +57,7 @@ class QueryBuilder {
     }
 
     public function searchWVNField($value) {
-        $this->n[] = ['status' => $value];
+        $this->n[] = ['006U' => $value];
         return $this;
     }
 
