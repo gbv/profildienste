@@ -3,6 +3,7 @@
 use Auth\Auth;
 use Config\Configuration;
 use Profildienst\Cart\Cart;
+use Profildienst\Cover\CoverController;
 use Profildienst\Title\TitleFactory;
 use Profildienst\User\UserController;
 use Profildienst\Cart\OrderController;
@@ -81,5 +82,9 @@ function initContainer(Interop\Container\ContainerInterface $container) {
 
     $container['orderController'] = function ($container) {
         return new OrderController($container['user'], $container['config'], $container['titleRepository']);
+    };
+
+    $container['coverController'] = function ($container) {
+        return new CoverController($container['config']);
     };
 }

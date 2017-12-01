@@ -31,7 +31,6 @@ $errorHandler = function ($container) {
             return JSONPMiddleware::handleJSONPResponse($request, Route::generateJSONResponse($errResp, $response));
 
         } else {
-
             sendErrorMail($exception, $container);
 
             $errResp = new ErrorResponse('Leider ist ein interner Fehler aufgetreten. Eine anonymisierte Fehlermeldung wurde erstellt und wird schnellstmöglichst bearbeitet.', 500);

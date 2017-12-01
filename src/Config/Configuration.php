@@ -57,6 +57,9 @@ class Configuration {
                 'issuer' => ''
             ]
         ],
+        'cover' => [
+            'VLBToken' => '<TOKEN>'
+        ],
         'motd' => [
             'message' => ''
         ],
@@ -278,5 +281,9 @@ class Configuration {
 
     public function getLogMailAddresses(){
         return $this->config['general']['log_mails'];
+    }
+
+    public function getCoverVLBToken() {
+        return $this->config['cover']['VLBToken'];
     }
 }

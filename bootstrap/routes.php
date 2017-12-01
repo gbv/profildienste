@@ -74,5 +74,7 @@ function initRoutes(App $app) {
         $this->delete('/delete', '\Routes\TitleRoute:delete');
     })->add($auth);
 
+    $app->get('/cover/{isbn}[/{size}]', '\Routes\CoverRoute:getCover')->add($auth);
+
     $app->get('/status', function (){});
 }
