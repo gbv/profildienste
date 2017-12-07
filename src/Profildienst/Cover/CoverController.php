@@ -12,6 +12,7 @@ namespace Profildienst\Cover;
 use Config\Configuration;
 use Exceptions\UserErrorException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Rebuy\EanIsbn\Converter\Converter;
 use Rebuy\EanIsbn\Parser\Ean13Parser;
 use Rebuy\EanIsbn\Parser\Isbn10Parser;
@@ -46,11 +47,16 @@ class CoverController {
             throw new UserErrorException('The supplied ISBN does not seem to be valid.');
         }
 
-        $req = $this->client->request('GET', $isbn.'/'.$size, [
-            'query' => [
-                'access_token' => $this->config->getCoverVLBToken()
-            ]
-        ]);
+        $req = null;
+        try {
+            $req = $this->client->request('GET', $isbn . '/' . $size, [
+                'query' => [
+                    'access_token' => $this->config->getCoverVLBToken()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return null;
+        }
 
         if ($req->getStatusCode() === 200) {
             $mime = empty($req->getHeader('Content-Type'))
