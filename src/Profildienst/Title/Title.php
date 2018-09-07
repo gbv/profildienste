@@ -80,7 +80,9 @@ class Title {
         'gehoert_zu_1' => ['036E', 'a'],
         'gehoert_zu_2' => ['036E/01', 'a'],
         'gehoert_zu_3' => ['036C', 'a'],
-        'gehoert_zu_4' => ['036C/01', 'a']
+        'gehoert_zu_4' => ['036C/01', 'a'],
+        'einheitssachtitel_1' => ['022A/01', 'a'],
+        'einheitssachtitel_2' => ['022A', 'a']
     ];
 
     /**
@@ -500,6 +502,8 @@ class Title {
             'cover_lg' => $this->getLargeCover(),
 
             'titel' => $this->get('titel'),
+            'einheitssachtitel_1' => $this->get('einheitssachtitel_1'),
+            'einheitssachtitel_2' => $this->get('einheitssachtitel_2'),
             'untertitel' => $this->get('untertitel'),
             'verfasser' => $this->get('verfasser'),
             'ersch_termin' => $this->get('voraus_ersch_termin'),
