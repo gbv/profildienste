@@ -530,8 +530,10 @@ class Title {
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
             'supplier' => $this->getUser()->getSupplier($this->getSupplier())['name'],
+	    'supplierValue' => $this->getSupplier(),
             'budget' => $this->getUser()->getBudget($this->getBudget())['name'],
-            'selcode' => $this->getSelcode(),
+            'budgetValue' => $this->getBudget(),
+	    'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),
 
