@@ -82,7 +82,9 @@ class Title {
         'gehoert_zu_3' => ['036C', 'a'],
         'gehoert_zu_4' => ['036C/01', 'a'],
         'einheitssachtitel_1' => ['022A/01', 'a'],
-        'einheitssachtitel_2' => ['022A', 'a']
+        'einheitssachtitel_2' => ['022A', 'a'],
+        'uebergeordnete_gesamtheit_1' => ['036C', 'a'],
+        'uebergeordnete_gesamtheit_2' => ['036C', 'l']
     ];
 
     /**
@@ -569,6 +571,19 @@ class Title {
                 $this->get('gehoert_zu_2'),
                 $this->get('gehoert_zu_3'),
                 $this->get('gehoert_zu_4')
+            ])
+        );
+
+        // Merge the different "uebergeordnete_gesamtheit" fields into one
+        if(!empty($this->get('uebergeordnete_gesamtheit_2'))){
+          $uebergeordnete_gesamtheit_2_brackets = '('.$this->get('uebergeordnete_gesamtheit_2').')';
+        }
+
+        $r['uebergeordnete_gesamtheit'] = trim(
+            join('', [
+                $this->get('uebergeordnete_gesamtheit_1'),
+                ' ',
+                $uebergeordnete_gesamtheit_2_brackets
             ])
         );
 
