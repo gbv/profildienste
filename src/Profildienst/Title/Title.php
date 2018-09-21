@@ -577,6 +577,8 @@ class Title {
         // Merge the different "uebergeordnete_gesamtheit" fields into one
         if(!empty($this->get('uebergeordnete_gesamtheit_2'))){
           $uebergeordnete_gesamtheit_2_brackets = '('.$this->get('uebergeordnete_gesamtheit_2').')';
+        }else{
+          $uebergeordnete_gesamtheit_2_brackets = '';
         }
 
         $r['uebergeordnete_gesamtheit'] = trim(
