@@ -464,6 +464,25 @@ class Title {
         return $this->get('titel');
     }
 
+    public function getUebergeordneteGesamtheit(){
+
+      // Merge the different "uebergeordnete_gesamtheit" fields into one
+      if(!empty($this->get('uebergeordnete_gesamtheit_2'))){
+        $uebergeordnete_gesamtheit_2_brackets = '('.$this->get('uebergeordnete_gesamtheit_2').')';
+      }else{
+        $uebergeordnete_gesamtheit_2_brackets = '';
+      }
+
+      return trim(
+          join('', [
+              $this->get('uebergeordnete_gesamtheit_1'),
+              ' ',
+              $uebergeordnete_gesamtheit_2_brackets
+          ])
+      );
+
+    }
+
     public function getAuthor(){
         return $this->get('verfasser');
     }
@@ -532,10 +551,10 @@ class Title {
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
             'supplier' => $this->getUser()->getSupplier($this->getSupplier())['name'],
-	    'supplierValue' => $this->getSupplier(),
+            'supplierValue' => $this->getSupplier(),
             'budget' => $this->getUser()->getBudget($this->getBudget())['name'],
             'budgetValue' => $this->getBudget(),
-	    'selcode' => $this->getSelcode(),
+            'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),
 
@@ -574,20 +593,7 @@ class Title {
             ])
         );
 
-        // Merge the different "uebergeordnete_gesamtheit" fields into one
-        if(!empty($this->get('uebergeordnete_gesamtheit_2'))){
-          $uebergeordnete_gesamtheit_2_brackets = '('.$this->get('uebergeordnete_gesamtheit_2').')';
-        }else{
-          $uebergeordnete_gesamtheit_2_brackets = '';
-        }
-
-        $r['uebergeordnete_gesamtheit'] = trim(
-            join('', [
-                $this->get('uebergeordnete_gesamtheit_1'),
-                ' ',
-                $uebergeordnete_gesamtheit_2_brackets
-            ])
-        );
+        $r['uebergeordnete_gesamtheit'] = $this->getUebergeordneteGesamtheit();
 
         // Create DNB link
         $r['dnb_link'] = null;
