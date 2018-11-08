@@ -585,12 +585,12 @@ class Title {
 
         //Merge the different "Gehoert zu" fields into one
         $r['gehoert_zu'] = trim(
-            join('', [
+            implode(', ', array_filter([
                 $this->get('gehoert_zu_1'),
                 $this->get('gehoert_zu_2'),
                 $this->get('gehoert_zu_3'),
                 $this->get('gehoert_zu_4')
-            ])
+            ]))
         );
 
         $r['uebergeordnete_gesamtheit'] = $this->getUebergeordneteGesamtheit();
