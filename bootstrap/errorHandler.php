@@ -6,7 +6,6 @@
 
 use Routes\Route;
 use Nette\Mail\Message;
-use Config\Configuration;
 use Responses\ErrorResponse;
 use Nette\Mail\SendmailMailer;
 use Middleware\JSONPMiddleware;
