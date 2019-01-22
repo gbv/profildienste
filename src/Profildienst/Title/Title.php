@@ -80,7 +80,11 @@ class Title {
         'gehoert_zu_1' => ['036E', 'a'],
         'gehoert_zu_2' => ['036E/01', 'a'],
         'gehoert_zu_3' => ['036C', 'a'],
-        'gehoert_zu_4' => ['036C/01', 'a']
+        'gehoert_zu_4' => ['036C/01', 'a'],
+	'einheitssachtitel_1' => ['022A/01', 'a'],
+	'einheitssachtitel_2' => ['022A', 'a'],
+        'uebergeordnete_gesamtheit_1' => ['036C', 'a'],
+        'uebergeordnete_gesamtheit_2' => ['036C', 'l']
     ];
 
     /**
@@ -460,6 +464,25 @@ class Title {
         return $this->get('titel');
     }
 
+    public function getUebergeordneteGesamtheit(){
+
+      // Merge the different "uebergeordnete_gesamtheit" fields into one
+      if(!empty($this->get('uebergeordnete_gesamtheit_2'))){
+        $uebergeordnete_gesamtheit_2_brackets = '('.$this->get('uebergeordnete_gesamtheit_2').')';
+      }else{
+        $uebergeordnete_gesamtheit_2_brackets = '';
+      }
+
+      return trim(
+          join('', [
+              $this->get('uebergeordnete_gesamtheit_1'),
+              ' ',
+              $uebergeordnete_gesamtheit_2_brackets
+          ])
+      );
+
+    }
+
     public function getAuthor(){
         return $this->get('verfasser');
     }
@@ -500,6 +523,8 @@ class Title {
             'cover_lg' => $this->getLargeCover(),
 
             'titel' => $this->get('titel'),
+	    'einheitssachtitel_1' => $this->get('einheitssachtitel_1'),
+	    'einheitssachtitel_2' => $this->get('einheitssachtitel_2'),
             'untertitel' => $this->get('untertitel'),
             'verfasser' => $this->get('verfasser'),
             'ersch_termin' => $this->get('voraus_ersch_termin'),
@@ -526,7 +551,9 @@ class Title {
             'addInfURL' => $this->get('addr_erg_ang_url'),
 
             'supplier' => $this->getUser()->getSupplier($this->getSupplier())['name'],
+	    'supplierValue' => $this->getSupplier(),
             'budget' => $this->getUser()->getBudget($this->getBudget())['name'],
+	    'budgetValue' => $this->getBudget(),
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),
@@ -558,13 +585,15 @@ class Title {
 
         //Merge the different "Gehoert zu" fields into one
         $r['gehoert_zu'] = trim(
-            join('', [
+            implode(', ', array_filter([
                 $this->get('gehoert_zu_1'),
                 $this->get('gehoert_zu_2'),
                 $this->get('gehoert_zu_3'),
                 $this->get('gehoert_zu_4')
-            ])
+            ]))
         );
+
+        $r['uebergeordnete_gesamtheit'] = $this->getUebergeordneteGesamtheit();
 
         // Create DNB link
         $r['dnb_link'] = null;

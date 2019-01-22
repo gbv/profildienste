@@ -104,6 +104,7 @@ class CartRoute extends ViewRoute {
         foreach ($this->cart->getTitles() as $title) {
             $data[] = [
                 'title' => $title->getTitle(),
+                'uebergeordnete_gesamtheit' => $title->getUebergeordneteGesamtheit(),
                 'supplier' => $this->orderInfoResolve('supplier', $title->getSupplier()),
                 'budget' => $this->orderInfoResolve('budget', $title->getBudget()),
                 'ssgnr' => $this->orderInfoResolve('ssgnr', $title->getSSGNr()),
