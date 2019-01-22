@@ -523,13 +523,8 @@ class Title {
             'cover_lg' => $this->getLargeCover(),
 
             'titel' => $this->get('titel'),
-<<<<<<< HEAD
 	    'einheitssachtitel_1' => $this->get('einheitssachtitel_1'),
 	    'einheitssachtitel_2' => $this->get('einheitssachtitel_2'),
-=======
-            'einheitssachtitel_1' => $this->get('einheitssachtitel_1'),
-            'einheitssachtitel_2' => $this->get('einheitssachtitel_2'),
->>>>>>> 727a44a10fa640a44f294bab9a5d9fd416b92064
             'untertitel' => $this->get('untertitel'),
             'verfasser' => $this->get('verfasser'),
             'ersch_termin' => $this->get('voraus_ersch_termin'),
