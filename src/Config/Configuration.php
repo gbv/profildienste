@@ -71,7 +71,7 @@ class Configuration {
         'general' => [
             'pagesize' => 10,
             'maintenance' => false,
-            'log_mails' => ['keidel@gbv.de']
+            'log_mails' => ['stropel@gbv.de']
         ],
         'search' => [
             'modes' => [
