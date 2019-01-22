@@ -81,4 +81,3 @@ function initErrorHandling(ContainerInterface $container) {
         };
     };
 }
-

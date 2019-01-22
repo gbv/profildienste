@@ -13,7 +13,8 @@ class DoneRoute extends ViewRoute{
 
     public function getDoneView($request, $response, $args){
         $page = self::validatePage($args);
-        return $this->makeTitleResponse('done', $page, $response, true);
+        $offset = self::validateOffset($args);
+        return $this->makeTitleResponse('done', $page, $response, true, $offset);
     }
 
 }

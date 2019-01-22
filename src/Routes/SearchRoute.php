@@ -49,6 +49,7 @@ class SearchRoute extends ViewRoute {
 
         // validate arguments
         $page = self::validatePage($args);
+        $offset = self::validateOffset($args);
 
         $queryType = $args['queryType'];
         if (empty($queryType) || !in_array($queryType, ['advanced', 'keyword'])) {
@@ -72,9 +73,9 @@ class SearchRoute extends ViewRoute {
 
         $search = $this->searchFactory->createSearch($query, $queryType);
 
-        $titles = $search->getTitles($page);
+        $titles = $search->getTitles($page, $offset);
 
-        return self::titlePageResponse($titles, $page, $search->getTotalCount(), $response, $search->getSearchInformation());
+        return self::titlePageResponse($titles, $page, $search->getTotalCount(), $response, $search->getSearchInformation(), $offset);
     }
 
 }

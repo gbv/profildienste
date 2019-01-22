@@ -54,9 +54,9 @@ class Search {
      * @param int $page
      * @return array Page of matching titles
      */
-    public function getTitles($page = 0) {
+    public function getTitles($page = 0, $offset = 0) {
 
-        $titles = $this->gateway->getTitles($this->dbquery->getQuery(), $page);
+        $titles = $this->gateway->getTitles($this->dbquery->getQuery(), $page, $offset);
         return $this->titleFactory->createTitleList($titles);
     }
 

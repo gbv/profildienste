@@ -25,8 +25,8 @@ class MongoSearchGateway implements SearchGateway {
         $this->config = $config;
     }
 
-    public function getTitles($query, $page) {
-        $options = self::sortedPageOptions($this->config, $this->user, $page);
+    public function getTitles($query, $page, $offset) {
+        $options = self::sortedPageOptions($this->config, $this->user, $page, false, $offset);
 
         $query = ['$and' => [['user' => $this->user->getId()], $query]];
         $cursor = $this->titles->find($query, $options);

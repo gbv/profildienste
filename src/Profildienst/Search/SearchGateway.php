@@ -5,7 +5,7 @@ namespace Profildienst\Search;
 
 interface SearchGateway {
 
-    public function getTitles($query, $page);
+    public function getTitles($query, $page, $offset);
 
     public function getMatchingTitleCount($query);
 

@@ -22,12 +22,13 @@ class WatchlistRoute extends ViewRoute {
     public function getWatchlistView($request, $response, $args) {
 
         $page = self::validatePage($args);
+        $offset = self::validateOffset($args);
         $wlId = $args['id'];
 
         $watchlist = $this->watchlistManager->getWatchlist($wlId);
 
-        $titles = $watchlist->getTitleView($page);
-        return self::titlePageResponse($titles, $page, $watchlist->getTitleCount(), $response);
+        $titles = $watchlist->getTitleView($page, $offset);
+        return self::titlePageResponse($titles, $page, $watchlist->getTitleCount(), $response, null, $offset);
     }
 
     public function getWatchlists($request, $response, $args) {

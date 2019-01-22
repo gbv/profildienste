@@ -16,12 +16,12 @@ trait MongoOptionHelper {
         'per' => '028A.a'
     ];
 
-    private static function sortedPageOptions(Configuration $config, User $user, $page, $dateSorted = false) {
+    private static function sortedPageOptions(Configuration $config, User $user, $page, $dateSorted = false, $offset = 0) {
         $opt = [];
 
         $opt['limit'] = $config->getPagesize();
-        $opt['skip'] = $config->getPagesize() * $page;
-
+        $opt['skip'] = $config->getPagesize() * $page + $offset;
+        
         $userSettings = $user->getSettings();
 
 

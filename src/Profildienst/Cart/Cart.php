@@ -46,10 +46,10 @@ class Cart {
      * @param int|null $page
      * @return array Titles
      */
-    public function getTitles($page = null) {
+    public function getTitles($page = null, $offset = 0) {
         return is_null($page)
             ? $this->titleRepository->getAllTitlesByStatus('cart')
-            : $this->titleRepository->getTitlesByStatus('cart', $page);
+            : $this->titleRepository->getTitlesByStatus('cart', $page, null, $offset);
     }
 
     public function addTitle(Title $title) {

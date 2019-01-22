@@ -45,10 +45,11 @@ class CartRoute extends ViewRoute {
 
     public function getCartView($request, $response, $args) {
         $page = self::validatePage($args);
-        $titles = $this->cart->getTitles($page);
+        $offset = self::validateOffset($args);
+        $titles = $this->cart->getTitles($page, $offset);
         $totalCount = $this->cart->getCount();
 
-        return self::titlePageResponse($titles, $page, $totalCount, $response);
+        return self::titlePageResponse($titles, $page, $totalCount, $response, null, $offset);
     }
 
     public function getCartInformation($request, $response, $args) {

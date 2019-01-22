@@ -68,8 +68,8 @@ class Watchlist {
         return $this->titleRepository->getTitleCountWithStatus('watchlist/'.$this->getId());
     }
 
-    public function getTitleView($page) {
-        return $this->titleRepository->getTitlesByStatus('watchlist/'.$this->getId(), $page);
+    public function getTitleView($page, $offset) {
+        return $this->titleRepository->getTitlesByStatus('watchlist/'.$this->getId(), $page, null, $offset);
     }
 
     public function addTitles(array $titles) {

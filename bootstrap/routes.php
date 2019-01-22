@@ -22,7 +22,7 @@ function initRoutes(App $app) {
     $app->get('/settings', '\Routes\SettingsRoute:getSettings')->add($auth);
 
     $app->group('/cart', function () {
-        $this->get('[/page/{page}]', '\Routes\CartRoute:getCartView');
+        $this->get('[/page/{page}[/offset/{offset}]]', '\Routes\CartRoute:getCartView');
         $this->get('/info', '\Routes\CartRoute:getCartInformation');
         $this->post('/add', '\Routes\CartRoute:addTitlesToCart');
         $this->post('/remove', '\Routes\CartRoute:removeTitlesFromCart');
@@ -32,7 +32,7 @@ function initRoutes(App $app) {
 
     $app->group('/watchlist', function () {
         $this->get('/list', '\Routes\WatchlistRoute:getWatchlists');
-        $this->get('/{id}[/page/{page}]', '\Routes\WatchlistRoute:getWatchlistView');
+        $this->get('/{id}[/page/{page}[/offset/{offset}]]', '\Routes\WatchlistRoute:getWatchlistView');
         $this->post('/{id}/add', '\Routes\WatchlistRoute:addTitlesToWatchlist');
         $this->post('/{id}/remove', '\Routes\WatchlistRoute:removeTitlesFromWatchlist');
         $this->delete('/{id}', '\Routes\WatchlistRoute:deleteWatchlist');
@@ -43,27 +43,27 @@ function initRoutes(App $app) {
     })->add($auth);
 
     $app->group('/search', function () {
-        $this->get('/{query}/{queryType}[/page/{page}]', '\Routes\SearchRoute:searchTitles');
+        $this->get('/{query}/{queryType}[/page/{page}[/offset/{offset}]]', '\Routes\SearchRoute:searchTitles');
         $this->get('/options', '\Routes\SearchRoute:getSearchOptions');
     })->add($auth);
 
 
     $app->group('/overview', function () {
-        $this->get('[/page/{page}]', '\Routes\OverviewRoute:getMainView');
+        $this->get('[/page/{page}[/offset/{offset}]]', '\Routes\OverviewRoute:getMainView');
     })->add($auth);
 
     $app->group('/rejected', function () {
-        $this->get('[/page/{page}]', '\Routes\RejectRoute:getRejectedView');
+        $this->get('[/page/{page}[/offset/{offset}]]', '\Routes\RejectRoute:getRejectedView');
         $this->post('/add', '\Routes\RejectRoute:addRejectedTitles');
         $this->post('/remove', '\Routes\RejectRoute:removeRejectedTitles');
     })->add($auth);
 
     $app->group('/pending', function () {
-        $this->get('[/page/{page}]', '\Routes\PendingRoute:getPendingView');
+        $this->get('[/page/{page}[/offset/{offset}]]', '\Routes\PendingRoute:getPendingView');
     })->add($auth);
 
     $app->group('/done', function () {
-        $this->get('[/page/{page}]', '\Routes\DoneRoute:getDoneView');
+        $this->get('[/page/{page}[/offset/{offset}]]', '\Routes\DoneRoute:getDoneView');
     })->add($auth);
 
     $app->group('/titles', function () {
