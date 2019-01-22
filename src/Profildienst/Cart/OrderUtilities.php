@@ -24,19 +24,19 @@ trait OrderUtilities {
         unset($output);
 
         // check if ssh is available
-        exec('ssh -V', $output, $returnCode);
-        if ($returnCode !== 0) {
-            throw new Exception($this->formatOutputError(
-                'Order process: ssh is not available on the system!', $output));
-        }
-        unset($output);
+//        exec('ssh -V', $output, $returnCode);
+//        if ($returnCode !== 0) {
+//            throw new Exception($this->formatOutputError(
+//                'Order process: ssh is not available on the system!', $output));
+//        }
+//        unset($output);
 
         // check if the remote system can be accessed
-        exec('ssh ' . $this->host . ' whoami', $output, $returnCode);
-        if ($returnCode !== 0 || $output[0] !== $this->config->getExportUser()) {
-            throw new Exception($this->formatOutputError(
-                'Login not possible with ' . $this->host, $output));
-        }
+//        exec('ssh ' . $this->host . ' whoami', $output, $returnCode);
+//        if ($returnCode !== 0 || $output[0] !== $this->config->getExportUser()) {
+//            throw new Exception($this->formatOutputError(
+//                'Login not possible with ' . $this->host, $output));
+//        }
     }
 
     private function formatOutputError(string $message, array $output) {
