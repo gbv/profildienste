@@ -26,19 +26,30 @@ abstract class ViewRoute extends Route{
 
         return $page;
     }
+    
+    protected static function validateOffset($args){
+        
+        $offset = ($args['offset'] ?? 0);
+        
+        if (empty($offset) || !filter_var($offset, FILTER_VALIDATE_INT) || $offset > 0){
+            $offset = 0;
+        }
+        
+        return $offset;
+    }
 
-    protected function titlePageResponse($titles, $page, $totalCount, $response, $additionalInformation = null){
-
-        $more = ($this->ci->get('config')->getPagesize() * ($page+1) < $totalCount);
+    protected function titlePageResponse($titles, $page, $totalCount, $response, $additionalInformation = null, $offset = 0){
+        
+        $more = ($this->ci->get('config')->getPagesize() * ($page+1) < $totalCount - $offset);
 
         return self::generateJSONResponse(new TitlelistResponse($titles, $totalCount, $more, $additionalInformation), $response);
     }
 
-    protected function makeTitleResponse($view, $page, $response, $dateSorted = false){
-        $titles = $this->titleRepository->getTitlesByStatus($view, $page, $dateSorted);
+    protected function makeTitleResponse($view, $page, $response, $dateSorted = false, $offset = 0){
+        $titles = $this->titleRepository->getTitlesByStatus($view, $page, $dateSorted, $offset);
         $totalCount = $this->titleRepository->getTitleCountWithStatus($view);
 
-        return self::titlePageResponse($titles, $page, $totalCount, $response);
+        return self::titlePageResponse($titles, $page, $totalCount, $response, null, $offset);
     }
 
 }

@@ -52,8 +52,8 @@ class MongoTitleGateway implements TitleGateway {
         return $this->titles->count($query);
     }
 
-    public function getTitlesByStatus($status, $page, $dateSorted) {
-        $options = self::sortedPageOptions($this->config, $this->user, $page, $dateSorted);
+    public function getTitlesByStatus($status, $page, $dateSorted, $offset) {
+        $options = self::sortedPageOptions($this->config, $this->user, $page, $dateSorted, $offset);
         return $this->getTitles($status, $options);
     }
 

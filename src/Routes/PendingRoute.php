@@ -7,7 +7,8 @@ class PendingRoute extends ViewRoute{
 
     public function getPendingView($request, $response, $args){
         $page = self::validatePage($args);
-        return $this->makeTitleResponse('pending', $page, $response, true);
+        $offset = self::validateOffset($args);
+        return $this->makeTitleResponse('pending', $page, $response, true, $offset);
     }
 
 }

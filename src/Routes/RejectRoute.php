@@ -12,7 +12,8 @@ class RejectRoute extends ViewRoute {
 
     public function getRejectedView($request, $response, $args) {
         $page = self::validatePage($args);
-        return $this->makeTitleResponse('rejected', $page, $response);
+        $offset = self::validateOffset($args);
+        return $this->makeTitleResponse('rejected', $page, $response, null, $offset);
     }
 
     public function addRejectedTitles($request, $response, $args) {
