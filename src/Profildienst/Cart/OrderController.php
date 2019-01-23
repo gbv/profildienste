@@ -66,7 +66,7 @@
             foreach ($reihen as $reihe => $dir) {
                 //$rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
 				// ExportBaseDir nun in rrsync script
-				$rdir = $eln . $reihe . '/return/';
+		$rdir = $eln . $reihe . '/return/';
                 $remoteLocation = $this->host . ':' . $rdir;
                 //exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
 				
