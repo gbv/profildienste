@@ -80,7 +80,7 @@
             }
         } else {
 
-            eln = $library->getELN();
+            $eln = $library->getELN();
             $dir = $this->tempdir() . '/';
             foreach ($titles as $title) {
                 $ppn = $title->getPPN();
