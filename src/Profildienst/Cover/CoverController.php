@@ -30,7 +30,7 @@ class CoverController {
         $this->config = $config;
 
         $this->client = new Client([
-            'base_uri' => 'http://api.vlb.de/api/v1/cover/',
+            'base_uri' => 'https://api.vlb.de/api/v1/cover/',
             'timeout'  => 5.0,
         ]);
 
@@ -38,7 +38,7 @@ class CoverController {
     }
 
     public function getCover(string $rawISBN, string $size) {
-
+        error_log("get cover");
         $isbn = null;
         try {
             $isbn = $this->parser->parse($rawISBN);
