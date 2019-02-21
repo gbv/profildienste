@@ -46,6 +46,9 @@ class User {
                 'name' => $budget['name'],
                 'value' => $budget['value']
             ];
+            if(array_key_exists('default', $budget) && $budget['default']){
+                $this->defaults['budget'] = $budget['value'];
+            }
         }
 
         $this->suppliers = [];
@@ -54,6 +57,9 @@ class User {
                 'name' => $supplier['name'],
                 'value' => $supplier['value']
             ];
+            if(array_key_exists('default', $supplier) && $supplier['default']){
+                $this->defaults['supplier'] = $supplier['value'];
+            }
         }
 
         $this->libraryController = $libraryController;
