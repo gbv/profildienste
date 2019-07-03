@@ -28,8 +28,10 @@ class UserController {
         if (is_null($data)) {
             return null;
         }
+        
+        $colleagues = $this->gateway->findColleagues($id, $data['isil']);
 
-        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets'], $data['suppliers'], $this->libraryController);
+        return new User($id, null, $data['settings'], $data['defaults'], $data['isil'], $data['budgets'], $data['suppliers'], $colleagues, $this->libraryController);
     }
 
     public function userExists($id) {

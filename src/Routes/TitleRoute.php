@@ -171,5 +171,42 @@ class TitleRoute extends Route {
         $titleData = $title->getPicaData();
         return self::generateJSONResponse(new BasicResponse(['pica' => $titleData]), $response);
     }
+    
+    public function changeTitleUser($request, $response, $args) {
+        
+        $id = $args['id'];
+        $uid = $this->user->getId();
+        $parameters = $request->getParsedBody();
+        $colleague = $parameters['colleague'];
+
+        if (!is_string($colleague) || empty($colleague)) {
+            throw new UserErrorException('Illegal format for colleague parameter');
+        }
+        
+        if(empty($id)) {
+            throw new UserErrorException('No title ID given');
+        }
+        
+        $titles = $this->titleRepository->findTitlesById([$id]);
+        
+        if(empty($titles)){
+            throw new UserErrorException('Title not found');
+        }
+        
+        $title = $titles[0];
+        
+        if(!$this->user->hasColleague($colleague)){
+            throw new UserErrorException('Colleague not found');
+        }
+        
+        $succ = $this->titleRepository->updateTitleUser($id, $colleague);
+        
+        if($succ) {
+            return self::generateJSONResponse(new BasicResponse([]), $response);
+        }else{
+            throw new UserErrorException('Title could not be forwarded');
+        }
+        
+    }
 
 }

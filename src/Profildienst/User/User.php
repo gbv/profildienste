@@ -33,12 +33,13 @@ class User {
      * @param $suppliers
      * @param $libraryController
      */
-    public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers, $libraryController) {
+    public function __construct($id, $name, $settings, $defaults, $isil, $budgets, $suppliers, $colleagues, $libraryController) {
         $this->name = $name;
         $this->id = $id;
         $this->settings = $settings;
         $this->defaults = $defaults;
         $this->isil = $isil;
+        $this->colleagues = $colleagues;
 
         $this->budgets = [];
         foreach ($budgets as $budget) {
@@ -77,6 +78,22 @@ class User {
      */
     public function setName($name) {
         $this->name = $name;
+    }
+    
+    public function hasColleague($id) {
+        
+        foreach($this->colleagues as $c){
+            if($c['_id'] === $id) {
+                return true;
+            }
+        }
+        
+        return false;
+        
+    }
+    
+    public function getColleagues() {
+        return $this->colleagues;
     }
 
     /**

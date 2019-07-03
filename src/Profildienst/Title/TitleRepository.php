@@ -42,6 +42,10 @@ class TitleRepository {
     public function changeStatusOfTitles($ids, $newStatus) {
         return $this->gateway->updateTitlesWithIds($ids, $newStatus);
     }
+    
+    public function updateTitleUser($id, $newUser) {
+        return $this->gateway->updateTitleUser($id, $newUser);
+    }
 
     public function changeStatusOfView($oldStatus, $newStatus) {
         return $this->gateway->updateTitlesWithStatus($oldStatus, $newStatus);

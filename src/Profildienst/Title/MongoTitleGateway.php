@@ -97,6 +97,19 @@ class MongoTitleGateway implements TitleGateway {
 
         return $result->isAcknowledged();
     }
+    
+    public function updateTitleUser($id, $newUser){
+        $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => $id]]];
+        $update = ['$set' => [
+            'user' => $newUser,
+            'status' => 'normal',
+            'lastStatusChange' => new UTCDateTime((time() * 1000))
+        ]];
+        
+        $result = $this->titles->updateOne($criterion, $update);
+
+        return $result->isAcknowledged();
+    }
 
     public function updateTitlesOrderInformation(array $ids, $orderInformation) {
 
