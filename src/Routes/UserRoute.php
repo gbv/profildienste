@@ -32,7 +32,6 @@ class UserRoute extends Route {
     public function getUserInformation($request, $response, $args) {
 
         $defaults = $this->user->getDefaults();
-        $colleagues = $this->user->getColleagues();
 
         $data = [
             'name' => $this->user->getName(),

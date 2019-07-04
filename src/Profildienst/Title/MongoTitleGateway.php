@@ -102,7 +102,13 @@ class MongoTitleGateway implements TitleGateway {
         $criterion = ['$and' => [['user' => $this->user->getId()], ['_id' => $id]]];
         $update = ['$set' => [
             'user' => $newUser,
+            'forwardedBy' => ['_id' => $this->user->getId(), 'name' => $this->user->getName()],
             'status' => 'normal',
+            'ssgnr' => null,
+            'selcode' => null,
+            'budget' => null,
+            'supplier' => null,
+            'watchlist' => null,
             'lastStatusChange' => new UTCDateTime((time() * 1000))
         ]];
         

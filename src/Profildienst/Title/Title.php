@@ -344,6 +344,10 @@ class Title {
     public function isRejected() {
         return ($this->j['status'] === 'rejected');
     }
+    
+    public function getForwardedBy() {
+        return $this->getDirectly('forwardedBy');
+    }
 
     /**
      * Get the SSG-Nr.
@@ -557,6 +561,8 @@ class Title {
             'selcode' => $this->getSelcode(),
             'ssgnr' => $this->getSSGNr(),
             'comment' => $this->getComment(),
+            
+            'forwardedBy' => $this->getForwardedBy(),
 
             'status' => [
                 'rejected' => $this->isRejected(),

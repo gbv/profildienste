@@ -57,6 +57,7 @@ class Auth {
         $out = sprintf("GET /XML/PAR?P3C=US&P3Command=LOG+%s+%s HTTP/1.0\r\n", $user, $pwd);
         $out .= "Connection: Close\r\n\r\n";
         fwrite($fp, $out);
+        
         while (!feof($fp)) {
 
             $line = fgets($fp, 1024);
@@ -75,13 +76,15 @@ class Auth {
                 $this->name = preg_replace("/<(.*?)>/", '', $matches[0]);
             }
         }
-
+        
         fclose($fp);
-
+        
         // check if user exists in the database
         if (!$this->userController->userExists($user)) {
             throw new UserErrorException('Leider sind Sie nicht für den Profildienst freigeschaltet.');
         }
+        
+        $this->userController->updateName($user, $this->name);
 
     }
 

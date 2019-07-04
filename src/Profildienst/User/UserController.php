@@ -38,6 +38,20 @@ class UserController {
         return !is_null($this->findByID($id));
     }
     
+    public function updateName($id, $name) {
+        
+        $userData = [
+            'name' => $name
+        ];
+        
+        $result = $this->gateway->updateUserData($id, $userData);
+        
+        if (!$this->gateway->updateUserData($id, $userData)){
+            throw new UserErrorException('Failed to update user data');
+        }
+        
+    }
+    
     public function persist(User $user){
         
         $userData = [

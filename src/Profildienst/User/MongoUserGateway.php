@@ -22,7 +22,7 @@ class MongoUserGateway implements UserGateway {
         $options = [
             
             'sort' => ['_id' => 1],
-            'projection' => ['_id' => 1]
+            'projection' => ['_id' => 1, 'name' => 1]
             
         ];
         
