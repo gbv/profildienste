@@ -64,47 +64,48 @@
             //}
             //upload to the JSON dumps to the server
             foreach ($reihen as $reihe => $dir) {
-                //$rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
-		// ExportBaseDir nun in rrsync script
-		$rdir = $eln . $reihe . '/return/';
+                
+                $rdir = $this->config->getExportBasedir() . $eln . $reihe . '/return/';
                 $remoteLocation = $this->host . ':' . $rdir;
-                //exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
-
-		$exec_str = 'rsync -e "ssh -i $HOME/.ssh/id_rsa_profildienst_rrsync" -av '.$dir.' '.$remoteLocation;
-		exec($exec_str, $output, $ret);
+                
+                exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
 
                 if ($ret !== 0) {
                     throw new CustomMailMessageException('Bei der Datenübertragung ist ein Fehler aufgetreten.',
                     $this->formatOutputError('Bestellung fehlgeschlagen (ELN: ' . $eln . ')', $output));
                 }
+                
             }
+            
         } else {
 
             $eln = $library->getELN();
             $dir = $this->tempdir() . '/';
+            
             foreach ($titles as $title) {
+                
                 $ppn = $title->getPPN();
                 $this->checkAndSetTitlesOrderInformation($title);
                 $output = $this->outputTitle($title);
                 file_put_contents($dir . $ppn . '.json', json_encode($output, JSON_PRETTY_PRINT));
+                
             }
-            //$rdir = $this->config->getExportBasedir() . $library->getExportDir() . '/return/';
-            // ExportBaseDir nun in rrsync script
-            $rdir = $library->getExportDir() . '/return/';
+            
+            $rdir = $this->config->getExportBasedir() . $library->getExportDir() . '/return/';
+
             // check if the remote directories exist
             //$this->checkRemoteDirectoryExists($rdir);
+            
             // upload JSON dumps
             $remoteLocation = $this->host . ':' . $rdir;
-            //exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
-
-            $exec_str = 'rsync -e "ssh -i $HOME/.ssh/id_rsa_profildienst_rrsync" -av '.$dir.' '.$remoteLocation;
-            exec($exec_str, $output, $ret);
-
+            exec('rsync -azPi ' . $dir . ' ' . $remoteLocation . ' 2>&1', $output, $ret);
+            
             if ($ret !== 0) {
                 throw new CustomMailMessageException('Bei der Datenübertragung ist ein Fehler aufgetreten.',
                 $this->formatOutputError('Bestellung fehlgeschlagen (ELN: ' . $eln . ')', $output));
             }
         }
+        
         // update the status of the ordered titles
         return $this->titleRepository->changeStatusOfView('cart', 'pending');
     }

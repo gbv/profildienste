@@ -38,7 +38,6 @@ class CoverController {
     }
 
     public function getCover(string $rawISBN, string $size) {
-        error_log("get cover");
         $isbn = null;
         try {
             $isbn = $this->parser->parse($rawISBN);
